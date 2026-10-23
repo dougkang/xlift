@@ -355,9 +355,9 @@ select {
   color: var(--muted);
 }
 
-/* Every row is tall enough for a two-line leader team name, so rows stay even. */
+/* Every row is tall enough for a three-line leader team name, so rows stay even. */
 .category-table tbody td {
-  height: 2.4rem;
+  height: 3rem;
   vertical-align: middle;
 }
 
