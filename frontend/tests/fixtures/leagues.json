@@ -1,0 +1,11 @@
+[
+ {
+  "league_id": 1,
+  "league_key": "impact-league",
+  "name": "Impact League",
+  "season_id": "2026-27",
+  "scoring_format_id": "9cat_h2h",
+  "active_roster_capacity": 3,
+  "team_count": 4
+ }
+]

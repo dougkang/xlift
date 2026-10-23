@@ -33,3 +33,12 @@ def fixture_engine(engine):
     with engine.begin() as conn:
         load_fixture(conn)
     return engine
+
+
+@pytest.fixture
+def impact_engine(engine):
+    from tests.fixtures.impact_dataset import load_impact_fixture
+
+    with engine.begin() as conn:
+        load_impact_fixture(conn)
+    return engine

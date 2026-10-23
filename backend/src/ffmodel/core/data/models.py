@@ -92,3 +92,9 @@ class FantasyTeamView:
 class LeagueSnapshot:
     settings: LeagueSettings
     teams: tuple[FantasyTeamView, ...]
+
+
+@dataclass(frozen=True)
+class DataFreshness:
+    nba_data_loaded_at: str | None
+    roster_as_of: str | None

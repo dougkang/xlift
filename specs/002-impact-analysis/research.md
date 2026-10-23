@@ -122,6 +122,11 @@ window, the analysis date].
   anyway. A player with no team games in the span gets p = 1, for example a player whose window
   is entirely in last season and whose current team hasn't played yet.
 
+**Implementation note (2026-10-23)**: when the window is short (fewer than X games), it already
+holds every game the player has. In that case the span starts at the beginning of the player's
+earliest team stint instead, so games missed before their first appearance count against them.
+Example: a player who sat out his team's opener, with 2 games played of 4, gets 0.5, not 0.67.
+
 **Analysis date** (`as_of`): every request carries it, and it defaults to the server's current
 date. It sets:
 - the X-game window cutoff;

@@ -1,0 +1,32 @@
+/* Tokens from docs/style.md (newspaper meets nutrition label) and research R9. */
+:root {
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Chrome: three colors, plus red for destructive actions and grays for muted state. */
+  --ink: #111;
+  --paper: #fff;
+  --yours: #f5c518;
+  --danger: #c00;
+  --muted: #555;
+  --rule: #ccc;
+  --hover: #eee;
+  --disabled: #aaa;
+
+  /* Data marks (style.md palettes; darker = more important). */
+  --sel: #1c324a; /* primary */
+  --sel-light: #9dc0f5;
+  --opp: #a96043; /* secondary */
+  --opp-light: #f5c1a9;
+  --leader: #ce7955; /* secondary */
+  --leader-light: #f5c1a9;
+  --avg: #898240; /* tertiary */
+  --avg-light: #c5be60;
+  /* Other teams on the radar: secondary palette. */
+  --other-1: #824934;
+  --other-2: #a96043;
+  --other-3: #ce7955;
+  --other-4: #e89a78;
+
+  --data-size: 0.78rem;
+  --header-size: 0.65rem;
+}

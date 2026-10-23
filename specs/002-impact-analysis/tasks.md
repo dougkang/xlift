@@ -47,20 +47,20 @@ both P1. US3 (tactical) is P2.
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Update `backend/pyproject.toml`:
+- [X] T001 Update `backend/pyproject.toml`:
   - Add runtime dependencies `numpy>=2.0`, `fastapi>=0.115`, `uvicorn[standard]>=0.30`.
   - Add `httpx>=0.27` to the dev group.
   - Add the pytest marker `"slow: real-database timing and stability checks (manual)"`.
   - Change `addopts` to `-m 'not live and not slow'`.
 
   Then run `uv sync`.
-- [ ] T002 [P] Extend `backend/.importlinter` with three `forbidden` contracts:
+- [X] T002 [P] Extend `backend/.importlinter` with three `forbidden` contracts:
   1. `ffmodel.core` → `ffmodel.tools`, `ffmodel.api`
   2. `ffmodel.tools` → `ffmodel.api`, `ffmodel.adapters`
   3. `ffmodel.adapters` → `ffmodel.tools`, `ffmodel.api`
 
   Keep the 3 existing contracts.
-- [ ] T003 [P] Create the packages, each with an empty `__init__.py`:
+- [X] T003 [P] Create the packages, each with an empty `__init__.py`:
   - `backend/src/ffmodel/core/scoring/`
   - `backend/src/ffmodel/core/model/`
   - `backend/src/ffmodel/core/sim/`
@@ -71,7 +71,7 @@ both P1. US3 (tactical) is P2.
 
   Also create the test directories `backend/tests/scoring/` and `backend/tests/slow/`, each with
   an `__init__.py`.
-- [ ] T004 Scaffold `frontend/` (requires Node 22).
+- [X] T004 Scaffold `frontend/` (requires Node 22).
   - **`package.json`**:
     - Dependencies, pinned to exact versions resolved from npm at install time: `react`,
       `react-dom` (19.x), `d3-scale`, `d3-shape`, `@observablehq/plot`.
@@ -88,7 +88,7 @@ both P1. US3 (tactical) is P2.
   - **`tsconfig.json`**: strict.
   - **`index.html`** with `<title>Impact Analysis</title>`, plus `src/main.tsx`.
   - Add `frontend/node_modules/` and `frontend/dist/` to the root `.gitignore`.
-- [ ] T005 [P] Create `frontend/src/styles/tokens.css` and `frontend/src/styles/base.css` from
+- [X] T005 [P] Create `frontend/src/styles/tokens.css` and `frontend/src/styles/base.css` from
   `docs/style.md` and research R9:
   - **Font**: `font-family: "Helvetica Neue", Helvetica, Arial, sans-serif` everywhere.
   - **Color tokens**:
@@ -113,7 +113,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
 
 ### Scoring formats (Constitution II)
 
-- [ ] T006 Implement `backend/src/ffmodel/core/scoring/base.py` exactly per
+- [X] T006 Implement `backend/src/ffmodel/core/scoring/base.py` exactly per
   `contracts/scoring-format.md`:
   - **`Category`**, a frozen dataclass:
     - fields: `key`, `label`, `kind: Literal["additive","ratio"]`, `stat`, `numerator`,
@@ -130,7 +130,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
     - `projected_average`: additive = mean; ratio = mean(numerator) / mean(denominator)
   - **Registry**: `UnsupportedFormat(Exception)`, `register(fmt)`, `get_format(id)`,
     `available_formats()`.
-- [ ] T007 Implement `backend/src/ffmodel/core/scoring/nine_cat.py`: register `9cat_h2h` with the
+- [X] T007 Implement `backend/src/ffmodel/core/scoring/nine_cat.py`: register `9cat_h2h` with the
   9 categories in the table in `contracts/scoring-format.md`, in that order.
   - Categories: pts, reb, ast, stl, blk, fg3m, fg_pct (fgm/fga, 3 decimals), ft_pct (ftm/fta,
     3 decimals), and tov (`higher_is_better=False`).
@@ -138,7 +138,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
   - `derived_stats = {"pts": 2·fgm + fg3m + ftm}`.
 
   Import it from `core/scoring/__init__.py` so it registers on import.
-- [ ] T008 [P] Write `backend/tests/scoring/test_conformance.py`, parametrized over
+- [X] T008 [P] Write `backend/tests/scoring/test_conformance.py`, parametrized over
   `available_formats()`, with the 8 checks in `contracts/scoring-format.md`:
   1. Base stats exist in the 001 `player_game` columns.
   2. Shapes; ratios are exactly Σ numerator / Σ denominator.
@@ -152,7 +152,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
 
 ### Bulk reads (`core/data`)
 
-- [ ] T009 Implement `backend/src/ffmodel/core/data/bulk.py` and export its functions from
+- [X] T009 Implement `backend/src/ffmodel/core/data/bulk.py` and export its functions from
   `core/data/__init__.py`:
   - **`get_last_n_games_bulk(conn, player_ids, n, *, as_of) -> dict[int, GameWindow]`**: one
     query using `ROW_NUMBER() OVER (PARTITION BY pg.player_id ORDER BY g.game_date DESC,
@@ -164,7 +164,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
     latest `finished_at` of `load_run WHERE source='nba_stats' AND outcome='succeeded'`, or None.
     `roster_as_of` is the max `player_status.as_of` among the league's rostered players. Add the
     `DataFreshness` dataclass to `core/data/models.py`.
-- [ ] T010 [P] Write `backend/tests/integration/test_core_bulk.py` against the 001 fixture
+- [X] T010 [P] Write `backend/tests/integration/test_core_bulk.py` against the 001 fixture
   (`fixture_engine`):
   - `get_last_n_games_bulk` equals the per-player `get_last_n_games` for every fixture player,
     with n = 15 and `as_of = FIXTURE_TODAY`. This covers the 4 + 11 window, "3 of 15", and 0
@@ -175,7 +175,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
 
 ### Player projections (`core/model`)
 
-- [ ] T011 Implement `backend/src/ffmodel/core/model/projection.py`:
+- [X] T011 Implement `backend/src/ffmodel/core/model/projection.py`:
   - **`PlayerProjection`**, a frozen dataclass:
     - `player_id`, `games_found`, `games_requested`
     - `mean: ndarray`, `chol: ndarray | None`, `mean_stderr: ndarray`
@@ -198,13 +198,13 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
       `as_of`] (research R4);
     - `games_remaining` comes from `count_team_games_bulk(statuses=("scheduled",))` over
       [`as_of`, `period_end`] when a period is given, and is 0 otherwise.
-- [ ] T012 [P] Write `backend/tests/unit/test_projection.py`:
+- [X] T012 [P] Write `backend/tests/unit/test_projection.py`:
   - μ and S on a hand-built 3-game window.
   - λ = 5/7 when n = 3, and λ = 1 when n = 1 (Σ = D).
   - The Cholesky factor exists for n = 1 and n = 2 (rank-deficient S).
   - n = 0 gives `chol` None and `is_short`.
   - `availability_rate` cases: (0, x) → None; (5, 0) → 1.0; (6, 10) → 0.6; (11, 10) → 1.0.
-- [ ] T013 [P] Write `backend/tests/integration/test_projection_db.py` (001 fixture, `as_of =
+- [X] T013 [P] Write `backend/tests/integration/test_projection_db.py` (001 fixture, `as_of =
   FIXTURE_TODAY`):
   - Iggy Injured's availability over his window is 2 / 4 = 0.5.
   - Dončić has 15 games found.
@@ -213,7 +213,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
 
 ### Simulation engine (`core/sim`)
 
-- [ ] T014 Implement `backend/src/ffmodel/core/sim/engine.py`, per research R2 and R3:
+- [X] T014 Implement `backend/src/ffmodel/core/sim/engine.py`, per research R2 and R3:
   - **`simulate_team(projections, k_sampler, fmt, *, iterations, seed, mode_code) -> TeamSamples`**:
     - for each projection with `chol` not None: `rng = np.random.default_rng([seed, player_id,
       mode_code])`, `k = k_sampler(proj, rng, iterations)`, `z = rng.standard_normal((iterations,
@@ -233,7 +233,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
   - **`projected_averages`**, and **`ranks(averages_by_team, fmt)`**: competition ranking with
     direction applied (1 = best).
   - **`record(odds_list, unit)`**: W/L/T using the more-than-half rule (spec FR-014).
-- [ ] T015 [P] Implement `backend/src/ffmodel/core/sim/curves.py` with
+- [X] T015 [P] Implement `backend/src/ffmodel/core/sim/curves.py` with
   `density_curves(samples_by_role, *, points=96, subsample=2000, seed)`:
   - one shared grid from the 0.5th to the 99.5th percentile of all series;
   - a Gaussian KDE with Scott's bandwidth;
@@ -241,7 +241,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
   - a degenerate series (zero variance) gets a narrow spike at its value.
 
   Return `{x, series:{role: density}}` (research R6).
-- [ ] T016 [P] Write `backend/tests/unit/test_engine.py`, using synthetic `PlayerProjection`s with
+- [X] T016 [P] Write `backend/tests/unit/test_engine.py`, using synthetic `PlayerProjection`s with
   no DB:
   - **SC-006**: for every iteration, the FG% and FT% category values equal the team totals
     fgm / fga and ftm / fta, and are NaN when fga = 0 (a team with all fga means 0).
@@ -259,7 +259,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
   - **Strategic k**: availability 0.5 with G = 3 averages 1.5 games per iteration (±2%).
   - **Ranks**: competition ranking on (10, 8, 8, 5) gives (1, 2, 2, 4), and TO is reversed.
   - **Record rule**: p_win = 0.5 exactly counts as a tie.
-- [ ] T017 [P] Write `backend/tests/unit/test_curves.py`:
+- [X] T017 [P] Write `backend/tests/unit/test_curves.py`:
   - each density integrates to about 1 (trapezoid rule, ±5%) over the grid;
   - the shared grid covers every series;
   - zero-variance input gives a spike without dividing by zero;
@@ -267,7 +267,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
 
 ### Base scenario (`core/scenario`)
 
-- [ ] T018 Implement `backend/src/ffmodel/core/scenario/scenario.py`:
+- [X] T018 Implement `backend/src/ffmodel/core/scenario/scenario.py`:
   - **`Scenario`**, a frozen dataclass:
     - `league: LeagueSettings`
     - `rosters: Mapping[team_id, tuple[RosterSpot, ...]]`, where `RosterSpot(player_id, slot)`
@@ -284,7 +284,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
 
 ### Test fixture for tool and API tests
 
-- [ ] T019 Create `backend/tests/fixtures/impact_dataset.py` with `load_impact_fixture(conn)` and
+- [X] T019 Create `backend/tests/fixtures/impact_dataset.py` with `load_impact_fixture(conn)` and
   `IMPACT_TODAY = date(2026, 11, 18)`, a Wednesday whose week is Mon 11-16 to Sun 11-22. It
   writes through the 001 schema only and is independent of `dataset.py`:
   - **Seasons**: `2026-27` (2026-10-20 → 2027-04-11).
@@ -325,7 +325,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
   - **`load_run`**: one `nba_stats` `succeeded` row with `finished_at
     2026-11-18T08:00:00+00:00`.
   - Export the player ID constants.
-- [ ] T020 Add an `impact_engine` fixture (a migrated DB plus `load_impact_fixture`) to
+- [X] T020 Add an `impact_engine` fixture (a migrated DB plus `load_impact_fixture`) to
   `backend/tests/conftest.py`, and write `backend/tests/integration/test_impact_fixture.py`:
   - `assert_contract_invariants` passes;
   - games remaining per team for 11-18…11-22 are BOS 4, CHI 3, NYK 2, MIA 1;
@@ -333,7 +333,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
 
 ### API shell and CLI
 
-- [ ] T021 Implement `backend/src/ffmodel/api/schemas.py` with the Pydantic v2 models in
+- [X] T021 Implement `backend/src/ffmodel/api/schemas.py` with the Pydantic v2 models in
   `contracts/api.md`:
   - **`ScenarioRequest`**, with these validators:
     - `window` 1–82
@@ -345,7 +345,7 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
     `offset`.
   - **Responses**: `LeagueSummary`, `LeagueDetail`, `AnalysisResult` and its parts, `PlayerPage`,
     `PlayerRow`, `Eligibility`, `MoveErrorDetail`, `Warning`, `Freshness`.
-- [ ] T022 Implement `backend/src/ffmodel/api/app.py`:
+- [X] T022 Implement `backend/src/ffmodel/api/app.py`:
   - **`create_app(engine=None)`**: the engine defaults to `get_engine()`.
   - **Startup**: run `migrate(engine)`.
   - **CORS** for `http://localhost:5173`.
@@ -357,10 +357,10 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
   - `GET /api/leagues/{league_id}` (teams, managers, freshness; 404 when unknown)
 
   Routes stay thin: validate, call core or tools, and serialize.
-- [ ] T023 Add `ffm serve [--host 127.0.0.1] [--port 8000] [--reload]` to
+- [X] T023 Add `ffm serve [--host 127.0.0.1] [--port 8000] [--reload]` to
   `backend/src/ffmodel/cli.py`. It runs `uvicorn` on `ffmodel.api.app:create_app` with
   `factory=True`.
-- [ ] T024 [P] Write `backend/tests/integration/test_api_leagues.py` (FastAPI `TestClient` on
+- [X] T024 [P] Write `backend/tests/integration/test_api_leagues.py` (FastAPI `TestClient` on
   `impact_engine`):
   - health returns the schema version;
   - the leagues list matches the fixture league;
@@ -369,21 +369,21 @@ scenario, the test fixture, the API shell, and the frontend shell. Every story n
 
 ### Frontend shell (needs Node)
 
-- [ ] T025 Generate the API types and write the client:
+- [X] T025 Generate the API types and write the client:
   - Run `npm run gen:api` against `ffm serve` to create `frontend/src/api/schema.d.ts`, and commit
     the generated file.
   - Implement `frontend/src/api/client.ts` with typed functions `listLeagues`, `getLeague`,
     `analyze(req, signal)` and `players(req, signal)`.
   - A non-2xx response throws `ApiError {status, detail}`. A 422 move error carries `move_index`
     and `code`.
-- [ ] T026 Implement `frontend/src/state/scenario.ts`, a reducer plus a `useScenario()` hook:
+- [X] T026 Implement `frontend/src/state/scenario.ts`, a reducer plus a `useScenario()` hook:
   - **State**: `{settings, moves}`.
   - **Actions**: `setLeague`, `setTeam`, `setMode`, `setWindow`, `setOpponent`, `setPeriod`,
     `addMove`, `popMove`, `reset`.
   - **Persistence**: in `sessionStorage` under `ffm.impact.v1`. Reads and writes are wrapped in
     try/catch, so the hook still works when storage is unavailable.
   - **Rules it does not apply**: it never validates moves. The server does that.
-- [ ] T027 Implement the `frontend/src/App.tsx` layout grid per `contracts/ui.md`:
+- [X] T027 Implement the `frontend/src/App.tsx` layout grid per `contracts/ui.md`:
   - masthead and explainer;
   - the controls row;
   - the record headline;
@@ -419,7 +419,7 @@ the page shows all of these for any team picked.
 
 ### Tests for User Story 1
 
-- [ ] T028 [P] [US1] Write `backend/tests/integration/test_impact_strategic.py` (`impact_engine`,
+- [X] T028 [P] [US1] Write `backend/tests/integration/test_impact_strategic.py` (`impact_engine`,
   `as_of = IMPACT_TODAY`, default seed, 10,000 iterations):
   1. **Alphas**: record units are `matchups`, and wins + losses + ties = 3. Alphas' PTS rank is 1.
   2. **Radar**: 4 series; exactly one has `emphasis` `selected`, and the rest are `other`. The
@@ -439,12 +439,12 @@ the page shows all of these for any team picked.
   10. **SC-002**: two identical requests serialize to identical JSON.
   11. **Unsupported format**: a league whose `scoring_format_id` is `points_unknown` gets the
       `UNSUPPORTED_FORMAT` warning, empty projections, and its rosters.
-- [ ] T029 [P] [US1] Write `backend/tests/integration/test_api_analyze_strategic.py` (`TestClient`):
+- [X] T029 [P] [US1] Write `backend/tests/integration/test_api_analyze_strategic.py` (`TestClient`):
   - the response matches the `AnalysisResult` schema;
   - `settings` echoes the defaulted `as_of`, `seed` and `iterations`;
   - bad settings return 422: window 0, window 83, iterations 500;
   - an unknown team returns 404.
-- [ ] T030 [P] [US1] Write `frontend/tests/strategic.test.tsx` (Vitest + RTL, with `client.analyze`
+- [X] T030 [P] [US1] Write `frontend/tests/strategic.test.tsx` (Vitest + RTL, with `client.analyze`
   mocked to a recorded strategic fixture JSON in `frontend/tests/fixtures/strategic.json`, saved
   from T029):
   - The record headline shows "11–5–1" and "vs 17 teams".
@@ -456,7 +456,7 @@ the page shows all of these for any team picked.
 
 ### Implementation for User Story 1
 
-- [ ] T031 [US1] Implement `backend/src/ffmodel/tools/impact_analysis/settings.py`:
+- [X] T031 [US1] Implement `backend/src/ffmodel/tools/impact_analysis/settings.py`:
   - **`AnalysisSettings`**, a frozen dataclass with the data-model.md defaults:
     - `window=15`, `mode="strategic"`, `as_of = today`
     - `iterations=10_000`, `seed=20261023`, `games_per_period=3`
@@ -468,7 +468,7 @@ the page shows all of these for any team picked.
     period_start, period_end, latest_load_run_id)`.
   - The value is `dict[player_id, PlayerProjection]` for every rostered and free-agent player in
     the league.
-- [ ] T032 [US1] Implement `backend/src/ffmodel/tools/impact_analysis/analysis.py` with
+- [X] T032 [US1] Implement `backend/src/ffmodel/tools/impact_analysis/analysis.py` with
   `analyze(conn, settings, moves=()) -> AnalysisResult`, a plain dataclass mirroring the API
   shape. Steps:
   1. Load the league snapshot, and build the scenario with `from_snapshot` plus moves. Moves are
@@ -485,29 +485,29 @@ the page shows all of these for any team picked.
      found/requested, a footnote marker, and `moved` (false for now).
   9. Add footnotes for every short-history player in the selected team's roster.
   10. Add freshness and `settings_echo`.
-- [ ] T033 [US1] Add `POST /api/impact/analyze` to `backend/src/ffmodel/api/routes.py`. It maps
+- [X] T033 [US1] Add `POST /api/impact/analyze` to `backend/src/ffmodel/api/routes.py`. It maps
   `ScenarioRequest` → `AnalysisSettings` → `analyze` → `AnalysisResult`, with 404 for an unknown
   league or team.
-- [ ] T034 [P] [US1] Implement `frontend/src/components/Controls.tsx`:
+- [X] T034 [P] [US1] Implement `frontend/src/components/Controls.tsx`:
   - **League and team selects**: populated from `getLeague`. Options show "Team — Manager".
   - **Mode toggle** (Strategic | Tactical): an active pill uses the yellow `--yours` background.
   - **Window**: a number input, 1–82.
 
   Also add `RecordHeadline.tsx` (team, manager, record, units label) and `DataLine.tsx`
   (freshness).
-- [ ] T035 [P] [US1] Implement `frontend/src/components/Radar.tsx` with D3 (`d3-scale`
+- [X] T035 [P] [US1] Implement `frontend/src/components/Radar.tsx` with D3 (`d3-scale`
   `scaleLinear` for radius, `d3-shape` `lineRadial` with `curveLinearClosed`):
   - one axis per category, labeled with the category label;
   - rank 1 at the rim and rank N at the center;
   - the selected series is drawn last with `--sel` at full opacity;
   - other series use `--other` at 35% opacity, and the opponent uses `--opp`;
   - no gridlines beyond faint axis spokes.
-- [ ] T036 [P] [US1] Implement `frontend/src/components/CategoryTable.tsx`.
+- [X] T036 [P] [US1] Implement `frontend/src/components/CategoryTable.tsx`.
   - **Strategic**: a "CATEGORY / RANK" table.
   - **Tactical** (filled in by US3): differences.
   - Ratio values show 3 decimals without a leading zero (`.473`).
   - Column headers are small, ALL CAPS, weight 900, color `--muted`.
-- [ ] T037 [P] [US1] Implement `frontend/src/components/CategoryCurves.tsx` with Observable Plot:
+- [X] T037 [P] [US1] Implement `frontend/src/components/CategoryCurves.tsx` with Observable Plot:
   - a 3 × 3 grid of small charts, one per category;
   - each is `Plot.areaY` for the selected series in `--sel` at 30% opacity plus `Plot.lineY`
     outlines;
@@ -516,12 +516,12 @@ the page shows all of these for any team picked.
   - a legend naming each role and team.
 
   Render the charts into refs and clean them up on unmount.
-- [ ] T038 [P] [US1] Implement `frontend/src/components/Roster.tsx` as display only. "−" is added
+- [X] T038 [P] [US1] Implement `frontend/src/components/Roster.tsx` as display only. "−" is added
   in US2. Each row shows: name, NBA team, positions, slot, and status (muted gray for reserve
   rows), plus the footnote asterisk.
 
   Implement `frontend/src/components/Footnotes.tsx` to list the `footnotes`.
-- [ ] T039 [US1] Wire US1's components into `frontend/src/App.tsx`, and save the recorded fixture
+- [X] T039 [US1] Wire US1's components into `frontend/src/App.tsx`, and save the recorded fixture
   `frontend/tests/fixtures/strategic.json` from a real `analyze` response (from T029's
   `TestClient` output).
 

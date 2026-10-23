@@ -9,6 +9,9 @@ dependencies = [
     "anyascii>=0.3",
     "typer>=0.12",
     "requests>=2.31",
+    "numpy>=2.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
 ]
 
 [project.scripts]
@@ -19,6 +22,7 @@ dev = [
     "pytest>=8",
     "import-linter>=2",
     "ruff>=0.6",
+    "httpx>=0.27",
 ]
 
 [build-system]
@@ -31,8 +35,11 @@ packages = ["src/ffmodel"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-markers = ["live: hits the real NBA stats source (manual)"]
-addopts = "-m 'not live'"
+markers = [
+    "live: hits the real NBA stats source (manual)",
+    "slow: real-database timing and stability checks (manual)",
+]
+addopts = "-m 'not live and not slow'"
 
 [tool.ruff]
 line-length = 100

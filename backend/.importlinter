@@ -27,3 +27,30 @@ source_modules =
 forbidden_modules =
     ffmodel.adapters
     ffmodel.core
+
+[importlinter:contract:core-not-tools]
+name = Core must not import tools or api (Constitution VII)
+type = forbidden
+source_modules =
+    ffmodel.core
+forbidden_modules =
+    ffmodel.tools
+    ffmodel.api
+
+[importlinter:contract:tools-not-api]
+name = Tools must not import api or adapters (Constitution VII)
+type = forbidden
+source_modules =
+    ffmodel.tools
+forbidden_modules =
+    ffmodel.api
+    ffmodel.adapters
+
+[importlinter:contract:adapters-not-tools]
+name = Adapters must not import tools or api
+type = forbidden
+source_modules =
+    ffmodel.adapters
+forbidden_modules =
+    ffmodel.tools
+    ffmodel.api

@@ -1,0 +1,351 @@
+* {
+  box-sizing: border-box;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 2rem 3rem;
+}
+
+.masthead {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin: 0;
+  padding-bottom: 0.25rem;
+  border-bottom: 4px solid var(--ink);
+}
+
+.explainer {
+  margin: 0.5rem 0 0.75rem;
+  max-width: 48rem;
+}
+
+.section-divider {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-size: 0.85rem;
+  margin: 1.5rem 0 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--ink);
+}
+
+.headline {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 1rem 0 0.25rem;
+}
+
+.label {
+  font-weight: 700;
+}
+
+.col-header {
+  font-size: var(--header-size);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+table.data {
+  border-collapse: collapse;
+  font-size: var(--data-size);
+  width: 100%;
+}
+
+table.data th {
+  text-align: left;
+  border-bottom: 1px solid var(--ink);
+  padding: 0.28rem 0.4rem;
+}
+
+table.data th.num,
+table.data td.num {
+  text-align: right;
+}
+
+table.data td {
+  padding: 0.28rem 0.4rem;
+}
+
+table.data tr.muted td {
+  color: var(--muted);
+}
+
+table.data tbody tr:hover {
+  background: var(--hover);
+}
+
+table.data tr.moved td {
+  background: var(--yours);
+}
+
+button {
+  font-family: var(--font);
+  font-size: var(--data-size);
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--yours);
+}
+
+button.primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+button.primary:hover:not(:disabled) {
+  background: #333;
+}
+
+button.destructive {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+button.destructive:hover:not(:disabled) {
+  background: var(--danger);
+  color: var(--paper);
+}
+
+button:disabled {
+  border-color: var(--disabled);
+  color: var(--disabled);
+  cursor: not-allowed;
+}
+
+button.pill {
+  border: none;
+}
+
+button.pill.active {
+  background: var(--yours);
+  font-weight: 700;
+}
+
+input,
+select {
+  font-family: var(--font);
+  font-size: var(--data-size);
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  padding: 0.15rem 0.3rem;
+}
+
+.pending {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.error {
+  color: var(--danger);
+  font-size: var(--data-size);
+}
+
+.footnotes {
+  font-size: var(--data-size);
+  color: var(--muted);
+  margin-top: 1rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.controls label {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.controls input[type="number"] {
+  width: 3.5rem;
+}
+
+.data-line {
+  margin: 0.25rem 0;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 2rem;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+
+.radar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.radar-wrap .category-table-wrap {
+  align-self: stretch;
+}
+
+.name-col {
+  font-weight: 700;
+}
+
+.radar .axis-label {
+  font-size: 10px;
+  font-weight: 900;
+  fill: var(--muted);
+}
+
+.category-table {
+  width: 100%;
+}
+
+/* Subheader: selected team and projected record, spanning main + sidebar. */
+.record-headline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  margin: 1rem 0 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--ink);
+}
+
+.team-name {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.manager {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.score {
+  text-align: right;
+}
+
+.record {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.units {
+  color: var(--muted);
+  font-size: var(--data-size);
+}
+
+.curve-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem 1.25rem;
+}
+
+@media (max-width: 760px) {
+  .curve-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .curve-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.curve {
+  margin: 0;
+}
+
+.curve-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: var(--data-size);
+  margin-bottom: 0.5rem;
+}
+
+.swatch {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-right: 0.3rem;
+  vertical-align: -0.1rem;
+}
+
+.marker {
+  margin-left: 0.1rem;
+}
+
+@media (max-width: 900px) {
+  .layout,
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.record-table tfoot td {
+  border-top: 1px solid var(--ink);
+  font-weight: 700;
+  padding: 0.28rem 0.4rem;
+}
+
+.record-table .sub {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.result-loss {
+  color: var(--muted);
+}
+
+.result-win {
+  font-weight: 700;
+}
+
+/* Chart titles match the category labels in the ranking table. */
+.curve-label {
+  font-size: var(--data-size);
+  padding: 0 0.4rem;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.record-table .total-h2h {
+  text-align: center;
+}

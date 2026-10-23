@@ -1,0 +1,39 @@
+{
+ "league_id": 1,
+ "league_key": "impact-league",
+ "name": "Impact League",
+ "season_id": "2026-27",
+ "scoring_format_id": "9cat_h2h",
+ "active_roster_capacity": 3,
+ "team_count": 4,
+ "teams": [
+  {
+   "team_id": 1,
+   "source_team_key": "t.A",
+   "name": "Alphas",
+   "manager": "Ann"
+  },
+  {
+   "team_id": 2,
+   "source_team_key": "t.B",
+   "name": "Betas",
+   "manager": "Bo"
+  },
+  {
+   "team_id": 3,
+   "source_team_key": "t.C",
+   "name": "Gammas",
+   "manager": "Cy"
+  },
+  {
+   "team_id": 4,
+   "source_team_key": "t.D",
+   "name": "Deltas",
+   "manager": "Di"
+  }
+ ],
+ "freshness": {
+  "nba_data_loaded_at": "2026-11-18T08:00:00+00:00",
+  "roster_as_of": "2026-11-18"
+ }
+}

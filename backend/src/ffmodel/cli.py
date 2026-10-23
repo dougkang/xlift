@@ -196,6 +196,18 @@ def players_search(
     )
 
 
+@app.command("serve")
+def serve(
+    host: Annotated[str, typer.Option("--host")] = "127.0.0.1",
+    port: Annotated[int, typer.Option("--port")] = 8000,
+    reload: Annotated[bool, typer.Option("--reload")] = False,
+):
+    """Run the API (and the built frontend, if present)."""
+    import uvicorn
+
+    uvicorn.run("ffmodel.api.app:create_app", factory=True, host=host, port=port, reload=reload)
+
+
 def _parse_date(value: str | None) -> date | None:
     return date.fromisoformat(value) if value else None
 

@@ -20,9 +20,12 @@ def test_every_public_read_works_offline(fixture_engine):
     readers = sorted(n for n in data.__all__ if n[0].islower())
     assert readers == [
         "count_team_games",
+        "count_team_games_bulk",
         "get_availability",
+        "get_data_freshness",
         "get_free_agents",
         "get_last_n_games",
+        "get_last_n_games_bulk",
         "get_league",
         "get_player",
         "get_player_history",
@@ -54,6 +57,12 @@ def test_every_public_read_works_offline(fixture_engine):
         assert data.search_players(conn, "doncic")  # player lookup
         assert data.get_player(conn, fx.DONCIC)
         assert data.get_player_history(conn, fx.DONCIC)
+        assert data.get_last_n_games_bulk(conn, [fx.DONCIC], 15, as_of=fx.FIXTURE_TODAY)
+        scheduled = data.count_team_games_bulk(
+            conn, [fx.IGGY], date(2026, 10, 31), date(2026, 11, 8), statuses=("scheduled",)
+        )
+        assert scheduled == {fx.IGGY: 3}
+        assert data.get_data_freshness(conn, league.league_id).roster_as_of == "2026-10-29"
 
 
 def test_core_does_not_import_nba_api():

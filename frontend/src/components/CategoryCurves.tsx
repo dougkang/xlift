@@ -1,0 +1,197 @@
+import * as Plot from "@observablehq/plot";
+import { useEffect, useRef, useState } from "react";
+import type { AnalysisResult, Schemas } from "../api/client";
+
+type Curve = Schemas["Curve"];
+type Role = Schemas["CurveSeries"]["role"];
+
+const STROKE: Record<Role, string> = {
+  selected: "#1c324a",
+  leader: "#ce7955",
+  next_best: "#ce7955",
+  league_average: "#898240",
+  opponent: "#a96043",
+};
+
+/** Lighter shade from the same palette, used for fills (docs/style.md). */
+const FILL: Record<Role, string> = {
+  selected: "#9dc0f5",
+  leader: "#f5c1a9",
+  next_best: "#f5c1a9",
+  league_average: "#c5be60",
+  opponent: "#f5c1a9",
+};
+
+/** League-related distributions get dotted average lines. */
+const LEAGUE_ROLES: Role[] = ["leader", "next_best", "league_average"];
+
+const SHORT: Record<Role, string> = {
+  selected: "You",
+  leader: "Leader",
+  next_best: "Next best",
+  league_average: "League",
+  opponent: "Opp",
+};
+
+const LABEL_ROW = 11;
+const DEFAULT_WIDTH = 220;
+const MARGIN = 8;
+const CHAR_PX = 5.8; // approx. width of a 10px bold Helvetica character
+
+interface Placed {
+  x: number;
+  role: Role;
+  text: string;
+  anchor: "start" | "end";
+  row: number;
+}
+
+/**
+ * Jitter labels vertically only when they would collide: each label goes in the lowest row
+ * where its estimated pixel extent doesn't overlap a label already placed there.
+ */
+export function placeLabels(
+  marks: { x: number; role: Role; text: string }[],
+  domain: [number, number],
+  width: number = DEFAULT_WIDTH,
+): Placed[] {
+  const [d0, d1] = domain;
+  const span = d1 - d0 || 1;
+  const inner = width - 2 * MARGIN;
+  const rows: [number, number][][] = [];
+  return marks.map((m) => {
+    const px = MARGIN + ((m.x - d0) / span) * inner;
+    const w = m.text.length * CHAR_PX + 4;
+    const anchor: "start" | "end" = px > width / 2 ? "end" : "start";
+    const extent: [number, number] = anchor === "start" ? [px - 2, px + w] : [px - w, px + 2];
+    let row = rows.findIndex((r) => r.every(([a, b]) => extent[1] < a || extent[0] > b));
+    if (row === -1) {
+      rows.push([]);
+      row = rows.length - 1;
+    }
+    rows[row].push(extent);
+    return { ...m, anchor, row };
+  });
+}
+
+function CurveChart({ curve, label, decimals }: { curve: Curve; label: string; decimals: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(DEFAULT_WIDTH);
+  // Fill the grid cell: track the container's width.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      const w = Math.floor(entry.contentRect.width);
+      if (w > 0) setWidth(w);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const rows = curve.series.flatMap((s) =>
+      s.density.map((d, i) => ({ x: curve.x[i], y: d, role: s.role, label: s.label })),
+    );
+    // Draw overlays first so the selected team sits on top.
+    const order = [...curve.series].sort((a, b) => Number(a.role === "selected") - Number(b.role === "selected"));
+    const fmt = (v: number) =>
+      decimals > 0 ? v.toFixed(decimals).replace(/^0(?=\.)/, "") : v.toFixed(1);
+    const domain: [number, number] = [curve.x[0], curve.x[curve.x.length - 1]];
+    const means = placeLabels(
+      curve.series
+        .filter((s) => s.mean !== null)
+        .map((s) => ({ x: s.mean as number, role: s.role, text: `${SHORT[s.role]} ${fmt(s.mean as number)}` })),
+      domain,
+      width,
+    );
+    const rowCount = Math.max(1, ...means.map((m) => m.row + 1));
+    const chart = Plot.plot({
+      width,
+      height: 110 + rowCount * LABEL_ROW,
+      marginTop: 4 + rowCount * LABEL_ROW,
+      marginLeft: MARGIN,
+      marginRight: MARGIN,
+      style: { fontFamily: "Helvetica Neue, Helvetica, Arial, sans-serif", fontSize: "10px" },
+      x: {
+        domain,
+        label: null,
+        ticks: 3,
+        tickFormat: decimals > 0 ? (v: number) => v.toFixed(decimals).replace(/^0(?=\.)/, "") : undefined,
+      },
+      y: { axis: null },
+      marks: [
+        ...order.map((s) =>
+          Plot.areaY(
+            rows.filter((r) => r.role === s.role),
+            { x: "x", y: "y", fill: FILL[s.role], fillOpacity: s.role === "selected" ? 0.6 : 0.4 },
+          ),
+        ),
+        ...order.map((s) =>
+          Plot.lineY(
+            rows.filter((r) => r.role === s.role),
+            { x: "x", y: "y", stroke: STROKE[s.role], strokeWidth: s.role === "selected" ? 1.5 : 1 },
+          ),
+        ),
+        Plot.ruleX(
+          means.filter((m) => !LEAGUE_ROLES.includes(m.role)),
+          { x: "x", stroke: (m: { role: Role }) => STROKE[m.role], strokeWidth: 1.5 },
+        ),
+        Plot.ruleX(
+          means.filter((m) => LEAGUE_ROLES.includes(m.role)),
+          { x: "x", stroke: (m: { role: Role }) => STROKE[m.role], strokeWidth: 1.5, strokeDasharray: "2,3" },
+        ),
+        // One label per average line, stacked above the plot so they never collide.
+        ...means.map((m) =>
+          Plot.text([m], {
+            x: "x",
+            frameAnchor: "top",
+            dy: -(rowCount - m.row - 0.5) * LABEL_ROW,
+            text: "text",
+            fill: STROKE[m.role],
+            textAnchor: m.anchor,
+            dx: m.anchor === "start" ? -2 : 2,
+            fontWeight: 700,
+          }),
+        ),
+      ],
+    });
+    el.replaceChildren(chart);
+    return () => chart.remove();
+  }, [curve, decimals, width]);
+  return (
+    <figure className="curve" data-testid="curve">
+      <figcaption className="name-col curve-label">{label}</figcaption>
+      <div ref={ref} />
+    </figure>
+  );
+}
+
+export function CategoryCurves({ result }: { result: AnalysisResult }) {
+  if (!result.curves.length) return null;
+  const byKey = Object.fromEntries(result.categories.map((c) => [c.key, c]));
+  const legend = result.curves[0].series;
+  return (
+    <section>
+      <h3 className="section-divider">Category Breakdown</h3>
+      <div className="curve-legend">
+        {legend.map((s) => (
+          <span key={s.role} className="legend-item">
+            <span className="swatch" style={{ background: FILL[s.role], borderTop: `2px ${LEAGUE_ROLES.includes(s.role) ? "dotted" : "solid"} ${STROKE[s.role]}` }} />
+            {s.role === "selected" ? s.label : s.role === "league_average" ? "League average" : `${roleName(s.role)}`}
+          </span>
+        ))}
+      </div>
+      <div className="curve-grid">
+        {result.curves.map((c) => (
+          <CurveChart key={c.category} curve={c} label={byKey[c.category].label} decimals={byKey[c.category].decimals} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function roleName(role: Role): string {
+  return { leader: "League leader", next_best: "Next best", opponent: "Opponent" }[role as string] ?? role;
+}

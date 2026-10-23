@@ -93,6 +93,8 @@ Each interactive element has exactly two states beyond default:
 
 - Content runs close to the viewport edges (~2rem padding). No centered, narrow `max-width`
   containers unless the viewport is very wide.
+- Impact Analysis caps the page at 1100px and centers it on wider windows, so content keeps
+  its proportions.
 - Side-by-side columns when space allows (e.g. roster | radar; main | player picker sidebar),
   without boxes around them.
 - Nav is plain text: no borders, pills, or backgrounds; active item marked by weight or underline.
@@ -161,3 +163,19 @@ no relationship between categories.
 - #44A59F;
 - #61B2E7;
 - #BCB5F6;
+
+## Distributions and Radar
+
+- **Fills:** a curve's fill uses a lighter shade from the same palette as its line. For example,
+  a primary `#1C324A` line gets a primary `#9DC0F5` fill. Overlays sit under the selected team's
+  curve.
+- **Average markers:** each distribution has a vertical line at its average. Distributions about
+  the league (league leader, next best, league average) use a dotted line; team distributions
+  use a solid one.
+- **Radar:** the selected team uses the primary color with a light primary fill. Other teams
+  use the secondary shades, muted, with a faint light-secondary fill. The opponent in tactical
+  mode uses secondary `#A96043`.
+- **Labels:** each average line is labeled with its role and value. A label moves to another row
+  only when it would collide with another label.
+- **Name columns:** the player and category columns in tables are bold.
+
