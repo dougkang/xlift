@@ -4,7 +4,7 @@ from dataclasses import dataclass, replace
 from datetime import date, timedelta
 
 DEFAULT_WINDOW = 15
-DEFAULT_ITERATIONS = 10_000
+DEFAULT_ITERATIONS = 25_000
 DEFAULT_SEED = 20261023
 GAMES_PER_PERIOD = 3
 

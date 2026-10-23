@@ -19,7 +19,7 @@ rebuilds the scenario from the stored league on every call (research R7).
   "opponent_id": null,
   "period_start": null,
   "period_end": null,
-  "iterations": 10000,
+  "iterations": 25000,
   "seed": 20261023,
   "moves": [
     {"type": "drop", "player_id": 412},
@@ -54,7 +54,7 @@ Returns 404 for an unknown league.
 
 ```json
 {
-  "settings": {"mode": "strategic", "window": 15, "as_of": "2026-10-23", "iterations": 10000,
+  "settings": {"mode": "strategic", "window": 15, "as_of": "2026-10-23", "iterations": 25000,
                "seed": 20261023, "period_start": null, "period_end": null, "opponent_id": null},
   "header": {"team_id": 3, "team_name": "Triton Aggies", "manager": "Jung",
              "record": {"wins": 11, "losses": 5, "ties": 1, "unit": "matchups"},

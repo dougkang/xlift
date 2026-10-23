@@ -67,7 +67,7 @@ move list.
 | `as_of` | today | Analysis date (research R4) |
 | `opponent_id` | None | Tactical only. Required to compute tactical results; must differ from `team_id` |
 | `period_start`, `period_end` | The Mon–Sun week containing `as_of` | Tactical only. `period_start ≤ period_end` |
-| `iterations` | 10,000 | 1,000–50,000 |
+| `iterations` | 25,000 | 1,000–50,000 |
 | `seed` | 20261023 | Any integer |
 | `games_per_period` | 3 | Strategic only. Fixed in this feature; not shown in the UI |
 

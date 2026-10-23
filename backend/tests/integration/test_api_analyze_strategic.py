@@ -19,7 +19,7 @@ def test_analyze_shape_and_echo(client):
     body = r.json()
     assert body["settings"] | {} == body["settings"]
     assert body["settings"]["as_of"] == "2026-11-18"
-    assert body["settings"]["seed"] == 20261023 and body["settings"]["iterations"] == 10000
+    assert body["settings"]["seed"] == 20261023 and body["settings"]["iterations"] == 25000
     assert body["header"]["record"]["unit"] == "matchups"
     assert len(body["radar"]["series"]) == 4 and len(body["curves"]) == 9
 

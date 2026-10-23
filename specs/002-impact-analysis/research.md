@@ -56,7 +56,8 @@ as makes and attempts move together". The spec was updated with this plan.
   - kept consistent: FGM ≤ FGA, FG3M ≤ FGM, FTM ≤ FTA.
 
   PTS is derived after that.
-- **Iterations**: 10,000 by default, settable from 1,000 to 50,000.
+- **Iterations**: 25,000 by default, settable from 1,000 to 50,000. This was raised from 10,000 on
+  2026-10-23 at the user's request, for more stable probabilities.
 - **Random streams**: each player's draws come from `default_rng([seed, player_id, mode])`. The
   default seed is a fixed constant (`20261023`), and the user can change it.
   - Every player's draws are identical before and after a move, except for the players the move

@@ -373,7 +373,7 @@ export interface components {
             period_end?: string | null;
             /**
              * Iterations
-             * @default 10000
+             * @default 25000
              */
             iterations: number;
             /**
@@ -520,7 +520,7 @@ export interface components {
             period_end?: string | null;
             /**
              * Iterations
-             * @default 10000
+             * @default 25000
              */
             iterations: number;
             /**

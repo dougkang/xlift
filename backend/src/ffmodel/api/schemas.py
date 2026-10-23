@@ -42,7 +42,7 @@ class ScenarioRequest(BaseModel):
     opponent_id: int | None = None
     period_start: date | None = None
     period_end: date | None = None
-    iterations: int = Field(10_000, ge=1_000, le=50_000)
+    iterations: int = Field(25_000, ge=1_000, le=50_000)
     seed: int = 20261023
     moves: list[Move] = Field(default_factory=list)
 

@@ -13,7 +13,7 @@ and against this week's opponent (tactical). The pieces:
 - **Scoring formats**: a pluggable scoring-format layer, with 9cat h2h as the first format.
 - **Player model**: each player's per-game stats are fitted jointly as a multivariate normal, with
   covariance shrinkage for short histories.
-- **Simulation**: a vectorized Monte Carlo engine, 10,000 iterations by default, with each player's
+- **Simulation**: a vectorized Monte Carlo engine, 25,000 iterations by default (raised from 10,000), with each player's
   random stream seeded by player ID so before/after comparisons aren't noise.
 - **Scenarios**: immutable scenario transitions for moves.
 - **API**: a stateless FastAPI service.
@@ -58,7 +58,7 @@ Plus Vitest with a mocked API, and the import-linter layering contracts.
 - moves never written to the DB.
 
 **Scale/Scope**: one league of 18 teams with about 10 active players each; about 550 pickable
-players; 9 categories; 10,000 iterations.
+players; 9 categories; 25,000 iterations.
 
 ## Constitution Check
 

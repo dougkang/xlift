@@ -62,3 +62,13 @@ describe("strategic view (US1)", () => {
     expect(within(rookieRow).getByText("*")).toBeInTheDocument();
   });
 });
+
+describe("explainer", () => {
+  it("states the simulation count from the result", async () => {
+    sessionStorage.setItem("ffm.impact.v1", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
+    render(<App />);
+    await screen.findByRole("heading", { level: 2 }, { timeout: 2000 });
+    const n = (strategic as { settings: { iterations: number } }).settings.iterations.toLocaleString("en-US");
+    expect(screen.getByText(new RegExp(`simulation of ${n} matchup weeks per team`))).toBeInTheDocument();
+  });
+});

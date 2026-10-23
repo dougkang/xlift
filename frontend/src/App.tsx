@@ -117,6 +117,8 @@ export default function App() {
       <h1 className="masthead">Impact Analysis</h1>
       <p className="explainer">
         See how adding, dropping, or swapping players changes your team — this week or for the long run.
+        {result &&
+          ` Every projection is a Monte Carlo simulation of ${result.settings.iterations.toLocaleString("en-US")} matchup weeks per team.`}
       </p>
       <Controls
         leagues={leagues}
