@@ -6,6 +6,12 @@ The general idea of this tool is to provide a tool that visualizes the impact of
 strategically. We accomplish this by doing a Monte Carlo simulation based on player's stat distributions over
 the past X games, where X may be specified by the user.
 
+Only regular-season games are considered. Play-in, playoff, preseason, and All-Star games are
+never part of any calculation. The window of X games spans the season boundary when needed. If the current season has fewer than
+X games, earlier seasons fill the rest. A player with fewer than X games in total (e.g. a rookie)
+is still simulated on the games available, but is marked with an asterisk wherever they appear,
+with a footnote stating how many games the distribution is based on (e.g. "* 3 of 15 games").
+
 ## The Comparison
 
 Teams should be compared in two ways: tactically (short-term) and strategically (long-term).
@@ -63,6 +69,12 @@ with other distributions overlaid with muted transparency/colors.
 On the right sidebar, we should list out all players not on selected team.
 A search bar should be present at the top enable name-based filtering.
 A '+' button to the left of each player should add the player to the selected team iff the roster has an empty slot.
+
+An "empty slot" means an empty active slot. Reserve slots (IL, NA) are not available for moves.
+A player can occupy IL/NA only if they were there in the original roster. An added or swapped
+player always takes an active slot, even if injured. Players already in a reserve slot stay there
+unless dropped. They do not count against active capacity, and they do not contribute to the
+simulation.
 
 If the player is a free agent, we simply add the player and run the simulation.
 If the player is on another team, we must select a player on the roster or a free agent in the list to swap with.
