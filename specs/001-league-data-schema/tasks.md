@@ -42,7 +42,7 @@ its own.
 
 **Purpose**: Project skeleton, dependencies, tooling
 
-- [ ] T001 Create the directory skeleton and package files from plan.md:
+- [X] T001 Create the directory skeleton and package files from plan.md:
   - Packages, each with an empty `__init__.py`:
     - `backend/src/ffmodel/`
     - `backend/src/ffmodel/contract/` (and its `migrations/` directory)
@@ -52,7 +52,7 @@ its own.
   - `data/.gitkeep` at the repo root.
   - A root `.gitignore` containing `data/*.sqlite*`, `.venv/`, `__pycache__/`, `.pytest_cache/`,
     `.ruff_cache/`.
-- [ ] T002 Create `backend/pyproject.toml` as a uv project:
+- [X] T002 Create `backend/pyproject.toml` as a uv project:
   - Project: name `ffmodel`, `requires-python = ">=3.12"`, src layout (`[tool.uv]` / hatchling
     with packages `src/ffmodel`).
   - Dependencies: `nba_api>=1.11,<2`, `sqlalchemy>=2.0,<3`, `anyascii>=0.3`, `typer>=0.12`.
@@ -64,12 +64,12 @@ its own.
     - `addopts = "-m 'not live'"`
   - `[tool.ruff]`: `line-length = 100`, `target-version = "py312"`.
   - Then run `uv sync` in `backend/`.
-- [ ] T003 [P] Create `backend/.importlinter` with `root_package = ffmodel` and three `forbidden`
+- [X] T003 [P] Create `backend/.importlinter` with `root_package = ffmodel` and three `forbidden`
   contracts. Ignore `ffmodel.cli` in each.
   1. Sources `ffmodel.core` may not import `ffmodel.adapters` or `nba_api`.
   2. Sources `ffmodel.adapters` may not import `ffmodel.core`.
   3. Sources `ffmodel.contract` may not import `ffmodel.adapters` or `ffmodel.core`.
-- [ ] T004 [P] Create `backend/tests/conftest.py` with:
+- [X] T004 [P] Create `backend/tests/conftest.py` with:
   - An autouse fixture that blocks network access by monkeypatching `socket.socket.connect` to
     raise `RuntimeError("network disabled in tests")`, unless the test has the `live` marker.
   - A fixture `engine` that creates a temp-file SQLite engine through
@@ -88,17 +88,17 @@ adapter helpers, read-model types, and the fixture dataset. Every story depends 
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Create `backend/src/ffmodel/contract/migrations/0001_initial.sql` as a byte-for-byte copy
+- [X] T005 Create `backend/src/ffmodel/contract/migrations/0001_initial.sql` as a byte-for-byte copy
   of `specs/001-league-data-schema/contracts/schema.sql`. It holds all 15 tables, every CHECK,
   UNIQUE and index. Do not edit the DDL; the spec's contract is the source.
-- [ ] T006 Implement `backend/src/ffmodel/contract/db.py`:
+- [X] T006 Implement `backend/src/ffmodel/contract/db.py`:
   - `default_db_url()` returns `os.environ.get("FFMODEL_DB_URL")`. Otherwise it returns
     `sqlite:///<repo_root>/data/ffmodel.sqlite`, where `repo_root` is found by walking up from
     this file to the directory that contains `backend/`.
   - `get_engine(url: str | None = None) -> Engine`:
     - Creates the parent directory for SQLite file URLs.
     - Registers a `connect` event listener that runs `PRAGMA foreign_keys = ON` for SQLite.
-- [ ] T007 Implement `backend/src/ffmodel/contract/migrate.py`:
+- [X] T007 Implement `backend/src/ffmodel/contract/migrate.py`:
   - `migrate(engine) -> list[int]`:
     - Creates `schema_migrations(version INTEGER PRIMARY KEY, name TEXT NOT NULL, applied_at TEXT
       NOT NULL)` if it is missing.
@@ -107,14 +107,14 @@ adapter helpers, read-model types, and the fixture dataset. Every story depends 
       use `conn.connection.executescript` for SQLite.
     - Returns the versions it applied.
   - `current_version(engine) -> int` returns `MAX(version)`, or 0.
-- [ ] T008 [P] Implement `backend/src/ffmodel/contract/names.py` (research R7):
+- [X] T008 [P] Implement `backend/src/ffmodel/contract/names.py` (research R7):
   - `normalize_name(s: str) -> str`:
     1. `anyascii(s)`, then lowercase.
     2. Replace `.`, `'`, `’`, `-`, `,` with a space.
     3. Drop the tokens `jr`, `sr`, `ii`, `iii`, `iv`, `v`.
     4. Collapse whitespace and strip.
   - `name_words(s: str) -> list[str]` returns `normalize_name(s).split()`.
-- [ ] T009 [P] Write `backend/tests/unit/test_names.py`, a parametrized test that asserts
+- [X] T009 [P] Write `backend/tests/unit/test_names.py`, a parametrized test that asserts
   `normalize_name`:
   - `"Luka Dončić"` → `"luka doncic"`
   - `"Alperen Şengün"` → `"alperen sengun"`
@@ -126,7 +126,7 @@ adapter helpers, read-model types, and the fixture dataset. Every story depends 
   - `"N. Alexander-Walker"` → `"n alexander walker"`
   - `"Day'Ron Sharpe"` → `"day ron sharpe"`
   - `"Kel'el Ware"` → `"kel el ware"`
-- [ ] T010 [P] Write `backend/tests/contract/test_schema.py`, using the `engine` fixture.
+- [X] T010 [P] Write `backend/tests/contract/test_schema.py`, using the `engine` fixture.
   - **Migrations**:
     - `migrate` on an empty DB applies `[1]`.
     - `current_version == 1`.
@@ -157,9 +157,9 @@ adapter helpers, read-model types, and the fixture dataset. Every story depends 
     - `load_run.outcome` outside (`'running'`,`'succeeded'`,`'failed'`,`'rejected'`).
     - A foreign key to a missing parent row (proves `PRAGMA foreign_keys` is on).
   - **Drift check**: `0001_initial.sql` equals `specs/001-league-data-schema/contracts/schema.sql`.
-- [ ] T011 [P] Write `backend/tests/contract/test_layering.py`. It runs
+- [X] T011 [P] Write `backend/tests/contract/test_layering.py`. It runs
   `subprocess.run(["lint-imports"], cwd=<backend dir>)` and asserts exit code 0 (Constitution VI).
-- [ ] T012 [P] Write `backend/tests/invariants.py` with `assert_contract_invariants(conn)`, called by
+- [X] T012 [P] Write `backend/tests/invariants.py` with `assert_contract_invariants(conn)`, called by
   the US1/US2 integration tests and by T050. It asserts:
   1. No two `player_team_stint` rows for the same player overlap (an open `end_date` counts as
      infinity).
@@ -167,7 +167,7 @@ adapter helpers, read-model types, and the fixture dataset. Every story depends 
   3. Every `player_game` row belongs to a game with `status = 'final'`.
   4. Per `fantasy_team`, the count of `slot = 'active'` ≤ the league's `active_roster_capacity`.
   5. Every `roster_entry.fantasy_team_id` belongs to the same `league_id`.
-- [ ] T013 Implement `backend/src/ffmodel/adapters/common.py`, the shared write helpers for both
+- [X] T013 Implement `backend/src/ffmodel/adapters/common.py`, the shared write helpers for both
   adapters:
   - `upsert(conn, table: str, key_cols: Sequence[str], rows: Sequence[Mapping]) -> tuple[int, int]`
     returns (inserted, updated).
@@ -181,7 +181,7 @@ adapter helpers, read-model types, and the fixture dataset. Every story depends 
     row survives a data rollback.
   - `finish_run(engine, run_id, outcome, inserted, updated, report=None)`: sets `finished_at`.
   - `ensure_external_id(conn, table, source, external_id, entity_col, entity_id, match_method=None)`.
-- [ ] T014 Create `backend/tests/fixtures/dataset.py` with `load_fixture(conn)` and the constant
+- [X] T014 Create `backend/tests/fixtures/dataset.py` with `load_fixture(conn)` and the constant
   `FIXTURE_TODAY = date(2026, 10, 30)`. It writes deterministic rows with plain SQL through the
   contract (FR-025), using source `fixture` and fixed internal IDs. Rows:
   - **Seasons**: `2025-26` (2025-10-21 → 2026-04-12) and `2026-27` (2026-10-20 → 2027-04-11).
@@ -273,7 +273,7 @@ adapter helpers, read-model types, and the fixture dataset. Every story depends 
     others `healthy`.
   - **External IDs**: `player_external_id` rows `fixture:<n>` with `match_method='exact'` for
     every player.
-- [ ] T015 [P] Implement `backend/src/ffmodel/core/data/models.py` with the frozen dataclasses
+- [X] T015 [P] Implement `backend/src/ffmodel/core/data/models.py` with the frozen dataclasses
   exactly as in `contracts/read-api.md`:
   - `PlayerSummary`
   - `PlayerGameLine`
@@ -283,7 +283,7 @@ adapter helpers, read-model types, and the fixture dataset. Every story depends 
 
   Also create `backend/src/ffmodel/core/data/__init__.py`, which re-exports the models now and the
   read functions as they are added in later stories.
-- [ ] T016 Write `backend/tests/contract/test_fixture.py`:
+- [X] T016 Write `backend/tests/contract/test_fixture.py`:
   - `load_fixture` succeeds on a migrated DB.
   - `assert_contract_invariants` passes.
   - Every table has at least one row except `load_run` and `game_external_id`.
@@ -304,7 +304,7 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
 
 ### Tests for User Story 1
 
-- [ ] T017 [P] [US1] Create `backend/tests/fixtures/nba_api/record.py`, a manual script run once
+- [X] T017 [P] [US1] Create `backend/tests/fixtures/nba_api/record.py`, a manual script run once
   with network access. It saves trimmed raw JSON responses
   (`endpoint.get_dict()`) to `backend/tests/fixtures/nba_api/`:
   - `leaguegamelog_P_2025-26_2026-01-15.json`: player mode, regular season, date range
@@ -316,13 +316,13 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
   - `playerindex_2025-26.json`: trimmed to the players appearing in the two logs.
 
   Commit the JSON files. Tests load them through a fake client (T018).
-- [ ] T018 [P] [US1] Create `backend/tests/fixtures/nba_api/fake_client.py` with `FakeNbaStatsClient`.
+- [X] T018 [P] [US1] Create `backend/tests/fixtures/nba_api/fake_client.py` with `FakeNbaStatsClient`.
   - It implements the same interface as `NbaStatsClient` (T024): `game_log`, `schedule`,
     `player_index`.
   - It serves the recorded JSON from T017 and filters game logs by `date_from`.
   - It counts calls.
   - It can be told to raise after K box-score rows, for the partial-write test.
-- [ ] T019 [P] [US1] Write `backend/tests/unit/test_nba_mapping.py`, covering the functions in
+- [X] T019 [P] [US1] Write `backend/tests/unit/test_nba_mapping.py`, covering the functions in
   `adapters/nba_stats/mapping.py`:
   - **`season_type_from_game_id`**: `0012600009`→`preseason`, `0022500585`→`regular`,
     `003…`→`all_star`, `004…`→`playoffs`, `005…`→`play_in`, `0062600001`→`cup_final`. Any other
@@ -338,7 +338,7 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
     The new season label starts in October.
   - **`box_score_row`**: maps a `LeagueGameLog` row to `player_game` columns. `MIN` is converted to
     float; `*_PCT` and `FANTASY_PTS` are dropped.
-- [ ] T020 [P] [US1] Write `backend/tests/unit/test_stints.py` for `derive_stints(appearances,
+- [X] T020 [P] [US1] Write `backend/tests/unit/test_stints.py` for `derive_stints(appearances,
   season_start, current_team_id, season_end=None)`. `appearances` is a list of (game_date, team_id) for one player
   and one season. Cases:
   1. One team all season → one stint from `season_start`, open.
@@ -355,14 +355,14 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
      `current_team_id` unused, and its last stint closes at `season_end`.
 
   Every case also asserts that no stints overlap.
-- [ ] T021 [P] [US1] Write `backend/tests/unit/test_nba_client.py` for `NbaStatsClient`, with an
+- [X] T021 [P] [US1] Write `backend/tests/unit/test_nba_client.py` for `NbaStatsClient`, with an
   injected fake endpoint callable and a fake `sleep`/`monotonic`:
   - Calls are at least 1.0 s apart.
   - `ReadTimeout`, `ConnectionError`, and HTTP 429/5xx are retried with backoff 2, 4, 8, 16, 32 s
     (max 5 attempts) and then raise `SourceUnavailable`.
   - A non-retryable error (e.g. HTTP 400) raises immediately.
   - Every endpoint call gets `timeout=30`.
-- [ ] T022 [US1] Write `backend/tests/integration/test_nba_loader.py`, using `engine` +
+- [X] T022 [US1] Write `backend/tests/integration/test_nba_loader.py`, using `engine` +
   `FakeNbaStatsClient`. Each scenario calls `load_nba(engine, seasons=["2025-26"], client=fake)`.
   1. **First load**: row counts for `nba_team`, `player`, `game`, and `player_game` match the
      recorded JSON. `load_run` has one `succeeded` row with non-zero inserted.
@@ -381,7 +381,7 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
      with no box scores; rows with `postponedStatus='Y'` are stored as `postponed`.
   8. **External IDs**: `player_external_id(source='nba_stats', match_method='exact')`, plus
      `game_external_id` and `nba_team_external_id` rows, exist for loaded entities.
-- [ ] T023 [P] [US1] Write `backend/tests/integration/live/test_live_nba.py`. All tests carry
+- [X] T023 [P] [US1] Write `backend/tests/integration/live/test_live_nba.py`. All tests carry
   `@pytest.mark.live` and use a temp DB.
   - **SC-001**: a full `load_nba(seasons=[current_season()])` finishes in under 30 min. An
     immediate incremental rerun finishes in under 5 min and changes 0 data rows.
@@ -394,7 +394,7 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
 
 ### Implementation for User Story 1
 
-- [ ] T024 [P] [US1] Implement `backend/src/ffmodel/adapters/nba_stats/client.py`, per research R5:
+- [X] T024 [P] [US1] Implement `backend/src/ffmodel/adapters/nba_stats/client.py`, per research R5:
   - `NbaStatsClient(min_interval=1.0, timeout=30, sleep=time.sleep, clock=time.monotonic)`
   - Methods:
     - `game_log(season, date_from=None) -> list[dict]` wraps
@@ -405,7 +405,7 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
   - The paced retry wrapper raises `SourceUnavailable` once retries are exhausted.
   - Regular season only (FR-012). There is no season-type parameter.
   - `cup_final` box scores are not fetched in this feature. Games still come from the schedule.
-- [ ] T025 [P] [US1] Implement `backend/src/ffmodel/adapters/nba_stats/mapping.py`: the pure
+- [X] T025 [P] [US1] Implement `backend/src/ffmodel/adapters/nba_stats/mapping.py`: the pure
   functions specified in T019. The season-type prefix map is `{"001": "preseason", "002":
   "regular", "003": "all_star", "004": "playoffs", "005": "play_in", "006": "cup_final"}`.
   - `schedule_game_row(sg)` takes `game_date` from `gameDateEst[:10]` (ISO), and home/away from
@@ -414,9 +414,9 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
     - `postponedStatus == 'Y'` → `postponed`
     - otherwise `gameStatus` 3 → `final`
     - 1 or 2 → `scheduled`
-- [ ] T026 [P] [US1] Implement `backend/src/ffmodel/adapters/nba_stats/stints.py` with
+- [X] T026 [P] [US1] Implement `backend/src/ffmodel/adapters/nba_stats/stints.py` with
   `derive_stints(...) -> list[Stint]`. It must satisfy every T020 case; research R3 has the rules.
-- [ ] T027 [US1] Implement `backend/src/ffmodel/adapters/nba_stats/loader.py`:
+- [X] T027 [US1] Implement `backend/src/ffmodel/adapters/nba_stats/loader.py`:
   `load_nba(engine, seasons=None, full=False, client=None,
   today=None) -> LoadSummary`. The default seasons are `[current_season(today), previous]`. Steps:
   1. `start_run('nba_stats', scope)`.
@@ -445,7 +445,7 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
      (T020 case 7). Upsert them
      and delete only stale stints, so a rerun changes nothing.
   6. `finish_run` with the totals, or with `failed` and the message on any exception (re-raise).
-- [ ] T028 [US1] Implement `backend/src/ffmodel/cli.py`, the Typer `app`, per `contracts/cli.md`:
+- [X] T028 [US1] Implement `backend/src/ffmodel/cli.py`, the Typer `app`, per `contracts/cli.md`:
   - **Commands**:
     - `db migrate` and `db version`
     - `load nba` with repeatable `--season`, plus `--full` (no season-type option; FR-012)
@@ -473,7 +473,7 @@ user resolutions, atomic replace, status snapshots, and reserve slots (FR-014–
 
 ### Tests for User Story 2
 
-- [ ] T029 [P] [US2] Create synthetic roster CSVs in `backend/tests/fixtures/rosters/`. Use the
+- [X] T029 [P] [US2] Create synthetic roster CSVs in `backend/tests/fixtures/rosters/`. Use the
   header `team_id,player_id,name,positions,nba_team,status,team_name,manager` and fixture players
   from T014.
   - **`valid.csv`**:
@@ -494,13 +494,13 @@ user resolutions, atomic replace, status snapshots, and reserve slots (FR-014–
   - **`inconsistent_team.csv`**: two `t.01` rows with different `team_name`.
   - **`bad_status.csv`**: one row with status `XYZ`.
   - **`ambiguous.csv`**: "Marcus Twin" with blank `nba_team`.
-- [ ] T030 [P] [US2] Write `backend/tests/unit/test_roster_parse.py` for `parse_roster_csv(path)`:
+- [X] T030 [P] [US2] Write `backend/tests/unit/test_roster_parse.py` for `parse_roster_csv(path)`:
   - It handles quoted positions such as `"G,FC"`, UTF-8 curly apostrophes, and emoji team names.
   - Status mapping: blank → `healthy`. `IL`, `IL+` and `NA` give `slot='reserve'`. `Q`, `O`,
     `DTD`, `GTD` and `SUSP` give `slot='active'`.
   - It collects (rather than stops at) the first error for each rejection rule 1, 2 and 6 in
     `contracts/roster-csv.md`.
-- [ ] T031 [P] [US2] Write `backend/tests/unit/test_roster_match.py` for `match_rows(conn, rows,
+- [X] T031 [P] [US2] Write `backend/tests/unit/test_roster_match.py` for `match_rows(conn, rows,
   source)` against the fixture DB, covering the research R7 order:
   1. A confirmed `user` external ID wins, even over an exact name match to a different player.
      A stored `auto` row pointing to the wrong player is ignored, and the name match is recomputed.
@@ -510,7 +510,7 @@ user resolutions, atomic replace, status snapshots, and reserve slots (FR-014–
   5. Ambiguous with no team → unresolved, with both twins as candidates.
   6. `Zed Nobody` → unresolved, with up to 3 `difflib` candidates that each carry an internal
      `player_id`.
-- [ ] T032 [US2] Write `backend/tests/integration/test_roster_loader.py` (fixture DB, Typer
+- [X] T032 [US2] Write `backend/tests/integration/test_roster_loader.py` (fixture DB, Typer
   `CliRunner` for exit codes).
   - Each numbered scenario is its own test function on a fresh `fixture_engine`, so no state
     carries over.
@@ -531,7 +531,7 @@ user resolutions, atomic replace, status snapshots, and reserve slots (FR-014–
   7. **Rejections**: `over_cap.csv`, `duplicate.csv`, `inconsistent_team.csv` and `bad_status.csv`
      each exit with 2 and write nothing, and each report lists every violation.
   8. **SC-003**: reloading the identical file gives 0 inserted and 0 updated.
-- [ ] T033 [P] [US2] Write `backend/tests/integration/test_core_league.py` (fixture DB):
+- [X] T033 [P] [US2] Write `backend/tests/integration/test_core_league.py` (fixture DB):
   - `list_leagues` returns `fixture-league` with capacity 3 and format `9cat_h2h`.
   - `get_league`:
     - teams ordered by `source_team_key`, with manager names
@@ -540,7 +540,7 @@ user resolutions, atomic replace, status snapshots, and reserve slots (FR-014–
 
 ### Implementation for User Story 2
 
-- [ ] T034 [P] [US2] Implement `backend/src/ffmodel/adapters/roster_csv/parse.py`:
+- [X] T034 [P] [US2] Implement `backend/src/ffmodel/adapters/roster_csv/parse.py`:
   - `RosterRow` dataclass:
     - fields: `line_no`, `team_key`, `external_id`, `name`, `positions`, `nba_team`, `status`,
       `slot`, `team_name`, `manager`
@@ -550,7 +550,7 @@ user resolutions, atomic replace, status snapshots, and reserve slots (FR-014–
     - the allowed statuses are exactly `('healthy','DTD','GTD','Q','O','SUSP','IL','IL+','NA')`,
       with blank meaning healthy
     - reserve statuses are `IL`, `IL+` and `NA`
-- [ ] T035 [P] [US2] Implement `backend/src/ffmodel/adapters/roster_csv/match.py` with
+- [X] T035 [P] [US2] Implement `backend/src/ffmodel/adapters/roster_csv/match.py` with
   `match_rows(conn, rows, source) -> tuple[dict[line_no, player_id], list[Problem]]`:
   - follows the research R7 order: only `match_method='user'` rows are used directly; stored `auto`
     rows are ignored and the match is recomputed
@@ -559,7 +559,7 @@ user resolutions, atomic replace, status snapshots, and reserve slots (FR-014–
   - each `Problem` for an unresolved row carries the 3 nearest candidates
     `(player_id, full_name, team)` by `difflib.SequenceMatcher` on `search_name`, plus a fix hint
     `ffm roster resolve --source <source> <external_id> <player_id>`
-- [ ] T036 [US2] Implement `backend/src/ffmodel/adapters/roster_csv/loader.py` with
+- [X] T036 [US2] Implement `backend/src/ffmodel/adapters/roster_csv/loader.py` with
   `load_roster(engine, path, league_key, name=None, season=None, scoring_format="9cat_h2h",
   capacity=10, source="yahoo", as_of=None) -> LoadSummary`. Steps:
   1. `start_run('roster_csv', scope)`.
@@ -581,17 +581,17 @@ user resolutions, atomic replace, status snapshots, and reserve slots (FR-014–
 
   The `season` default is `current_season()`, as in FR-015. If that season has no `season` row
   yet, reject with a message to run `ffm load nba` first.
-- [ ] T037 [US2] Add `resolve_match(engine, source, external_id, player_id)` to
+- [X] T037 [US2] Add `resolve_match(engine, source, external_id, player_id)` to
   `backend/src/ffmodel/adapters/roster_csv/loader.py`. It validates that the player exists and
   upserts `player_external_id` with `match_method='user'`.
-- [ ] T038 [P] [US2] Implement `backend/src/ffmodel/core/data/league.py` per
+- [X] T038 [P] [US2] Implement `backend/src/ffmodel/core/data/league.py` per
   `contracts/read-api.md`, with `list_leagues`, `get_league` and `get_free_agents`:
   - `get_free_agents` selects `player WHERE is_active = 1 AND player_id NOT IN (SELECT player_id
     FROM roster_entry WHERE league_id = :id)`, ordered by `full_name`.
   - The latest status is the `player_status` row with the greatest `as_of`, with ties broken by
     `source`.
   - Export the functions from `core/data/__init__.py`.
-- [ ] T039 [US2] Extend `backend/src/ffmodel/cli.py` with these commands, per `contracts/cli.md`:
+- [X] T039 [US2] Extend `backend/src/ffmodel/cli.py` with these commands, per `contracts/cli.md`:
   - `load roster PATH`, with:
     - `--league-key` (required)
     - `--name`, `--season`, `--format` (default `9cat_h2h`)
@@ -615,7 +615,7 @@ has missed 4 of 10. Postponed and cancelled games are never counted.
 
 ### Tests for User Story 3
 
-- [ ] T040 [P] [US3] Write `backend/tests/integration/test_core_availability.py` (fixture DB):
+- [X] T040 [P] [US3] Write `backend/tests/integration/test_core_availability.py` (fixture DB):
   1. **Upcoming games**: `count_team_games(Iggy, 2026-10-31, 2026-11-08,
      statuses=("scheduled",))` equals 3 (S2, S4, S7). The postponed S3 and cancelled S5 are
      excluded.
@@ -632,7 +632,7 @@ has missed 4 of 10. Postponed and cancelled games are never counted.
 
 ### Implementation for User Story 3
 
-- [ ] T041 [US3] Implement `backend/src/ffmodel/core/data/availability.py` per
+- [X] T041 [US3] Implement `backend/src/ffmodel/core/data/availability.py` per
   `contracts/read-api.md`:
   - `count_team_games(conn, player_id, start, end, *, statuses=("final","scheduled"))`
   - `get_availability(conn, player_id, start, end)`
@@ -663,7 +663,7 @@ found/requested count (FR-020, FR-020a, FR-023, FR-024).
 
 ### Tests for User Story 4
 
-- [ ] T042 [P] [US4] Write `backend/tests/integration/test_core_players.py` (fixture DB):
+- [X] T042 [P] [US4] Write `backend/tests/integration/test_core_players.py` (fixture DB):
   1. `search_players("doncic")`, `("Dončić")` and `("lu don")` all return Dončić first.
   2. `search_players("marcus twin")` returns both twins.
   3. `search_players("schroder")` finds Schröder.
@@ -673,7 +673,7 @@ found/requested count (FR-020, FR-020a, FR-023, FR-024).
   6. `get_player` returns positions as a tuple (`("G","F")`) and the current team abbreviation, or
      None for Old Vet.
   7. `get_player` returns None for an unknown ID.
-- [ ] T043 [P] [US4] Write `backend/tests/integration/test_core_games.py` (fixture DB, with
+- [X] T043 [P] [US4] Write `backend/tests/integration/test_core_games.py` (fixture DB, with
   `as_of=FIXTURE_TODAY`):
   1. **US4-4**: `get_last_n_games(Dončić, 15)` returns 15 games, newest first. The first 4 are
      `2026-27` and the next 11 are 2025-26 games k = 71…61. `found=15`, `is_short=False`, and
@@ -691,7 +691,7 @@ found/requested count (FR-020, FR-020a, FR-023, FR-024).
 
 ### Implementation for User Story 4
 
-- [ ] T044 [P] [US4] Implement `backend/src/ffmodel/core/data/players.py`:
+- [X] T044 [P] [US4] Implement `backend/src/ffmodel/core/data/players.py`:
   - `search_players(conn, query, *, active_only=False, limit=25)`:
     - Each word from `name_words(query)` is required: `search_name LIKE '%' || :w0 || '%' AND …`,
       with the parameters bound.
@@ -699,7 +699,7 @@ found/requested count (FR-020, FR-020a, FR-023, FR-024).
   - `get_player(conn, player_id)`.
 
   Export both from `core/data/__init__.py`.
-- [ ] T045 [P] [US4] Implement `backend/src/ffmodel/core/data/games.py`:
+- [X] T045 [P] [US4] Implement `backend/src/ffmodel/core/data/games.py`:
   - `get_last_n_games(conn, player_id, n, *, as_of=None)`:
     - joins `player_game` to `game` and `nba_team`
     - filters `game_date <= as_of` (default today) and `game.season_type = 'regular'` (FR-012)
@@ -709,7 +709,7 @@ found/requested count (FR-020, FR-020a, FR-023, FR-024).
   - Both return `PlayerGameLine`. The opponent is the other team of the game.
 
   Export both from `core/data/__init__.py`.
-- [ ] T046 [US4] Extend `backend/src/ffmodel/cli.py` with `players search QUERY`, which calls
+- [X] T046 [US4] Extend `backend/src/ffmodel/cli.py` with `players search QUERY`, which calls
   `core.data.search_players` and prints `[player_id] full_name (TEAM) positions`.
 
 **Checkpoint**: All four stories pass their tests on their own.
@@ -718,7 +718,7 @@ found/requested count (FR-020, FR-020a, FR-023, FR-024).
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T047 [P] Write `backend/tests/contract/test_offline_reads.py` (SC-006):
+- [X] T047 [P] Write `backend/tests/contract/test_offline_reads.py` (SC-006):
   - Using `fixture_engine`, with network blocking asserted active, call every public function in
     `ffmodel.core.data`.
   - Assert that each returns without error and is non-empty where the fixture guarantees data.
@@ -733,15 +733,15 @@ found/requested count (FR-020, FR-020a, FR-023, FR-024).
     - player lookup → `search_players`
   - **No `nba_api` import**: run `subprocess.run([sys.executable, "-c", "import sys,
     ffmodel.core.data; assert 'nba_api' not in sys.modules"])` and assert exit code 0.
-- [ ] T048 [P] Write `backend/README.md`. Cover:
+- [X] T048 [P] Write `backend/README.md`. Cover:
   - setup (`uv sync`)
   - the `ffm` commands, linking to `specs/001-league-data-schema/contracts/cli.md`
   - `FFMODEL_DB_URL`
   - the residential-network note for stats.nba.com
   - how to run offline tests, the live tests (`-m live`), and `lint-imports`
-- [ ] T049 Run `uv run ruff check --fix && uv run ruff format`, `uv run lint-imports`, and
+- [X] T049 Run `uv run ruff check --fix && uv run ruff format`, `uv run lint-imports`, and
   `uv run pytest` in `backend/`. Fix any findings.
-- [ ] T050 Run quickstart sections B and C manually, on a residential network. Load the 2026-27 and
+- [X] T050 Run quickstart sections B and C manually, on a residential network. Load the 2026-27 and
   2025-26 seasons, then `ffm load roster ~/dev/ccsv-rumble-page/data/rosters.csv --league-key
   ccsv-2026 --name "CCSV Rumble" --season 2026-27 --capacity 10`. Then:
   - Record the auto-match rate (SC-005 requires at least 175 of 184).

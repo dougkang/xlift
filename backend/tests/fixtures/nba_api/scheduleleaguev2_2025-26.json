@@ -1,0 +1,162 @@
+[
+ {
+  "gameId": "0022500578",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612753,
+  "awayTeam_teamId": 1610612763
+ },
+ {
+  "gameId": "0022500579",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612765,
+  "awayTeam_teamId": 1610612756
+ },
+ {
+  "gameId": "0022500580",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612748,
+  "awayTeam_teamId": 1610612738
+ },
+ {
+  "gameId": "0022500581",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612745,
+  "awayTeam_teamId": 1610612760
+ },
+ {
+  "gameId": "0022500582",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612759,
+  "awayTeam_teamId": 1610612749
+ },
+ {
+  "gameId": "0022500583",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612742,
+  "awayTeam_teamId": 1610612762
+ },
+ {
+  "gameId": "0022500584",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612744,
+  "awayTeam_teamId": 1610612752
+ },
+ {
+  "gameId": "0022500585",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612757,
+  "awayTeam_teamId": 1610612737
+ },
+ {
+  "gameId": "0022500586",
+  "gameDateEst": "2026-01-15T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612747,
+  "awayTeam_teamId": 1610612766
+ },
+ {
+  "gameId": "0022500587",
+  "gameDateEst": "2026-01-16T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612751,
+  "awayTeam_teamId": 1610612741
+ },
+ {
+  "gameId": "0022500588",
+  "gameDateEst": "2026-01-16T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612754,
+  "awayTeam_teamId": 1610612740
+ },
+ {
+  "gameId": "0022500589",
+  "gameDateEst": "2026-01-16T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612755,
+  "awayTeam_teamId": 1610612739
+ },
+ {
+  "gameId": "0022500590",
+  "gameDateEst": "2026-01-16T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612761,
+  "awayTeam_teamId": 1610612746
+ },
+ {
+  "gameId": "0022500591",
+  "gameDateEst": "2026-01-16T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612745,
+  "awayTeam_teamId": 1610612750
+ },
+ {
+  "gameId": "0022500592",
+  "gameDateEst": "2026-01-16T00:00:00Z",
+  "gameStatus": 3,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612758,
+  "awayTeam_teamId": 1610612764
+ },
+ {
+  "gameId": "0022500593",
+  "gameDateEst": "2026-01-17T00:00:00Z",
+  "gameStatus": 1,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612742,
+  "awayTeam_teamId": 1610612762
+ },
+ {
+  "gameId": "0022500594",
+  "gameDateEst": "2026-01-17T00:00:00Z",
+  "gameStatus": 1,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612737,
+  "awayTeam_teamId": 1610612738
+ },
+ {
+  "gameId": "0022500595",
+  "gameDateEst": "2026-01-17T00:00:00Z",
+  "gameStatus": 1,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612765,
+  "awayTeam_teamId": 1610612754
+ },
+ {
+  "gameId": "0022500596",
+  "gameDateEst": "2026-01-17T00:00:00Z",
+  "gameStatus": 2,
+  "postponedStatus": "N",
+  "homeTeam_teamId": 1610612752,
+  "awayTeam_teamId": 1610612756
+ },
+ {
+  "gameId": "0022500597",
+  "gameDateEst": "2026-01-17T00:00:00Z",
+  "gameStatus": 1,
+  "postponedStatus": "Y",
+  "homeTeam_teamId": 1610612748,
+  "awayTeam_teamId": 1610612760
+ }
+]

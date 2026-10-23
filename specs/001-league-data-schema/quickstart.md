@@ -82,3 +82,28 @@ In a Python shell, using `ffmodel.core.data`:
 - `get_league(...)`: team `t.14` has 9 active and 3 reserve players (`IL`, `IL`, `NA`).
 - `get_last_n_games(<AJ Dybantsa>, 15)`: `is_short` is True, and `found` is less than 15.
 - `get_free_agents(...)`: does not include any of the 184 rostered players.
+
+## Validation log
+
+**2026-10-23**, residential network, `nba_api` 1.11.6, Python 3.14 (uv), SQLite 3.50:
+
+- **`ffm load nba`** (2025-26 + 2026-27):
+  - 7.7 s total.
+  - Rows: 2,430 games, 27,018 box scores, 665 players, 1,180 stints.
+  - An immediate rerun changes 0 rows (SC-001, SC-003).
+- **`pytest -m live`**: 4 passed.
+  - **SC-002 finding:** the NBA's season-totals endpoint (`LeagueDashPlayerStats`) and its game log
+    (`LeagueGameLog`) disagree by 1 on about 14 player-stats out of 582 players in 2025-26. These
+    are stat corrections that didn't propagate to both. Our totals equal the game log exactly. The
+    comparison to the official season totals allows a difference of at most 1.
+- **Reference roster file** (184 rows):
+  - 184 of 184 matched automatically (SC-005). The only name that needed the initial rule was
+    `N. Alexander-Walker` → Nickeil Alexander-Walker.
+  - 18 teams and 17 managers. "Paul" runs two teams (research R8).
+  - Team `t.14` has 3 reserve players: Butler (IL), Sharpe (IL), Porter Jr. (NA).
+  - **Team mismatch:** the only row whose team differs between the file and the NBA data is Kevin
+    Porter Jr. The file says MIL; the NBA data lists him with no current team.
+  - An identical reload changes 0 rows.
+  - `assert_contract_invariants` passes on the real database.
+- **Read timings** against the real database: 0.1–0.7 ms per call (target under 100 ms).
+- **AJ Dybantsa**: `get_last_n_games(…, 15)` returns 0 of 15, so he is flagged as a short history.

@@ -124,5 +124,5 @@ not a layer, and import-linter excludes it.
 
 | Deviation | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|
-| `INSERT … ON CONFLICT … DO UPDATE` (not ISO SQL) in adapter write paths | Idempotent, no-op-on-identical upserts (FR-007, SC-003) | `MERGE` is ISO but unsupported by SQLite. Delete-and-reinsert breaks "zero rows changed" and opens a missing-data window. The syntax is identical in SQLite and PostgreSQL and appears only in adapters, never in DDL or core reads. |
+| ~~`INSERT … ON CONFLICT … DO UPDATE`~~ (resolved during implementation: the upsert uses a plain INSERT/UPDATE after a key lookup, which is ISO SQL; research R4) | Idempotent, no-op-on-identical upserts (FR-007, SC-003) | `MERGE` is ISO but unsupported by SQLite. Delete-and-reinsert breaks "zero rows changed" and opens a missing-data window. The syntax is identical in SQLite and PostgreSQL and appears only in adapters, never in DDL or core reads. |
 | `player_team_stint` table, beyond the spec's entity list | Missed games and future-game counts need "which team was the player on, on date D", but the source has no DNP rows (research R3) | Inferring the team at read time puts source heuristics in core and fails for players with no appearances on their current team. |

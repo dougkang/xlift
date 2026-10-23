@@ -1,0 +1,10 @@
+team_id,player_id,name,positions,nba_team,status,team_name,manager
+t.01,y.1,Luka Doncic,"G,FC",LAL,,Keyboard Cats,Doug
+t.01,y.3,Jimmy Butler,FC,GSW,Q,Keyboard Cats,Doug
+t.01,y.8,Iggy Injured,G,GSW,IL,Keyboard Cats,Doug
+t.02,y.2,N. Alexander-Walker,G,ATL,,Elsie’s World,Paul
+t.02,y.9,Dennis Schröder,G,DAL,,Elsie’s World,Paul
+t.02,y.10,Marcus Twin,G,LAL,,Elsie’s World,Paul
+t.02,y.5,AJ Dybantsa,FC,WAS,NA,Elsie’s World,Paul
+t.03,y.4,Bobby Portis Jr.,FC,WAS,,Other Paul,Paul
+t.01,y.12,Free Agent Fred,C,DAL,,Keyboard Kittens,Doug

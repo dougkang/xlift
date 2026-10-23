@@ -1,0 +1,29 @@
+[importlinter]
+root_package = ffmodel
+include_external_packages = True
+
+[importlinter:contract:core-independent]
+name = Core must not import adapters or nba_api (Constitution VI)
+type = forbidden
+source_modules =
+    ffmodel.core
+forbidden_modules =
+    ffmodel.adapters
+    nba_api
+
+[importlinter:contract:adapters-independent]
+name = Adapters must not import core (Constitution VI)
+type = forbidden
+source_modules =
+    ffmodel.adapters
+forbidden_modules =
+    ffmodel.core
+
+[importlinter:contract:contract-is-base]
+name = Contract imports neither adapters nor core
+type = forbidden
+source_modules =
+    ffmodel.contract
+forbidden_modules =
+    ffmodel.adapters
+    ffmodel.core

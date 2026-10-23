@@ -157,7 +157,12 @@ URL change (constitution, Technology Stack).
   hide the DDL. Revisit if the schema needs branching.
 - stdlib `sqlite3`: its parameter style (`?`) and connection API are SQLite-only.
 
-**Portability note**: `INSERT … ON CONFLICT … DO UPDATE` is not ISO SQL, but SQLite and
+**Implementation note (2026-10-23)**: The upsert helper (`adapters/common.py`) ended up not
+using `ON CONFLICT` at all. It reads the existing keys with a row-value `IN (VALUES …)` lookup,
+then runs a plain `INSERT` for new rows and an `UPDATE` for changed rows. This is ISO SQL, so the
+portability exception below no longer applies.
+
+**Original portability note**: `INSERT … ON CONFLICT … DO UPDATE` is not ISO SQL, but SQLite and
 PostgreSQL (9.5+) both support it with the same syntax. The no-op guard `IS DISTINCT FROM` needs
 SQLite 3.39+. The SQLite bundled with uv's Python 3.12 is 3.50.4, and `schema.sql` was verified
 through it. It is used only in adapters' write paths,
