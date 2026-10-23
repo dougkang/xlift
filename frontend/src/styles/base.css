@@ -349,3 +349,8 @@ select {
 .record-table .total-h2h {
   text-align: center;
 }
+
+.category-table .leader-team {
+  font-size: var(--header-size);
+  color: var(--muted);
+}

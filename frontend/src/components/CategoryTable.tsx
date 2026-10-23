@@ -32,7 +32,7 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
                 <td className="num">{formatValue(row.average, cat)}</td>
                 <td className="num">{formatValue(row.league_average, cat)}</td>
                 <td className="num">{formatValue(row.leader_average, cat)}</td>
-                <td>{row.leader_name}</td>
+                <td className="leader-team">{row.leader_name}</td>
               </tr>
             );
           })}
