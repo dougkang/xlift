@@ -78,6 +78,9 @@ simulation.
 
 If the player is a free agent, we simply add the player and run the simulation.
 If the player is on another team, we must select a player on the roster or a free agent in the list to swap with.
+That team receives the selected player in return. A roster player makes it a 1-for-1 trade, which needs no empty
+slot. A free agent goes to the other team, and the acquired player then needs an empty active slot on the selected
+team.
 
 The simulation should then update to reflect the change.
 
