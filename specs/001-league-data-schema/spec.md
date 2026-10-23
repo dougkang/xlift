@@ -290,8 +290,10 @@ delivers no value until that tool exists.
 
 - **SC-001**: A first load of one full regular season completes unattended in under 30 minutes. A
   daily refresh after that completes in under 5 minutes.
-- **SC-002**: For 20 randomly chosen players, each player's season totals for every stored stat
-  computed from the database exactly match the official season totals.
+- **SC-002**: Each player's season totals for every stored stat, computed from the database,
+  exactly match the source's game-by-game record. For 20 randomly chosen players, they are also
+  within 1 of the official season totals. The NBA's season-totals and game-log figures disagree
+  by 1 for a handful of player-stats, because of stat corrections that reached only one of them.
 - **SC-003**: Running either loader twice in a row with no new input changes zero rows of league
   and player data. The run itself is still logged (FR-010).
 - **SC-004**: Games remaining per NBA team for any 7-day window match the official schedule for

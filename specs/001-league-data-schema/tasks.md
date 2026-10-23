@@ -386,8 +386,9 @@ Live: `ffm load nba` for one season matches the official game log of a chosen pl
   - **SC-001**: a full `load_nba(seasons=[current_season()])` finishes in under 30 min. An
     immediate incremental rerun finishes in under 5 min and changes 0 data rows.
   - **SC-002**: for 20 random players with at least 10 games, the summed `player_game` totals for
-    FGM, FGA, FG3M, FG3A, FTM, FTA, OREB, DREB, REB, AST, STL, BLK, TOV, PF and PTS equal
-    `LeagueDashPlayerStats(per_mode_detailed='Totals')` for the season.
+    FGM, FGA, FG3M, FG3A, FTM, FTA, OREB, DREB, REB, AST, STL, BLK, TOV, PF and PTS are within 1
+    of `LeagueDashPlayerStats(per_mode_detailed='Totals')` for the season. Separately, every
+    player's totals exactly equal the summed `LeagueGameLog` rows.
   - **SC-004**: per-team scheduled game counts for the next 7 days equal counts computed directly
     from `ScheduleLeagueV2`. This proves the load matches its source. T050 adds a manual check
     against the official NBA.com schedule.
