@@ -354,3 +354,13 @@ select {
   font-size: var(--header-size);
   color: var(--muted);
 }
+
+/* Every row is tall enough for a two-line leader team name, so rows stay even. */
+.category-table tbody td {
+  height: 2.4rem;
+  vertical-align: middle;
+}
+
+.category-table .leader-team {
+  line-height: 1.15;
+}
