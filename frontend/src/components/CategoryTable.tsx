@@ -18,8 +18,8 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
             <th className="col-header num">Rank</th>
             <th className="col-header num">Avg</th>
             <th className="col-header num">League</th>
-            <th className="col-header">Leader</th>
-            <th className="col-header num" aria-label="Leader average" />
+            <th className="col-header num">Leader</th>
+            <th className="col-header" aria-label="Leader team" />
           </tr>
         </thead>
         <tbody>
@@ -31,8 +31,8 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
                 <td className="num">{row.rank}</td>
                 <td className="num">{formatValue(row.average, cat)}</td>
                 <td className="num">{formatValue(row.league_average, cat)}</td>
-                <td>{row.leader_name}</td>
                 <td className="num">{formatValue(row.leader_average, cat)}</td>
+                <td>{row.leader_name}</td>
               </tr>
             );
           })}
