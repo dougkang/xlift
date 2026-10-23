@@ -544,7 +544,7 @@ move.
 
 ### Tests for User Story 2
 
-- [ ] T040 [P] [US2] Write `backend/tests/unit/test_scenario_moves.py` (a synthetic scenario with
+- [X] T040 [P] [US2] Write `backend/tests/unit/test_scenario_moves.py` (a synthetic scenario with
   capacity 3) for every transition and error code in data-model.md:
   - `Drop`: the player becomes a free agent. Dropping a reserve player doesn't increase
     `open_active_slots`.
@@ -558,7 +558,7 @@ move.
     on the team → `NOT_ON_TEAM`.
   - `check_invariants` holds after every valid move, no move ever creates a reserve slot, and the
     base scenario is never mutated (frozen).
-- [ ] T041 [P] [US2] Write `backend/tests/integration/test_impact_moves.py` (`impact_engine`):
+- [X] T041 [P] [US2] Write `backend/tests/integration/test_impact_moves.py` (`impact_engine`):
   1. Dropping Gamma One changes Gammas' projections, and the picker (T045) lists Gamma One as a
      free agent.
   2. Adding Busy Streamer to Gammas fills the open slot. The response shows `open_active_slots =
@@ -570,7 +570,7 @@ move.
   6. **SC-009**: after 20 analyze calls with moves, a checksum of every table equals the
      pre-test checksum.
   7. Reset (an empty move list) gives a result identical to the first base call.
-- [ ] T042 [P] [US2] Write `backend/tests/integration/test_api_moves_players.py` (`TestClient`):
+- [X] T042 [P] [US2] Write `backend/tests/integration/test_api_moves_players.py` (`TestClient`):
   - **Move errors**: `analyze` with an invalid move returns 422 with `{move_index, code,
     message}`.
   - **`players` as Gammas** (1 open slot):
@@ -582,7 +582,7 @@ move.
     active slot". Rostered players offer `["roster"]` only.
   - **Search**: `query="streamer"` returns the 2 streamers, and `query="busy strea"` returns 1.
     Paging works through `limit` and `offset`.
-- [ ] T043 [P] [US2] Write `frontend/tests/moves.test.tsx` (mocked client):
+- [X] T043 [P] [US2] Write `frontend/tests/moves.test.tsx` (mocked client):
   - pressing "−" dispatches a drop move and re-requests;
   - "+" is disabled with its title set from `add_blocked_reason`;
   - "+" on a rostered player opens `SwapDialog` showing only the allowed give options;
@@ -592,14 +592,14 @@ move.
 
 ### Implementation for User Story 2
 
-- [ ] T044 [US2] Add the move transitions to `backend/src/ffmodel/core/scenario/scenario.py`:
+- [X] T044 [US2] Add the move transitions to `backend/src/ffmodel/core/scenario/scenario.py`:
   - frozen dataclasses `Drop(player_id)`, `Add(player_id)`, `Swap(acquire_id, give_id)`;
   - `apply(scenario, selected_team_id, move) -> Scenario`;
   - `apply_all(scenario, team_id, moves)`, which raises `MoveError(move_index, code, message)` on
     the first invalid move.
 
   The semantics and codes are exactly as in data-model.md and research R7.
-- [ ] T045 [US2] Implement `backend/src/ffmodel/tools/impact_analysis/picker.py` with
+- [X] T045 [US2] Implement `backend/src/ffmodel/tools/impact_analysis/picker.py` with
   `list_players(conn, settings, moves, *, query, limit, offset) -> PlayerPage`:
   - **Which players**: every active NBA player, plus every rostered player (inactive or
     otherwise), not on the selected team in the scenario.
@@ -612,14 +612,14 @@ move.
       when it has an open active slot;
     - `add_blocked_reason` says why "+" is disabled.
   - **Order**: free agents first, then by name. Then page the result.
-- [ ] T046 [US2] Extend `analysis.py`:
+- [X] T046 [US2] Extend `analysis.py`:
   - apply the moves with `apply_all`;
   - mark `moved = true` on players whose team differs from the base;
   - add `open_active_slots` per roster.
 
   Add `POST /api/impact/players` to `routes.py`, and map `MoveError` to a 422 with the
   `MoveErrorDetail` body in both endpoints.
-- [ ] T047 [P] [US2] Implement `frontend/src/components/PlayerPicker.tsx`:
+- [X] T047 [P] [US2] Implement `frontend/src/components/PlayerPicker.tsx`:
   - a search input, debounced by 250 ms;
   - a paged list of 50 rows;
   - each row: "+", name, NBA team, owner, status, asterisk;
@@ -629,14 +629,14 @@ move.
     player.
 
   Hovering a row shows `--hover`.
-- [ ] T048 [P] [US2] Implement `frontend/src/components/SwapDialog.tsx`:
+- [X] T048 [P] [US2] Implement `frontend/src/components/SwapDialog.tsx`:
   - a heading "Give <team> one of:";
   - a list of the selected team's roster, when `"roster"` is allowed;
   - a free-agent search using the `players` endpoint filtered to FA, when `"free_agent"` is
     allowed;
   - confirm appends `{type:"swap", acquire_id, give_id}`;
   - Esc or Cancel closes it.
-- [ ] T049 [US2] Update `frontend/src/components/Roster.tsx`:
+- [X] T049 [US2] Update `frontend/src/components/Roster.tsx`:
   - add "−" (destructive style) on every row, dispatching a drop;
   - rows with `moved` get the `--yours` background;
   - show "N open slot(s)".

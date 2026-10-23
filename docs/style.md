@@ -20,8 +20,10 @@ Three colors only for UI chrome (text, structure, controls):
 - **Yellow `#f5c518`**: the single accent. It means "yours" or "selected" (the selected team,
   selected rows, active mode toggle). It is never decorative, and never a primary-button color.
 
-Red `#c00` appears only on destructive actions (e.g. the drop `-` button). It is a warning, not a
-design color.
+Red `#c00` is a warning, not a design color. It appears only in two places:
+- destructive actions on hover, e.g. the drop `−` button;
+- a player's availability status (Q, O, DTD, IL, NA, …), shown as small bold red text after the
+  player's NBA team.
 
 Grays (`#555`, `#888`, `#aaa`, `#ccc`, `#eee`) mean muted state only: bench rows, inactive
 links, placeholders, disabled controls. Gray means secondary or unavailable.
@@ -63,8 +65,13 @@ Before adding a line, ask whether more padding does the same job.
 
 ### Shape
 
-No border-radius anywhere; every element is a rectangle. Only real `<button>` elements and inputs
-get a border (1px solid `#111`) to signal they are interactive.
+No border-radius anywhere; every element is a rectangle. Controls are not boxed:
+- **Buttons** have no visible border.
+- **Inputs and selects** show only a light `#ccc` bottom rule, which darkens to `#111` on hover.
+  Dropdowns drop the browser's native look and use a small muted chevron, which darkens on
+  hover, so they read like the search bar.
+
+Keyboard focus always shows a 1px `#111` outline.
 
 ### Data density
 
@@ -79,15 +86,20 @@ The UI is for people who want to see a lot at once.
 
 ### Interactive states
 
-Each interactive element has exactly two states beyond default:
+**The visualization is the priority; controls stay quiet until you reach for them.** Each
+interactive element has exactly two states beyond default:
 
-- **Hover** on rows: `#eee` background.
-- **Selected / active**: `#f5c518` yellow background.
-- **Primary button**: black fill, white text, `#333` on hover.
-- **Secondary button** (e.g. `+`, reset, pager): transparent, black border, yellow on hover.
-- **Destructive button** (e.g. `-` drop): red border and text, fills red on hover.
-- **Disabled**: `#aaa` border and text. **Pending / in flight** (e.g. simulation running): italic
-  and 75% opacity.
+- **Default**: controls are muted. Buttons are borderless, with muted `#555` text. Row actions
+  (`+` add, `−` drop, Give) sit at 35% opacity.
+- **Hover / focus**: the control reveals itself with a fill.
+  - Hovering a row brings its row actions to full opacity and gives the row an `#eee` background.
+  - A hovered button fills yellow `#f5c518` with `#111` text.
+  - A hovered destructive button (`−` drop) fills red `#c00` with white text. Red appears only on
+    hover, never at rest.
+- **Selected / active**: `#f5c518` yellow background, for example the active mode pill.
+- **Primary button** (rare): black fill, white text, `#333` on hover.
+- **Disabled**: `#ccc` text with no fill on hover. A tooltip explains why.
+- **Pending / in flight** (e.g. a simulation running): italic and 75% opacity.
 
 ### Layout
 

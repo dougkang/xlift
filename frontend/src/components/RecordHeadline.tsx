@@ -12,10 +12,10 @@ export function RecordHeadline({ result, pending = false }: { result: AnalysisRe
       </div>
       {rec && (
         <div className="score">
+          {rec.unit === "matchups" && <div className="units">vs {opponents} teams (W–L–T)</div>}
           <div className="record" aria-label="Projected record">
             {rec.wins}–{rec.losses}–{rec.ties}
           </div>
-          {rec.unit === "matchups" && <div className="units">vs {opponents} teams (W–L–T)</div>}
         </div>
       )}
     </header>

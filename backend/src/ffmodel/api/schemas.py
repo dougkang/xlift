@@ -14,17 +14,20 @@ Mode = Literal["strategic", "tactical"]
 class DropMove(BaseModel):
     type: Literal["drop"]
     player_id: int
+    team_id: int | None = None  # the team the move was made for; defaults to the request team
 
 
 class AddMove(BaseModel):
     type: Literal["add"]
     player_id: int
+    team_id: int | None = None
 
 
 class SwapMove(BaseModel):
     type: Literal["swap"]
     acquire_id: int
     give_id: int
+    team_id: int | None = None
 
 
 Move = Annotated[DropMove | AddMove | SwapMove, Field(discriminator="type")]
@@ -56,6 +59,7 @@ class PlayersRequest(ScenarioRequest):
     query: str = ""
     limit: int = Field(50, ge=1, le=200)
     offset: int = Field(0, ge=0)
+    free_agents_only: bool = False
 
 
 # --- Leagues -------------------------------------------------------------------------------

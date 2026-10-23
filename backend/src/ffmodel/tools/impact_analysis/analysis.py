@@ -6,10 +6,9 @@ Returns plain JSON-ready dicts; the API layer validates them against its Pydanti
 from collections.abc import Sequence
 
 import numpy as np
-from sqlalchemy.exc import NoResultFound
 
-from ffmodel.core.data import get_data_freshness, get_league
-from ffmodel.core.scenario import Scenario, from_snapshot
+from ffmodel.core.data import get_data_freshness
+from ffmodel.core.scenario import Scenario
 from ffmodel.core.scoring import ScoringFormat, UnsupportedFormat, get_format
 from ffmodel.core.sim import (
     STRATEGIC,
@@ -24,12 +23,11 @@ from ffmodel.core.sim import (
 )
 from ffmodel.tools.impact_analysis import cache
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings, normalize
+from ffmodel.tools.impact_analysis.state import NotFound, load_state
+
+__all__ = ["NotFound", "analyze"]
 
 FOOTNOTE_MARKER = "*"
-
-
-class NotFound(LookupError):
-    pass
 
 
 def _odds(o) -> dict:
@@ -53,14 +51,6 @@ def _settings_echo(s: AnalysisSettings) -> dict:
     }
 
 
-def _player_info(snapshot) -> dict[int, dict]:
-    info = {}
-    for team in snapshot.teams:
-        for r in team.roster:
-            info[r.player.player_id] = {"player": r.player, "status": r.status}
-    return info
-
-
 def _roster_rows(scenario: Scenario, snapshot, info, projections, games_remaining: bool) -> list:
     base_owner = {r.player.player_id: t.fantasy_team_id for t in snapshot.teams for r in t.roster}
     rows = []
@@ -68,7 +58,7 @@ def _roster_rows(scenario: Scenario, snapshot, info, projections, games_remainin
         tid = team.fantasy_team_id
         players = []
         for spot in scenario.rosters[tid]:
-            p = info[spot.player_id]["player"]
+            p, status = info[spot.player_id]
             proj = projections.get(spot.player_id)
             found = proj.games_found if proj else 0
             requested = proj.games_requested if proj else 0
@@ -79,7 +69,7 @@ def _roster_rows(scenario: Scenario, snapshot, info, projections, games_remainin
                     "nba_team": p.current_team,
                     "positions": list(p.positions),
                     "slot": spot.slot,
-                    "status": info[spot.player_id]["status"],
+                    "status": status,
                     "games_found": found,
                     "games_requested": requested,
                     "games_remaining": proj.games_remaining if (proj and games_remaining) else None,
@@ -209,17 +199,9 @@ def _curves(
 
 def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
     s = normalize(settings)
-    try:
-        snapshot = get_league(conn, s.league_id)
-    except NoResultFound as exc:
-        raise NotFound(f"no league {s.league_id}") from exc
-    teams = {t.fantasy_team_id: t for t in snapshot.teams}
-    if s.team_id not in teams:
-        raise NotFound(f"no team {s.team_id} in league {s.league_id}")
-
-    scenario = from_snapshot(snapshot)
-    info = _player_info(snapshot)
-    names = {tid: t.name for tid, t in teams.items()}
+    state = load_state(conn, s.league_id, s.team_id, moves)
+    snapshot, teams, names, scenario = state.snapshot, state.teams, state.names, state.scenario
+    info = state.info
     selected = teams[s.team_id]
     freshness = get_data_freshness(conn, s.league_id).__dict__
     result = {

@@ -1,6 +1,12 @@
 import type { AnalysisResult } from "../api/client";
 
-export function Roster({ result, teamId }: { result: AnalysisResult; teamId: number }) {
+interface RosterProps {
+  result: AnalysisResult;
+  teamId: number;
+  onDrop?: (playerId: number) => void;
+}
+
+export function Roster({ result, teamId, onDrop }: RosterProps) {
   const roster = result.rosters.find((r) => r.team_id === teamId);
   if (!roster) return null;
   return (
@@ -9,26 +15,40 @@ export function Roster({ result, teamId }: { result: AnalysisResult; teamId: num
       <table className="data roster">
         <thead>
           <tr>
+            {onDrop && <th aria-label="Drop" />}
             <th className="col-header">Player</th>
-            <th className="col-header">NBA</th>
             <th className="col-header">Pos</th>
-            <th className="col-header">Status</th>
           </tr>
         </thead>
         <tbody>
           {roster.players.map((p) => (
             <tr key={p.player_id} className={[p.slot === "reserve" ? "muted" : "", p.moved ? "moved" : ""].join(" ").trim() || undefined}>
-              <td className="name-col">
+              {onDrop && (
+                <td className="action-cell">
+                  <button className="destructive row-action" aria-label={`Drop ${p.name}`} onClick={() => onDrop(p.player_id)}>
+                    −
+                  </button>
+                </td>
+              )}
+              <td className="name-col nowrap">
                 {p.name}
                 {p.footnote_marker && <sup className="marker">{p.footnote_marker}</sup>}
+                <span className="sub inline-sub">{p.nba_team ?? "–"}</span>
+                {p.status !== "healthy" && (
+                  <span className="status" title={p.slot === "reserve" ? "Reserve slot" : undefined}>
+                    {" "}
+                    {p.status}
+                  </span>
+                )}
               </td>
-              <td>{p.nba_team ?? "–"}</td>
               <td>{p.positions.join(",") || "–"}</td>
-              <td>{p.slot === "reserve" ? `${p.status} (reserve)` : p.status === "healthy" ? "" : p.status}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      <div className="col-header open-slots">
+        {roster.open_active_slots} open active slot{roster.open_active_slots === 1 ? "" : "s"}
+      </div>
       <Footnotes result={result} />
     </section>
   );

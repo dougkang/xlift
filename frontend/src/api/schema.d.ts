@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/impact/players": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Impact Players */
+        post: operations["impact_players_api_impact_players_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -85,6 +102,8 @@ export interface components {
             type: "add";
             /** Player Id */
             player_id: number;
+            /** Team Id */
+            team_id?: number | null;
         };
         /** AnalysisResult */
         AnalysisResult: {
@@ -178,6 +197,17 @@ export interface components {
             type: "drop";
             /** Player Id */
             player_id: number;
+            /** Team Id */
+            team_id?: number | null;
+        };
+        /** Eligibility */
+        Eligibility: {
+            /** Can Add */
+            can_add: boolean;
+            /** Add Blocked Reason */
+            add_blocked_reason: string | null;
+            /** Swap Give Options */
+            swap_give_options: ("roster" | "free_agent")[];
         };
         /** Footnote */
         Footnote: {
@@ -282,6 +312,97 @@ export interface components {
             tie: number;
             /** Loss */
             loss: number;
+        };
+        /** PlayerPage */
+        PlayerPage: {
+            /** Total */
+            total: number;
+            /** Players */
+            players: components["schemas"]["PlayerRow"][];
+        };
+        /** PlayerRow */
+        PlayerRow: {
+            /** Player Id */
+            player_id: number;
+            /** Name */
+            name: string;
+            /** Nba Team */
+            nba_team: string | null;
+            /** Positions */
+            positions: string[];
+            /** Owner Team Id */
+            owner_team_id: number | null;
+            /** Owner Label */
+            owner_label: string;
+            /** Status */
+            status: string;
+            /** Games Found */
+            games_found: number;
+            /** Games Requested */
+            games_requested: number;
+            /** Games Remaining */
+            games_remaining: number | null;
+            /** Footnote */
+            footnote: string | null;
+            eligibility: components["schemas"]["Eligibility"];
+        };
+        /** PlayersRequest */
+        PlayersRequest: {
+            /** League Id */
+            league_id: number;
+            /** Team Id */
+            team_id: number;
+            /**
+             * Mode
+             * @default strategic
+             * @enum {string}
+             */
+            mode: "strategic" | "tactical";
+            /**
+             * Window
+             * @default 15
+             */
+            window: number;
+            /** As Of */
+            as_of?: string | null;
+            /** Opponent Id */
+            opponent_id?: number | null;
+            /** Period Start */
+            period_start?: string | null;
+            /** Period End */
+            period_end?: string | null;
+            /**
+             * Iterations
+             * @default 10000
+             */
+            iterations: number;
+            /**
+             * Seed
+             * @default 20261023
+             */
+            seed: number;
+            /** Moves */
+            moves?: (components["schemas"]["DropMove"] | components["schemas"]["AddMove"] | components["schemas"]["SwapMove"])[];
+            /**
+             * Query
+             * @default
+             */
+            query: string;
+            /**
+             * Limit
+             * @default 50
+             */
+            limit: number;
+            /**
+             * Offset
+             * @default 0
+             */
+            offset: number;
+            /**
+             * Free Agents Only
+             * @default false
+             */
+            free_agents_only: boolean;
         };
         /** Radar */
         Radar: {
@@ -446,6 +567,8 @@ export interface components {
             acquire_id: number;
             /** Give Id */
             give_id: number;
+            /** Team Id */
+            team_id?: number | null;
         };
         /** TeamRoster */
         TeamRoster: {
@@ -596,6 +719,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalysisResult"];
+                };
+            };
+            /** @description Invalid move or settings */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    impact_players_api_impact_players_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlayersRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerPage"];
                 };
             };
             /** @description Validation Error */

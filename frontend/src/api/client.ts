@@ -46,3 +46,19 @@ export const analyze = (req: ScenarioRequest, signal?: AbortSignal) =>
     body: JSON.stringify(req),
     signal,
   });
+
+export type PlayersRequest = ScenarioRequest & {
+  query?: string;
+  limit?: number;
+  offset?: number;
+  free_agents_only?: boolean;
+};
+export type PlayerPage = Schemas["PlayerPage"];
+export type PlayerRow = Schemas["PlayerRow"];
+
+export const players = (req: PlayersRequest, signal?: AbortSignal) =>
+  request<PlayerPage>("/api/impact/players", {
+    method: "POST",
+    body: JSON.stringify(req),
+    signal,
+  });

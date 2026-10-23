@@ -100,6 +100,7 @@ move list.
 |---|---|---|
 | `get_last_n_games_bulk(conn, player_ids, n, *, as_of)` | `dict[player_id, GameWindow]` | One windowed SQL query (`ROW_NUMBER() OVER (PARTITION BY player_id …)`, portable) instead of about 550 calls |
 | `count_team_games_bulk(conn, player_ids, start, end, *, statuses)` | `dict[player_id, int]` | Tactical games remaining for every picker row |
+| `get_player_details(conn, *, league_id=None, player_ids=None)` | `dict[player_id, (PlayerSummary, latest status)]` | The picker pool (active plus rostered players), and details for players a move brings in (added during US2) |
 | `get_data_freshness(conn, league_id)` | `{nba_data_loaded_at, roster_as_of}` | FR-005; reads `load_run` and `player_status` |
 
 All three are regular-season only (FR-012), as 001's reads are. They are contract tests against

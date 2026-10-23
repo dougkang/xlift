@@ -7,15 +7,19 @@ import {
   type AnalysisResult,
   type LeagueDetail,
   type LeagueSummary,
+  type Move,
+  type PlayerRow,
   type ScenarioRequest,
 } from "./api/client";
 import { CategoryCurves } from "./components/CategoryCurves";
 import { CategoryTable } from "./components/CategoryTable";
 import { Controls } from "./components/Controls";
+import { PlayerPicker } from "./components/PlayerPicker";
 import { Radar } from "./components/Radar";
 import { DataLine, RecordHeadline } from "./components/RecordHeadline";
 import { RecordTable } from "./components/RecordTable";
 import { Roster } from "./components/Roster";
+import { SwapDialog } from "./components/SwapDialog";
 import { useScenario, type ScenarioState } from "./state/scenario";
 
 const DEBOUNCE_MS = 250;
@@ -42,6 +46,8 @@ export default function App() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
+  const [swapTarget, setSwapTarget] = useState<PlayerRow | null>(null);
   const { leagueId, teamId } = state.settings;
 
   useEffect(() => {
@@ -80,6 +86,12 @@ export default function App() {
         })
         .catch((e: unknown) => {
           if (controller.signal.aborted) return;
+          if (e instanceof ApiError && e.moveIndex !== null) {
+            // The server rejected a move: drop it and say why; earlier moves stay.
+            setMoveError(e.message);
+            dispatch({ type: "popMove" });
+            return;
+          }
           setError(e instanceof ApiError || e instanceof Error ? e.message : String(e));
         })
         .finally(() => {
@@ -93,13 +105,29 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reqKey]);
 
+  const addMove = (move: Move) => {
+    setMoveError(null);
+    // Record the team the move is made for, so it stays with that team after switching.
+    dispatch({ type: "addMove", move: { ...move, team_id: teamId } as Move });
+  };
+  const selectedRoster = result?.rosters.find((r) => r.team_id === teamId) ?? null;
+
   return (
     <div className="page">
       <h1 className="masthead">Impact Analysis</h1>
       <p className="explainer">
         See how adding, dropping, or swapping players changes your team — this week or for the long run.
       </p>
-      <Controls leagues={leagues} league={league} settings={state.settings} dispatch={dispatch} />
+      <Controls
+        leagues={leagues}
+        league={league}
+        settings={state.settings}
+        dispatch={(a) => {
+          setMoveError(null);
+          dispatch(a);
+        }}
+        moveCount={state.moves.length}
+      />
       {result && <DataLine result={result} />}
       {error && <p className="error" role="alert">{error}</p>}
       {result?.warnings.map((w) => (
@@ -108,20 +136,31 @@ export default function App() {
         </p>
       ))}
       {result && <RecordHeadline result={result} pending={pending} />}
+      {moveError && (
+        <p className="error move-error" role="alert">
+          Move not applied: {moveError}
+        </p>
+      )}
       <div className="layout">
         <main className={pending ? "pending" : undefined}>
           {result && teamId !== null && (
             <>
-              <div className="two-col">
-                <section>
+              {/* A 2x2 grid: the rows are shared, so Per Category Ranking and H2H always start
+                  at the same height whatever the radar or roster heights are. */}
+              <div className="two-col aligned">
+                <section className="cell-radar">
                   <h3 className="section-divider">Category Ranks</h3>
                   <div className="radar-wrap">
                     <Radar result={result} />
-                    <CategoryTable result={result} />
                   </div>
                 </section>
-                <div>
-                  <Roster result={result} teamId={teamId} />
+                <div className="cell-roster">
+                  <Roster result={result} teamId={teamId} onDrop={(id) => addMove({ type: "drop", player_id: id })} />
+                </div>
+                <div className="cell-ranking">
+                  <CategoryTable result={result} />
+                </div>
+                <div className="cell-h2h">
                   <RecordTable result={result} />
                 </div>
               </div>
@@ -131,7 +170,25 @@ export default function App() {
         </main>
         <aside className="sidebar">
           <h3 className="section-divider">Players</h3>
-          <p className="col-header">Player picker arrives with roster moves.</p>
+          {req && swapTarget && selectedRoster && (
+            <SwapDialog
+              target={swapTarget}
+              roster={selectedRoster}
+              request={req}
+              onCancel={() => setSwapTarget(null)}
+              onConfirm={(giveId) => {
+                addMove({ type: "swap", acquire_id: swapTarget.player_id, give_id: giveId });
+                setSwapTarget(null);
+              }}
+            />
+          )}
+          {req && (
+            <PlayerPicker
+              request={req}
+              onAdd={(id) => addMove({ type: "add", player_id: id })}
+              onSwap={setSwapTarget}
+            />
+          )}
         </aside>
       </div>
     </div>

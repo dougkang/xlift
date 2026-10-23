@@ -6,7 +6,9 @@ from sqlalchemy import text
 from ffmodel.api import schemas
 from ffmodel.contract.migrate import current_version
 from ffmodel.core.data import get_data_freshness, get_league, list_leagues
+from ffmodel.core.scenario import Add, Drop, MoveError, Swap
 from ffmodel.tools.impact_analysis.analysis import NotFound, analyze
+from ffmodel.tools.impact_analysis.picker import list_players
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings
 
 router = APIRouter(prefix="/api")
@@ -75,10 +77,53 @@ def _settings(req: schemas.ScenarioRequest) -> AnalysisSettings:
     )
 
 
-@router.post("/impact/analyze", response_model=schemas.AnalysisResult)
-def impact_analyze(req: schemas.ScenarioRequest, request: Request):
+def _moves(req: schemas.ScenarioRequest) -> list:
+    out = []
+    for m in req.moves:
+        if m.type == "drop":
+            out.append(Drop(m.player_id, team_id=m.team_id))
+        elif m.type == "add":
+            out.append(Add(m.player_id, team_id=m.team_id))
+        else:
+            out.append(Swap(acquire_id=m.acquire_id, give_id=m.give_id, team_id=m.team_id))
+    return out
+
+
+def _run(request: Request, fn):
     with _engine(request).connect() as conn:
         try:
-            return analyze(conn, _settings(req), req.moves)
+            return fn(conn)
         except NotFound as exc:
             raise HTTPException(404, str(exc)) from exc
+        except MoveError as exc:
+            detail = schemas.MoveErrorDetail(
+                move_index=exc.move_index if exc.move_index is not None else -1,
+                code=exc.code,
+                message=exc.message,
+            )
+            raise HTTPException(422, detail.model_dump()) from exc
+
+
+@router.post(
+    "/impact/analyze",
+    response_model=schemas.AnalysisResult,
+    responses={422: {"description": "Invalid move or settings"}},
+)
+def impact_analyze(req: schemas.ScenarioRequest, request: Request):
+    return _run(request, lambda conn: analyze(conn, _settings(req), _moves(req)))
+
+
+@router.post("/impact/players", response_model=schemas.PlayerPage)
+def impact_players(req: schemas.PlayersRequest, request: Request):
+    return _run(
+        request,
+        lambda conn: list_players(
+            conn,
+            _settings(req),
+            _moves(req),
+            query=req.query,
+            limit=req.limit,
+            offset=req.offset,
+            free_agents_only=req.free_agents_only,
+        ),
+    )

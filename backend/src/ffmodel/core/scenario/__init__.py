@@ -1,10 +1,31 @@
 from ffmodel.core.scenario.scenario import (
     ACTIVE,
     RESERVE,
+    Add,
+    Drop,
+    Move,
+    MoveError,
     RosterSpot,
     Scenario,
     ScenarioInvariantError,
+    Swap,
+    apply,
+    apply_all,
     from_snapshot,
 )
 
-__all__ = ["ACTIVE", "RESERVE", "RosterSpot", "Scenario", "ScenarioInvariantError", "from_snapshot"]
+__all__ = [
+    "ACTIVE",
+    "RESERVE",
+    "Add",
+    "Drop",
+    "Move",
+    "MoveError",
+    "RosterSpot",
+    "Scenario",
+    "ScenarioInvariantError",
+    "Swap",
+    "apply",
+    "apply_all",
+    "from_snapshot",
+]

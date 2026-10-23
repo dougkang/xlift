@@ -15,7 +15,7 @@ from ffmodel.core.data.models import (
     PlayerSummary,
     RosterPlayer,
 )
-from ffmodel.core.data.players import get_player, search_players
+from ffmodel.core.data.players import get_player, get_player_details, search_players
 
 __all__ = [
     "Availability",
@@ -36,6 +36,7 @@ __all__ = [
     "get_last_n_games",
     "get_last_n_games_bulk",
     "get_player",
+    "get_player_details",
     "get_player_history",
     "list_leagues",
     "search_players",

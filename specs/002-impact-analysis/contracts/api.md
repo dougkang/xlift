@@ -32,7 +32,7 @@ rebuilds the scenario from the stored league on every call (research R7).
 - `as_of`, the period, `iterations` and `seed` are optional. The defaults are in data-model.md
   (AnalysisSettings).
 - `opponent_id` matters only in tactical mode.
-- The move types are `drop`, `add` and `swap`. A swap's `give_id` may be a roster player of
+- The move types are `drop`, `add` and `swap`. Each move may carry `team_id`, the team it was made for. The move keeps acting for that team after the user switches the selected team. When it is omitted, the request's `team_id` is used. A swap's `give_id` may be a roster player of
   `team_id` or a free agent.
 
 ## Endpoints
@@ -123,7 +123,7 @@ Returns 404 for an unknown league.
 | 422 | Invalid settings (FastAPI validation) | Window outside 1–82, `period_end < period_start`, or `opponent_id == team_id` |
 | 404 | Unknown league, team or opponent | — |
 
-### `POST /api/impact/players` (`ScenarioRequest` + `"query": "doncic"`, `"limit": 50`, `"offset": 0`) → `PlayerPage`
+### `POST /api/impact/players` (`ScenarioRequest` + `"query": "doncic"`, `"limit": 50`, `"offset": 0`, `"free_agents_only": false`) → `PlayerPage`
 
 ```json
 {"total": 412, "players": [
@@ -143,6 +143,7 @@ Returns 404 for an unknown league.
 - **Which players**: every NBA player who is active or rostered and not on the selected team, after
   moves.
 - **Search**: the query is accent-insensitive (001 `normalize_name`).
+- **`free_agents_only`**: limits the list to free agents. The swap dialog uses it to search for a free agent to give.
 - **Order**: free agents first, then by name.
 - **`games_remaining`** is set only in tactical mode.
 - **`swap_give_options`**:
