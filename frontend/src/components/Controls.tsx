@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { LeagueDetail, LeagueSummary } from "../api/client";
 import type { Action, Settings } from "../state/scenario";
+import { HelpButton } from "../help/HelpButton";
 
 interface Props {
   leagues: LeagueSummary[];
@@ -31,6 +32,7 @@ export function Controls({
           <WindowInput value={settings.window} onCommit={(n) => dispatch({ type: "setWindow", window: n })} />
           <span className="col-header">games</span>
         </label>
+        <HelpButton topic="settings" />
       </div>
       <div className="controls-row">
         <label>
@@ -133,6 +135,7 @@ export function ModeToggle({ settings, dispatch }: { settings: Settings; dispatc
           {m === "strategic" ? "Strategic" : "Tactical"}
         </button>
       ))}
+      <HelpButton topic="mode" />
     </span>
   );
 }

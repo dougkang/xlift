@@ -1,6 +1,7 @@
 import type { AnalysisResult, Schemas } from "../api/client";
 import { formatValue } from "../format";
 import { WithDelta } from "./Delta";
+import { HelpButton } from "../help/HelpButton";
 
 type RankRow = Schemas["RankRow"];
 
@@ -16,7 +17,9 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
   if (table.kind === "ranks") {
     return (
       <div className="category-table-wrap">
-      <h3 className="section-divider">Per Category Ranking</h3>
+      <h3 className="section-divider">
+        Per Category Ranking <HelpButton topic="categoryTable" />
+      </h3>
       <table className="data category-table">
         <thead>
           <tr>
@@ -73,7 +76,9 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
     result.matchups.find((m) => m.opponent_id === result.settings.opponent_id)?.opponent_name ?? "Opponent";
   return (
     <div className="category-table-wrap">
-      <h3 className="section-divider">Per Category Difference</h3>
+      <h3 className="section-divider">
+        Per Category Difference <HelpButton topic="categoryTable" />
+      </h3>
       <table className="data category-table">
         <thead>
           <tr>

@@ -759,3 +759,94 @@ td.num .with-delta,
 .radar-scale .area .delta {
   font-size: var(--header-size);
 }
+
+/*
+ * Section help (004): a quiet "?" inline after a heading, so it adds no lines (FR-003), and a
+ * bordered panel anchored to it. No radius, shadow, or new colors (docs/style.md).
+ */
+button.help-button {
+  display: inline;
+  padding: 0 0.25rem;
+  margin-left: 0.15rem;
+  font-size: var(--header-size);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  vertical-align: baseline;
+  color: var(--muted);
+}
+
+/* In a centered divider the "?" sits at the right end of the rule, out of the flow so the
+ * title stays centered; in the settings row it's pushed to the far right. */
+.section-divider {
+  position: relative;
+}
+
+.section-divider button.help-button {
+  position: absolute;
+  right: 0;
+  bottom: 0.25rem;
+}
+
+.mode-toggle button.help-button {
+  font-size: var(--header-size);
+}
+
+.controls-row button.help-button {
+  margin-left: auto;
+}
+
+.help-popover {
+  position: fixed;
+  z-index: 50;
+  width: min(22rem, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 0.6rem 0.75rem;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font-size: var(--data-size);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.help-popover .help-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--ink);
+}
+
+.help-popover .help-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  outline: none;
+}
+
+.help-popover .help-close {
+  padding: 0 0.3rem;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.help-popover section {
+  margin-top: 0.45rem;
+}
+
+.help-popover ul {
+  margin: 0.15rem 0 0;
+  padding-left: 1rem;
+}
+
+.help-popover li + li {
+  margin-top: 0.15rem;
+}

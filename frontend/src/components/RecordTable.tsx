@@ -1,5 +1,6 @@
 import type { AnalysisResult, Schemas } from "../api/client";
 import { WithDelta, Wins, WLTWithDelta } from "./Delta";
+import { HelpButton } from "../help/HelpButton";
 
 type Counts = Schemas["RecordCounts"];
 
@@ -45,7 +46,9 @@ export function RecordTable({ result }: { result: AnalysisResult }) {
   if (!result.matchups.length || !totals) return null;
   return (
     <section>
-      <h3 className="section-divider">H2H</h3>
+      <h3 className="section-divider">
+        H2H <HelpButton topic="h2h" />
+      </h3>
       <table className="data record-table">
         <thead>
           <tr>

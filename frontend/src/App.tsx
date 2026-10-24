@@ -22,6 +22,9 @@ import { RecordTable } from "./components/RecordTable";
 import { Roster } from "./components/Roster";
 import { SwapDialog } from "./components/SwapDialog";
 import { useScenario, type ScenarioState } from "./state/scenario";
+import type { HelpContext } from "./help/content";
+import { HelpButton } from "./help/HelpButton";
+import { HelpProvider } from "./help/HelpProvider";
 
 const DEBOUNCE_MS = 250;
 
@@ -113,126 +116,143 @@ export default function App() {
   };
   const selectedRoster = result?.rosters.find((r) => r.team_id === teamId) ?? null;
   const selectedArea = result?.radar?.series.find((s) => s.emphasis === "selected")?.area ?? null;
+  const opponentId = result?.settings.opponent_id;
+  const helpCtx = useMemo<HelpContext>(
+    () => ({
+      mode: state.settings.mode,
+      iterations: result?.settings.iterations ?? null,
+      window: state.settings.window,
+      capacity: league?.active_roster_capacity ?? null,
+      opponentName: result?.matchups.find((m) => m.opponent_id === opponentId)?.opponent_name ?? null,
+    }),
+    [state.settings.mode, state.settings.window, result, league, opponentId],
+  );
 
   return (
-    <div className="page">
-      <div className="masthead-row">
-        <h1 className="masthead">Impact Analysis</h1>
-        <ModeToggle
+    <HelpProvider ctx={helpCtx}>
+      <div className="page">
+        <div className="masthead-row">
+          <h1 className="masthead">Impact Analysis</h1>
+          <ModeToggle
+            settings={state.settings}
+            dispatch={(a) => {
+              setMoveError(null);
+              dispatch(a);
+            }}
+          />
+        </div>
+        <p className="explainer">
+          See how adding, dropping, or swapping players changes your team — this week or for the long run.
+          {result &&
+            ` Every projection is a Monte Carlo simulation of ${result.settings.iterations.toLocaleString("en-US")} matchup weeks per team.`}
+          {result && <DataLine result={result} />}
+        </p>
+        <hr className="section-rule" />
+        <Controls
+          leagues={leagues}
+          league={league}
           settings={state.settings}
           dispatch={(a) => {
             setMoveError(null);
             dispatch(a);
           }}
+          moveCount={state.moves.length}
+          period={
+            result ? { start: result.settings.period_start ?? null, end: result.settings.period_end ?? null } : undefined
+          }
         />
-      </div>
-      <p className="explainer">
-        See how adding, dropping, or swapping players changes your team — this week or for the long run.
-        {result &&
-          ` Every projection is a Monte Carlo simulation of ${result.settings.iterations.toLocaleString("en-US")} matchup weeks per team.`}
-        {result && <DataLine result={result} />}
-      </p>
-      <hr className="section-rule" />
-      <Controls
-        leagues={leagues}
-        league={league}
-        settings={state.settings}
-        dispatch={(a) => {
-          setMoveError(null);
-          dispatch(a);
-        }}
-        moveCount={state.moves.length}
-        period={
-          result ? { start: result.settings.period_start ?? null, end: result.settings.period_end ?? null } : undefined
-        }
-      />
-      {error && <p className="error" role="alert">{error}</p>}
-      {result?.warnings.map((w) => (
-        <p key={w.code} className="error" role="status">
-          {w.message}
-        </p>
-      ))}
-      {result && <RecordHeadline result={result} pending={pending} />}
-      {moveError && (
-        <p className="error move-error" role="alert">
-          Move not applied: {moveError}
-        </p>
-      )}
-      <div className="layout">
-        <main className={pending ? "pending" : undefined}>
-          {result && teamId !== null && (
-            <>
-              {/* A 2x2 grid: the rows are shared, so Per Category Ranking and H2H always start
-                  at the same height whatever the radar or roster heights are. */}
-              <div className="two-col aligned">
-                <section className="cell-radar">
-                  <h3 className="section-divider">Radar</h3>
-                  <div
-                    className="radar-scale"
-                    role="radiogroup"
-                    aria-label="Radar scale"
-                    title="Each tab shows your radar's area relative to the league's largest (top team = 100)"
-                  >
-                    {(["rank", "average", "winrate"] as const).map((sc) => (
-                      <button
-                        key={sc}
-                        className={`pill${state.settings.radarScale === sc ? " active" : ""}`}
-                        role="radio"
-                        aria-checked={state.settings.radarScale === sc}
-                        onClick={() => dispatch({ type: "setRadarScale", scale: sc })}
-                      >
-                        {{ rank: "Rank", average: "Average", winrate: "Win %" }[sc]}
-                        {selectedArea && (
-                          <span className="area" aria-label="Radar area score">
-                            <WithDelta change={result.changes?.radar.area[sc === "winrate" ? "win_rate" : sc]}>
-                              {Math.round(selectedArea[sc === "winrate" ? "win_rate" : sc] * 100)}
-                            </WithDelta>
-                          </span>
-                        )}
-                      </button>
-                    ))}
+        {error && <p className="error" role="alert">{error}</p>}
+        {result?.warnings.map((w) => (
+          <p key={w.code} className="error" role="status">
+            {w.message}
+          </p>
+        ))}
+        {result && <RecordHeadline result={result} pending={pending} />}
+        {moveError && (
+          <p className="error move-error" role="alert">
+            Move not applied: {moveError}
+          </p>
+        )}
+        <div className="layout">
+          <main className={pending ? "pending" : undefined}>
+            {result && teamId !== null && (
+              <>
+                {/* A 2x2 grid: the rows are shared, so Per Category Ranking and H2H always start
+                    at the same height whatever the radar or roster heights are. */}
+                <div className="two-col aligned">
+                  <section className="cell-radar">
+                    <h3 className="section-divider">
+                      Radar <HelpButton topic="radar" />
+                    </h3>
+                    <div
+                      className="radar-scale"
+                      role="radiogroup"
+                      aria-label="Radar scale"
+                      title="Each tab shows your radar's area relative to the league's largest (top team = 100)"
+                    >
+                      {(["rank", "average", "winrate"] as const).map((sc) => (
+                        <button
+                          key={sc}
+                          className={`pill${state.settings.radarScale === sc ? " active" : ""}`}
+                          role="radio"
+                          aria-checked={state.settings.radarScale === sc}
+                          onClick={() => dispatch({ type: "setRadarScale", scale: sc })}
+                        >
+                          {{ rank: "Rank", average: "Average", winrate: "Win %" }[sc]}
+                          {selectedArea && (
+                            <span className="area" aria-label="Radar area score">
+                              <WithDelta change={result.changes?.radar.area[sc === "winrate" ? "win_rate" : sc]}>
+                                {Math.round(selectedArea[sc === "winrate" ? "win_rate" : sc] * 100)}
+                              </WithDelta>
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="radar-wrap">
+                      <Radar result={result} scale={state.settings.radarScale} />
+                    </div>
+                  </section>
+                  <div className="cell-roster">
+                    <Roster result={result} teamId={teamId} onDrop={(id) => addMove({ type: "drop", player_id: id })} />
                   </div>
-                  <div className="radar-wrap">
-                    <Radar result={result} scale={state.settings.radarScale} />
+                  <div className="cell-ranking">
+                    <CategoryTable result={result} />
                   </div>
-                </section>
-                <div className="cell-roster">
-                  <Roster result={result} teamId={teamId} onDrop={(id) => addMove({ type: "drop", player_id: id })} />
+                  <div className="cell-h2h">
+                    <RecordTable result={result} />
+                  </div>
                 </div>
-                <div className="cell-ranking">
-                  <CategoryTable result={result} />
-                </div>
-                <div className="cell-h2h">
-                  <RecordTable result={result} />
-                </div>
-              </div>
-              <CategoryCurves result={result} />
-            </>
-          )}
-        </main>
-        <aside className="sidebar">
-          <h3 className="section-divider">Players</h3>
-          {req && swapTarget && selectedRoster && (
-            <SwapDialog
-              target={swapTarget}
-              roster={selectedRoster}
-              request={req}
-              onCancel={() => setSwapTarget(null)}
-              onConfirm={(giveId) => {
-                addMove({ type: "swap", acquire_id: swapTarget.player_id, give_id: giveId });
-                setSwapTarget(null);
-              }}
-            />
-          )}
-          {req && (
-            <PlayerPicker
-              request={req}
-              onAdd={(id) => addMove({ type: "add", player_id: id })}
-              onSwap={setSwapTarget}
-            />
-          )}
-        </aside>
+                <CategoryCurves result={result} />
+              </>
+            )}
+          </main>
+          <aside className="sidebar">
+            <h3 className="section-divider">
+              Players <HelpButton topic="players" />
+            </h3>
+            {req && swapTarget && selectedRoster && (
+              <SwapDialog
+                target={swapTarget}
+                roster={selectedRoster}
+                request={req}
+                onCancel={() => setSwapTarget(null)}
+                onConfirm={(giveId) => {
+                  addMove({ type: "swap", acquire_id: swapTarget.player_id, give_id: giveId });
+                  setSwapTarget(null);
+                }}
+              />
+            )}
+            {req && (
+              <PlayerPicker
+                request={req}
+                onAdd={(id) => addMove({ type: "add", player_id: id })}
+                onSwap={setSwapTarget}
+              />
+            )}
+          </aside>
+        </div>
       </div>
-    </div>
+    </HelpProvider>
   );
 }

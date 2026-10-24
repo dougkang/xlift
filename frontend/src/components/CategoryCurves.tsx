@@ -1,6 +1,7 @@
 import * as Plot from "@observablehq/plot";
 import { useEffect, useRef, useState } from "react";
 import type { AnalysisResult, Schemas } from "../api/client";
+import { HelpButton } from "../help/HelpButton";
 
 type Curve = Schemas["Curve"];
 type Role = Schemas["CurveSeries"]["role"];
@@ -253,7 +254,9 @@ export function CategoryCurves({ result }: { result: AnalysisResult }) {
     });
   return (
     <section>
-      <h3 className="section-divider">Category Breakdown</h3>
+      <h3 className="section-divider">
+        Category Breakdown <HelpButton topic="breakdown" />
+      </h3>
       <div className="curve-legend">
         {legend.map((s) => (
           <span key={s.role} className="legend-item">

@@ -105,6 +105,21 @@ interactive element has exactly two states beyond default:
 - **Disabled**: `#ccc` text with no fill on hover. A tooltip explains why.
 - **Pending / in flight** (e.g. a simulation running): italic and 75% opacity.
 
+### Help
+
+- **Button**: a muted "?" at header size, right-aligned: at the right end of a section divider
+  (out of flow, so the title stays centered), after the headline's unit label, right after the Strategic / Tactical
+  toggle, or at the far right of the settings row. It's a
+  quiet control (yellow on hover) and never adds a line or shifts the layout.
+- **Popup**: anchored below its button (above when there's no room), at most 22rem wide, kept
+  16px inside the viewport and scrolling when tall. It has a 1px `#111` border, white
+  background, and no radius or shadow.
+  - It has a bold title with a 1px `#111` rule under it, like a section divider, then
+    column-header labels: **Controls**, **Reading it**, **Terms**.
+  - Body text is at data size, with control and term names in bold.
+- **Copy**: at most 120 words per popup, Controls first. All copy lives in
+  `frontend/src/help/content.ts`.
+
 ### Layout
 
 - Content runs close to the viewport edges (~2rem padding). No centered, narrow `max-width`

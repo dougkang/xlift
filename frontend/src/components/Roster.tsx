@@ -1,4 +1,5 @@
 import type { AnalysisResult } from "../api/client";
+import { HelpButton } from "../help/HelpButton";
 
 interface RosterProps {
   result: AnalysisResult;
@@ -12,7 +13,9 @@ export function Roster({ result, teamId, onDrop }: RosterProps) {
   const tactical = roster.players.some((p) => p.games_remaining !== null);
   return (
     <section>
-      <h3 className="section-divider">Roster</h3>
+      <h3 className="section-divider">
+        Roster <HelpButton topic="roster" />
+      </h3>
       <table className="data roster">
         <thead>
           <tr>
