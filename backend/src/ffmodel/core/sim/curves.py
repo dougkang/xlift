@@ -20,7 +20,8 @@ def density_curves(
         if v.size > subsample:
             v = rng.choice(v, subsample, replace=False)
         clean[role] = v
-    pooled = np.concatenate([v for v in clean.values() if v.size]) if clean else np.array([])
+    nonempty = [v for v in clean.values() if v.size]
+    pooled = np.concatenate(nonempty) if nonempty else np.array([])
     if pooled.size == 0:
         return {"x": [], "series": {role: [] for role in clean}}
     lo, hi = np.percentile(pooled, [0.5, 99.5])

@@ -1,6 +1,7 @@
 import { scaleLinear } from "d3-scale";
 import { curveLinearClosed, lineRadial } from "d3-shape";
 import type { AnalysisResult } from "../api/client";
+import type { RadarScale } from "../state/scenario";
 
 const SIZE = 320;
 const R = 120;
@@ -12,13 +13,18 @@ function strokeFor(emphasis: string, index: number): string {
   return OTHER[index % OTHER.length];
 }
 
-export function Radar({ result }: { result: AnalysisResult }) {
+export function Radar({ result, scale = "rank" }: { result: AnalysisResult; scale?: RadarScale }) {
   const radar = result.radar;
   if (!radar) return null;
   const cats = result.categories;
   const n = radar.team_count;
-  // Rank 1 at the rim, rank n at the center.
-  const radius = scaleLinear().domain([n, 1]).range([R * 0.12, R]);
+  // Rank scale: rank 1 at the rim, rank n at the center.
+  // Average scale: the server's min-max normalized average, 1 (best) at the rim.
+  // Win-rate scale: chance of beating a random league opponent, 100% at the rim, 0% at center.
+  const radius =
+    scale === "rank"
+      ? scaleLinear().domain([n, 1]).range([R * 0.12, R])
+      : scaleLinear().domain([0, 1]).range([R * 0.12, R]);
   const angle = (i: number) => (2 * Math.PI * i) / cats.length;
   const line = lineRadial<number>()
     .angle((_, i) => angle(i))
@@ -57,9 +63,11 @@ export function Radar({ result }: { result: AnalysisResult }) {
         <path
           key={s.team_id}
           data-testid={`radar-${s.emphasis}`}
-          d={line(s.ranks) ?? undefined}
-          fill={s.emphasis === "selected" ? "var(--sel-light)" : "var(--opp-light)"}
-          fillOpacity={s.emphasis === "selected" ? 0.45 : 0.12}
+          d={line(scale === "rank" ? s.ranks : scale === "average" ? s.normalized : s.win_rate) ?? undefined}
+          // The selected team is drawn last and filled solid in its border color: wherever we're
+          // already better, other teams are hidden; only where they're better do they show.
+          fill={s.emphasis === "selected" ? "var(--sel)" : "var(--opp-light)"}
+          fillOpacity={s.emphasis === "selected" ? 1 : 0.12}
           stroke={strokeFor(s.emphasis, idx)}
           strokeOpacity={s.emphasis === "other" ? 0.55 : 1}
           strokeWidth={s.emphasis === "selected" ? 2.5 : 1}

@@ -187,6 +187,8 @@ export interface components {
              * @enum {string}
              */
             favors: "selected" | "opponent" | "even";
+            /** Win Probability */
+            win_probability: number;
         };
         /** DropMove */
         DropMove: {
@@ -411,6 +413,18 @@ export interface components {
             /** Series */
             series: components["schemas"]["RadarSeries"][];
         };
+        /**
+         * RadarArea
+         * @description Radar area per scale, relative to the league's largest radar (top team = 1.0).
+         */
+        RadarArea: {
+            /** Rank */
+            rank: number;
+            /** Average */
+            average: number;
+            /** Win Rate */
+            win_rate: number;
+        };
         /** RadarSeries */
         RadarSeries: {
             /** Team Id */
@@ -424,6 +438,13 @@ export interface components {
             emphasis: "selected" | "opponent" | "other";
             /** Ranks */
             ranks: number[];
+            /** Normalized */
+            normalized: number[];
+            /** Win Rate */
+            win_rate: number[];
+            area: components["schemas"]["RadarArea"];
+            /** Averages */
+            averages: (number | null)[];
         };
         /** RankRow */
         RankRow: {
@@ -441,6 +462,8 @@ export interface components {
             leader_name: string;
             /** Leader Average */
             leader_average: number | null;
+            /** Win Rate */
+            win_rate: number;
         };
         /** RecordCounts */
         RecordCounts: {

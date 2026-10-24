@@ -13,7 +13,7 @@ import {
 } from "./api/client";
 import { CategoryCurves } from "./components/CategoryCurves";
 import { CategoryTable } from "./components/CategoryTable";
-import { Controls } from "./components/Controls";
+import { Controls, ModeToggle } from "./components/Controls";
 import { PlayerPicker } from "./components/PlayerPicker";
 import { Radar } from "./components/Radar";
 import { DataLine, RecordHeadline } from "./components/RecordHeadline";
@@ -111,15 +111,27 @@ export default function App() {
     dispatch({ type: "addMove", move: { ...move, team_id: teamId } as Move });
   };
   const selectedRoster = result?.rosters.find((r) => r.team_id === teamId) ?? null;
+  const selectedArea = result?.radar?.series.find((s) => s.emphasis === "selected")?.area ?? null;
 
   return (
     <div className="page">
-      <h1 className="masthead">Impact Analysis</h1>
+      <div className="masthead-row">
+        <h1 className="masthead">Impact Analysis</h1>
+        <ModeToggle
+          settings={state.settings}
+          dispatch={(a) => {
+            setMoveError(null);
+            dispatch(a);
+          }}
+        />
+      </div>
       <p className="explainer">
         See how adding, dropping, or swapping players changes your team — this week or for the long run.
         {result &&
           ` Every projection is a Monte Carlo simulation of ${result.settings.iterations.toLocaleString("en-US")} matchup weeks per team.`}
+        {result && <DataLine result={result} />}
       </p>
+      <hr className="section-rule" />
       <Controls
         leagues={leagues}
         league={league}
@@ -129,8 +141,10 @@ export default function App() {
           dispatch(a);
         }}
         moveCount={state.moves.length}
+        period={
+          result ? { start: result.settings.period_start ?? null, end: result.settings.period_end ?? null } : undefined
+        }
       />
-      {result && <DataLine result={result} />}
       {error && <p className="error" role="alert">{error}</p>}
       {result?.warnings.map((w) => (
         <p key={w.code} className="error" role="status">
@@ -151,9 +165,32 @@ export default function App() {
                   at the same height whatever the radar or roster heights are. */}
               <div className="two-col aligned">
                 <section className="cell-radar">
-                  <h3 className="section-divider">Category Ranks</h3>
+                  <h3 className="section-divider">Radar</h3>
+                  <div
+                    className="radar-scale"
+                    role="radiogroup"
+                    aria-label="Radar scale"
+                    title="Each tab shows your radar's area relative to the league's largest (top team = 100)"
+                  >
+                    {(["rank", "average", "winrate"] as const).map((sc) => (
+                      <button
+                        key={sc}
+                        className={`pill${state.settings.radarScale === sc ? " active" : ""}`}
+                        role="radio"
+                        aria-checked={state.settings.radarScale === sc}
+                        onClick={() => dispatch({ type: "setRadarScale", scale: sc })}
+                      >
+                        {{ rank: "Rank", average: "Average", winrate: "Win %" }[sc]}
+                        {selectedArea && (
+                          <span className="area" aria-label="Radar area score">
+                            {Math.round(selectedArea[sc === "winrate" ? "win_rate" : sc] * 100)}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                   <div className="radar-wrap">
-                    <Radar result={result} />
+                    <Radar result={result} scale={state.settings.radarScale} />
                   </div>
                 </section>
                 <div className="cell-roster">

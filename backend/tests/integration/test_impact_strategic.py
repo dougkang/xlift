@@ -149,3 +149,40 @@ def test_record_table_rows_and_total(impact_engine):
     rec = r["header"]["record"]
     assert totals["matchups"] == {k: rec[k] for k in ("wins", "losses", "ties")}
     assert totals["categories"]["wins"] == sum(m["category_record"]["wins"] for m in rows)
+
+
+def test_radar_normalized_averages(impact_engine):
+    r = run(impact_engine)
+    series = r["radar"]["series"]
+    tov = cat_index(r, "tov")
+    for i, cat in enumerate(r["categories"]):
+        vals = [s["normalized"][i] for s in series]
+        assert min(vals) == 0.0 and max(vals) == 1.0, cat["key"]
+        best = max(series, key=lambda s: s["normalized"][i])
+        assert best["ranks"][i] == 1  # normalized 1 is the rank-1 team
+    lowest_tov = min(series, key=lambda s: s["averages"][tov])
+    assert lowest_tov["normalized"][tov] == 1.0  # direction applied for TO
+
+
+def test_radar_win_rates(impact_engine):
+    r = run(impact_engine)
+    series = r["radar"]["series"]
+    for i, cat in enumerate(r["categories"]):
+        rates = [s["win_rate"][i] for s in series]
+        assert all(0 <= x <= 1 for x in rates)
+        assert sum(rates) / len(rates) == pytest.approx(0.5)  # ties count half → mean 0.5
+        best = max(series, key=lambda s: s["win_rate"][i])
+        assert best["ranks"][i] == 1, cat["key"]
+
+
+def test_radar_area_scores_relative_to_top_team(impact_engine):
+    series = run(impact_engine)["radar"]["series"]
+    for scale in ("rank", "average", "win_rate"):
+        scores = [s["area"][scale] for s in series]
+        assert max(scores) == pytest.approx(1.0) and all(0 <= x <= 1 for x in scores)
+
+
+def test_ranking_rows_carry_win_rate(impact_engine):
+    r = run(impact_engine)
+    selected = next(s for s in r["radar"]["series"] if s["emphasis"] == "selected")
+    assert [row["win_rate"] for row in r["category_table"]["rows"]] == selected["win_rate"]

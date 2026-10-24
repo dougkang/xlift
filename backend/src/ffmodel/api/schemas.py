@@ -133,6 +133,21 @@ class RadarSeries(BaseModel):
     team_name: str
     emphasis: Literal["selected", "opponent", "other"]
     ranks: list[int]
+    # Projected average per category, min-max scaled across the league; 1 = best (direction
+    # applied), 0.5 when all teams are equal.
+    normalized: list[float]
+    # Chance of beating a random league opponent in each category (ties count half).
+    win_rate: list[float]
+    area: "RadarArea"
+    averages: list[float | None]
+
+
+class RadarArea(BaseModel):
+    """Radar area per scale, relative to the league's largest radar (top team = 1.0)."""
+
+    rank: float
+    average: float
+    win_rate: float
 
 
 class Radar(BaseModel):
@@ -148,6 +163,7 @@ class RankRow(BaseModel):
     leader_team_id: int
     leader_name: str
     leader_average: float | None
+    win_rate: float  # chance of beating a random league opponent in this category
 
 
 class DifferenceRow(BaseModel):
@@ -156,6 +172,7 @@ class DifferenceRow(BaseModel):
     opponent_average: float | None
     difference: float | None
     favors: Literal["selected", "opponent", "even"]
+    win_probability: float  # chance the selected team wins this category vs the opponent
 
 
 class CategoryTable(BaseModel):

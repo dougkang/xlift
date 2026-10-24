@@ -9,6 +9,7 @@ interface RosterProps {
 export function Roster({ result, teamId, onDrop }: RosterProps) {
   const roster = result.rosters.find((r) => r.team_id === teamId);
   if (!roster) return null;
+  const tactical = roster.players.some((p) => p.games_remaining !== null);
   return (
     <section>
       <h3 className="section-divider">Roster</h3>
@@ -18,6 +19,7 @@ export function Roster({ result, teamId, onDrop }: RosterProps) {
             {onDrop && <th aria-label="Drop" />}
             <th className="col-header">Player</th>
             <th className="col-header">Pos</th>
+            {tactical && <th className="col-header num" title="Games left in the period">G</th>}
           </tr>
         </thead>
         <tbody>
@@ -42,6 +44,7 @@ export function Roster({ result, teamId, onDrop }: RosterProps) {
                 )}
               </td>
               <td>{p.positions.join(",") || "–"}</td>
+              {tactical && <td className="num">{p.games_remaining ?? "–"}</td>}
             </tr>
           ))}
         </tbody>

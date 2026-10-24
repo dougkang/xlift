@@ -184,7 +184,8 @@ no relationship between categories.
 - **Average markers:** each distribution has a vertical line at its average. Distributions about
   the league (league leader, next best, league average) use a dotted line; team distributions
   use a solid one.
-- **Radar:** the selected team uses the primary color with a light primary fill. Other teams
+- **Radar:** the selected team is drawn last, filled solid in its primary border color. Any team
+  inside our area is hidden, so only categories where another team beats us show through. Other teams
   use the secondary shades, muted, with a faint light-secondary fill. The opponent in tactical
   mode uses secondary `#A96043`.
 - **Labels:** each average line is labeled with its role and value. A label moves to another row

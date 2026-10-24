@@ -24,3 +24,8 @@ def test_nan_dropped_and_deterministic():
     a = density_curves({"a": v}, seed=3)
     b = density_curves({"a": v}, seed=3)
     np.testing.assert_array_equal(a["series"]["a"], b["series"]["a"])
+
+
+def test_all_nan_gives_empty_curve():
+    out = density_curves({"a": np.full(10, np.nan), "b": np.full(10, np.nan)})
+    assert out["x"] == [] and out["series"] == {"a": [], "b": []}

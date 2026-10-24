@@ -12,6 +12,7 @@ from ffmodel.core.scenario import Scenario
 from ffmodel.core.scoring import ScoringFormat, UnsupportedFormat, get_format
 from ffmodel.core.sim import (
     STRATEGIC,
+    TACTICAL,
     category_values,
     density_curves,
     matchup_odds,
@@ -20,6 +21,7 @@ from ffmodel.core.sim import (
     record,
     simulate_team,
     strategic_k,
+    tactical_k,
 )
 from ffmodel.tools.impact_analysis import cache
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings, normalize
@@ -249,8 +251,25 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
     ]
     rostered = [spot.player_id for spots in scenario.rosters.values() for spot in spots]
     projections = cache.projections(conn, rostered, fmt, s)
+    tactical = s.mode == "tactical"
+    result["rosters"] = _roster_rows(scenario, snapshot, info, projections, tactical)
+    result["footnotes"] = _footnotes(result["rosters"], s.team_id)
 
-    k = strategic_k(s.games_per_period)
+    if tactical:
+        if s.opponent_id is None:
+            result["warnings"].append(
+                {
+                    "code": "OPPONENT_REQUIRED",
+                    "message": "Choose an opponent to see this week's matchup.",
+                }
+            )
+            return result
+        if s.opponent_id not in teams:
+            raise NotFound(f"no team {s.opponent_id} in league {s.league_id}")
+        k, mode_code = tactical_k, TACTICAL
+    else:
+        k, mode_code = strategic_k(s.games_per_period), STRATEGIC
+
     samples = {
         tid: simulate_team(
             tid,
@@ -259,13 +278,34 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
             fmt,
             iterations=s.iterations,
             seed=s.seed,
-            mode_code=STRATEGIC,
+            mode_code=mode_code,
         )
         for tid in teams
     }
     values = {tid: category_values(ts, fmt) for tid, ts in samples.items()}
     averages = {tid: projected_averages(ts, fmt) for tid, ts in samples.items()}
     team_ranks = ranks(averages, fmt)
+    normalized = _normalized(averages, fmt)
+    win_rates = _win_rates(values, fmt)
+    area_scores = _area_scores(team_ranks, normalized, win_rates)
+
+    if tactical:
+        _tactical_results(
+            result,
+            s,
+            fmt,
+            scenario,
+            projections,
+            values,
+            averages,
+            team_ranks,
+            names,
+            teams,
+            normalized,
+            win_rates,
+            area_scores,
+        )
+        return result
 
     odds = [
         matchup_odds(s.team_id, values[s.team_id], tid, values[tid], fmt)
@@ -289,6 +329,10 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
                 "team_name": names[tid],
                 "emphasis": "selected" if tid == s.team_id else "other",
                 "ranks": team_ranks[tid],
+                "normalized": normalized[tid],
+                "win_rate": win_rates[tid],
+                "area": area_scores[tid],
+                "averages": [_num(v) for v in averages[tid]],
             }
             for tid in teams
         ],
@@ -306,6 +350,7 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
                 "leader_team_id": leaders[i],
                 "leader_name": names[leaders[i]],
                 "leader_average": _num(averages[leaders[i]][i]),
+                "win_rate": win_rates[s.team_id][i],
             }
             for i, c in enumerate(fmt.categories)
         ],
@@ -313,6 +358,184 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
     result["curves"] = _curves(
         fmt, values, averages, league_avg, team_ranks, names, s.team_id, s.seed
     )
-    result["rosters"] = _roster_rows(scenario, snapshot, info, projections, False)
-    result["footnotes"] = _footnotes(result["rosters"], s.team_id)
     return result
+
+
+def _area(radii: list[float]) -> float:
+    """Radar polygon area as a fraction of the full polygon (every radius 1).
+
+    With equal angles the area is proportional to the sum of products of adjacent radii, so the
+    fraction is sum(r_i * r_(i+1)) / n.
+    """
+    n = len(radii)
+    if n < 3:
+        return 0.0
+    return float(sum(radii[i] * radii[(i + 1) % n] for i in range(n)) / n)
+
+
+def _areas(ranks_: list[int], normalized: list[float], win_rate: list[float], teams: int) -> dict:
+    """Area for each radar scale, on [0, 1] radii (rank 1 → 1, last place → 0)."""
+    span = max(teams - 1, 1)
+    rank_radii = [(teams - r) / span for r in ranks_]
+    return {"rank": _area(rank_radii), "average": _area(normalized), "win_rate": _area(win_rate)}
+
+
+def _area_scores(team_ranks: dict, normalized: dict, win_rates: dict) -> dict[int, dict]:
+    """Radar area per scale, relative to the league's top team (top team = 1.0)."""
+    raw = {
+        t: _areas(team_ranks[t], normalized[t], win_rates[t], len(team_ranks)) for t in team_ranks
+    }
+    out: dict[int, dict] = {t: {} for t in raw}
+    for scale in ("rank", "average", "win_rate"):
+        top = max(a[scale] for a in raw.values())
+        for t, a in raw.items():
+            out[t][scale] = a[scale] / top if top > 0 else 0.0
+    return out
+
+
+def _win_rates(values: dict, fmt: ScoringFormat) -> dict[int, list[float]]:
+    """Per category, each team's chance of beating a random league opponent.
+
+    For every other team, P(win) + 0.5 * P(tie) over all simulations, averaged across opponents.
+    Ties count half, so the league average in every category is exactly 0.5.
+    """
+    teams = list(values)
+    score = {t: np.zeros(len(fmt.categories)) for t in teams}
+    for i, a in enumerate(teams):
+        for b in teams[i + 1 :]:
+            out = fmt.compare(values[a], values[b])
+            s = (out > 0).mean(axis=0) + 0.5 * (out == 0).mean(axis=0)
+            score[a] += s
+            score[b] += 1 - s
+    n = max(len(teams) - 1, 1)
+    return {t: [float(v / n) for v in s] for t, s in score.items()}
+
+
+def _normalized(averages: dict, fmt: ScoringFormat) -> dict[int, list[float]]:
+    """Per category, min-max scale every team's projected average to [0, 1] across the league.
+
+    Direction is applied (1 = best, so lower TO is closer to 1). A category where every team
+    is equal scales to 0.5; a missing value scales to 0.
+    """
+    keys = {t: fmt.rank_key(a) for t, a in averages.items()}
+    out: dict[int, list[float]] = {t: [] for t in keys}
+    for i in range(len(fmt.categories)):
+        col = np.array([k[i] for k in keys.values()], dtype=float)
+        finite = col[np.isfinite(col)]
+        lo, hi = (finite.min(), finite.max()) if finite.size else (0.0, 0.0)
+        for t, k in keys.items():
+            v = k[i]
+            if not np.isfinite(v):
+                out[t].append(0.0)
+            elif hi == lo:
+                out[t].append(0.5)
+            else:
+                out[t].append(float((v - lo) / (hi - lo)))
+    return out
+
+
+def _favors(diff: float, higher_is_better: bool) -> str:
+    if diff is None or not np.isfinite(diff) or diff == 0:
+        return "even"
+    better = diff > 0 if higher_is_better else diff < 0
+    return "selected" if better else "opponent"
+
+
+def _tactical_results(
+    result,
+    s,
+    fmt,
+    scenario,
+    projections,
+    values,
+    averages,
+    team_ranks,
+    names,
+    teams,
+    normalized,
+    win_rates,
+    area_scores,
+) -> None:
+    """Tactical mode (Constitution IV): selected vs one opponent over the games left."""
+    me, opp = s.team_id, s.opponent_id
+    involved = scenario.active_players(me) + scenario.active_players(opp)
+    if all(projections[p].games_remaining == 0 for p in involved):
+        result["warnings"].append(
+            {
+                "code": "NO_GAMES_REMAINING",
+                "message": "No games remain for either team in this matchup period.",
+            }
+        )
+    odds = matchup_odds(me, values[me], opp, values[opp], fmt)
+    rec = record(odds.categories)
+    result["header"]["record"] = {
+        "wins": rec.wins,
+        "losses": rec.losses,
+        "ties": rec.ties,
+        "unit": "categories",
+    }
+    result["header"]["matchup_win_probability"] = odds.matchup.win
+    # H2H stays league-wide (every opponent, under tactical scaling); the headline and the
+    # differences focus on the chosen opponent.
+    league_odds = [
+        odds if tid == opp else matchup_odds(me, values[me], tid, values[tid], fmt)
+        for tid in teams
+        if tid != me
+    ]
+    result["matchups"] = [_matchup_row(o, fmt, names, teams) for o in league_odds]
+    result["matchup_totals"] = _totals(result["matchups"])
+    result["radar"] = {
+        "team_count": len(teams),
+        "series": [
+            {
+                "team_id": tid,
+                "team_name": names[tid],
+                "emphasis": emphasis,
+                "ranks": team_ranks[tid],
+                "normalized": normalized[tid],
+                "win_rate": win_rates[tid],
+                "area": area_scores[tid],
+                "averages": [_num(v) for v in averages[tid]],
+            }
+            for tid, emphasis in ((opp, "opponent"), (me, "selected"))
+        ],
+    }
+    rows = []
+    for i, c in enumerate(fmt.categories):
+        mine, theirs = averages[me][i], averages[opp][i]
+        diff = mine - theirs
+        rows.append(
+            {
+                "category": c.key,
+                "selected_average": _num(mine),
+                "opponent_average": _num(theirs),
+                "difference": _num(diff),
+                "favors": _favors(diff, c.higher_is_better),
+                "win_probability": odds.categories[i].win,
+            }
+        )
+    result["category_table"] = {"kind": "differences", "rows": rows}
+    curves = []
+    for i, c in enumerate(fmt.categories):
+        roles = {
+            "selected": (me, names[me], values[me][:, i], averages[me][i]),
+            "opponent": (opp, names[opp], values[opp][:, i], averages[opp][i]),
+        }
+        dens = density_curves({r: v for r, (_, _, v, _) in roles.items()}, seed=s.seed)
+        curves.append(
+            {
+                "category": c.key,
+                "x": [float(x) for x in dens["x"]],
+                "series": [
+                    {
+                        "role": r,
+                        "team_id": tid,
+                        "label": label,
+                        "mean": _num(mean),
+                        "density": [float(d) for d in dens["series"][r]],
+                    }
+                    for r, (tid, label, _, mean) in roles.items()
+                ],
+            }
+        )
+    result["curves"] = curves

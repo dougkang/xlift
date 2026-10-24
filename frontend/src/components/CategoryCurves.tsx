@@ -91,6 +91,10 @@ function CurveChart({ curve, label, decimals }: { curve: Curve; label: string; d
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (!curve.x.length) {
+      el.textContent = "–";
+      return;
+    }
     const rows = curve.series.flatMap((s) =>
       s.density.map((d, i) => ({ x: curve.x[i], y: d, role: s.role, label: s.label })),
     );

@@ -62,7 +62,10 @@ Returns 404 for an unknown league.
   "categories": [{"key": "pts", "label": "PTS", "decimals": 0, "higher_is_better": true}, "…"],
   "radar": {"team_count": 18,
             "series": [{"team_id": 3, "team_name": "Triton Aggies", "emphasis": "selected",
-                        "ranks": [2, 5, 1, 9, 3, 4, 7, 12, 6]}, "…"]},
+                        "ranks": [2, 5, 1, 9, 3, 4, 7, 12, 6],
+                        "normalized": [0.93, 0.71, 1.0, 0.45, 0.88, 0.8, 0.6, 0.3, 0.66],
+                        "win_rate": [0.81, 0.64, 0.9, 0.42, 0.77, 0.7, 0.55, 0.31, 0.6],
+                        "averages": [412.3, "…"]}, "…"]},
   "category_table": {"kind": "ranks",
                      "rows": [{"category": "pts", "rank": 2, "average": 412.3,
                                "league_average": 398.0, "leader_team_id": 9,
@@ -105,7 +108,7 @@ Returns 404 for an unknown league.
   `{category, selected_average, opponent_average, difference, favors}`.
 - `radar.series` has the selected team and the opponent only.
 - Curve roles are `selected` and `opponent`.
-- `matchups` has a single entry.
+- `matchups` lists every opponent (league-wide H2H under tactical scaling). The chosen opponent's entry matches `header`.
 
 **Warnings**:
 

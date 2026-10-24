@@ -41,6 +41,19 @@ def main() -> None:
         res.raise_for_status()
         OUT.mkdir(parents=True, exist_ok=True)
         (OUT / "strategic.json").write_text(json.dumps(res.json(), indent=1))
+        tactical = client.post(
+            "/api/impact/analyze",
+            json={
+                "league_id": 1,
+                "team_id": 3,
+                "mode": "tactical",
+                "opponent_id": 2,
+                "as_of": fx.IMPACT_TODAY.isoformat(),
+                "iterations": 2000,
+            },
+        )
+        tactical.raise_for_status()
+        (OUT / "tactical.json").write_text(json.dumps(tactical.json(), indent=1))
         (OUT / "league.json").write_text(json.dumps(client.get("/api/leagues/1").json(), indent=1))
         (OUT / "leagues.json").write_text(json.dumps(client.get("/api/leagues").json(), indent=1))
         engine.dispose()

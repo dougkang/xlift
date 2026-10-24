@@ -663,7 +663,7 @@ opponent-only overlays.
 
 ### Tests for User Story 3
 
-- [ ] T050 [P] [US3] Write `backend/tests/unit/test_engine_modes.py` (synthetic projections, no
+- [X] T050 [P] [US3] Write `backend/tests/unit/test_engine_modes.py` (synthetic projections, no
   DB) for **SC-004**:
   - player A has μ = 0.9·base and 2 games remaining; player B has μ = 1.0·base and 1 game
     remaining; both have availability 1.0;
@@ -672,7 +672,7 @@ opponent-only overlays.
   - in strategic mode, the team with B is higher.
 
   Repeat over 5 seeds and assert the result holds every time (100%).
-- [ ] T051 [P] [US3] Write `backend/tests/integration/test_impact_tactical.py` (`impact_engine`,
+- [X] T051 [P] [US3] Write `backend/tests/integration/test_impact_tactical.py` (`impact_engine`,
   `as_of = IMPACT_TODAY`):
   1. Gammas vs Betas in tactical mode with the default period (11-16…11-22):
      - the record unit is `categories`, and W + L + T = 9;
@@ -689,7 +689,7 @@ opponent-only overlays.
   5. No opponent gives `OPPONENT_REQUIRED`, rosters only, and no 500 error.
   6. A period of 11-23…11-23 (no games) gives `NO_GAMES_REMAINING`.
   7. **Constitution IV**: the same roster gives different category averages in the two modes.
-- [ ] T052 [P] [US3] Write `frontend/tests/tactical.test.tsx` (mocked client with
+- [X] T052 [P] [US3] Write `frontend/tests/tactical.test.tsx` (mocked client with
   `frontend/tests/fixtures/tactical.json`):
   - the opponent and period controls appear only in tactical mode;
   - the headline shows "5–3–1 categories vs Betas" and "62% to win";
@@ -699,7 +699,7 @@ opponent-only overlays.
 
 ### Implementation for User Story 3
 
-- [ ] T053 [US3] Extend `backend/src/ffmodel/tools/impact_analysis/analysis.py` for
+- [X] T053 [US3] Extend `backend/src/ffmodel/tools/impact_analysis/analysis.py` for
   `mode="tactical"`:
   - **Inputs**: projections with `games_remaining` for [`as_of`, `period_end`], using
     `tactical_k`.
@@ -715,16 +715,16 @@ opponent-only overlays.
     - `OPPONENT_REQUIRED` when there is no opponent: skip the simulation and return rosters only;
     - `NO_GAMES_REMAINING` when every k is 0.
   - **Rosters**: fill `games_remaining` on the roster rows.
-- [ ] T054 [US3] Extend `picker.py` to fill `games_remaining` in tactical mode, using
+- [X] T054 [US3] Extend `picker.py` to fill `games_remaining` in tactical mode, using
   `count_team_games_bulk` for the page's players.
-- [ ] T055 [P] [US3] Update the frontend:
+- [X] T055 [P] [US3] Update the frontend:
   - **`Controls.tsx`**: an opponent select (the other teams) and period start/end date inputs,
     shown only in tactical mode, defaulting from `settings_echo`.
   - **`RecordHeadline.tsx`**: the tactical units label and win %.
   - **`CategoryTable.tsx`**: the differences view, with selected average, opponent average, and a
     difference whose favors marker is bold and colored with `--sel` or `--opp`.
   - **`Roster.tsx` and `PlayerPicker.tsx`**: a games-remaining column in tactical mode.
-- [ ] T056 [US3] Save `frontend/tests/fixtures/tactical.json` from a real tactical response
+- [X] T056 [US3] Save `frontend/tests/fixtures/tactical.json` from a real tactical response
   (T051).
 
 **Checkpoint**: all three stories work. Tactical streaming decisions differ from strategic ones,

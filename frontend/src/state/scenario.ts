@@ -2,6 +2,7 @@ import { useEffect, useReducer } from "react";
 import type { Move } from "../api/client";
 
 export type Mode = "strategic" | "tactical";
+export type RadarScale = "rank" | "average" | "winrate";
 
 export interface Settings {
   leagueId: number | null;
@@ -11,6 +12,8 @@ export interface Settings {
   opponentId: number | null;
   periodStart: string | null;
   periodEnd: string | null;
+  /** Radar scale: category rank, or each category's average min-max scaled across the league. */
+  radarScale: RadarScale;
 }
 
 export interface ScenarioState {
@@ -25,6 +28,7 @@ export type Action =
   | { type: "setWindow"; window: number }
   | { type: "setOpponent"; opponentId: number | null }
   | { type: "setPeriod"; start: string | null; end: string | null }
+  | { type: "setRadarScale"; scale: RadarScale }
   | { type: "addMove"; move: Move }
   | { type: "popMove" }
   | { type: "reset" };
@@ -40,6 +44,7 @@ export const initialState: ScenarioState = {
     opponentId: null,
     periodStart: null,
     periodEnd: null,
+    radarScale: "rank",
   },
   moves: [],
 };
@@ -59,6 +64,8 @@ export function reducer(state: ScenarioState, action: Action): ScenarioState {
       return { ...state, settings: { ...s, opponentId: action.opponentId } };
     case "setPeriod":
       return { ...state, settings: { ...s, periodStart: action.start, periodEnd: action.end } };
+    case "setRadarScale":
+      return { ...state, settings: { ...s, radarScale: action.scale } };
     case "addMove":
       return { ...state, moves: [...state.moves, action.move] };
     case "popMove":

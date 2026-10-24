@@ -25,7 +25,10 @@ export function RecordTable({ result }: { result: AnalysisResult }) {
         </thead>
         <tbody>
           {result.matchups.map((m) => (
-            <tr key={m.opponent_id}>
+            <tr
+              key={m.opponent_id}
+              className={m.opponent_id === result.settings.opponent_id ? "opponent-row" : undefined}
+            >
               <td className="name-col">
                 {m.opponent_name} <span className="sub">{m.opponent_manager}</span>
               </td>

@@ -167,6 +167,12 @@ All series are computed on the server. The frontend only draws them (Constitutio
 - **"League average"** is the pooled distribution of every team's simulated totals: what a
   randomly chosen opponent looks like. That is the head-to-head reading. The spread of the
   per-simulation mean is much narrower and would understate how variable an opponent is.
+- **Radar "By win %"** (added 2026-10-23): for each category, a team's P(win) + ½·P(tie)
+  against every other team, averaged over opponents. Ties count half, so the league mean is
+  exactly 50%. This was preferred over a median-based scale: a median of a small weekly count is
+  coarse and ties often, and medians don't add across players. Win rate also matches how
+  head-to-head is scored, and it handles skew (short weeks, injury-prone players) without any
+  special treatment.
 - **Tactical overlays**: the opponent only, in curves and radar. Radar ranks are still among all
   teams under tactical scaling.
 

@@ -194,10 +194,37 @@ select:hover {
 
 .controls {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.25rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.35rem;
   margin-bottom: 0.25rem;
+}
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+}
+
+/* Masthead with the mode toggle on the same level, right-aligned; the rule spans both. */
+.masthead-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  border-bottom: 4px solid var(--ink);
+}
+
+.masthead-row .masthead {
+  border-bottom: none;
+}
+
+.masthead-row .mode-toggle {
+  padding-bottom: 0.45rem;
+}
+
+.mode-toggle button {
+  font-size: 0.85rem;
 }
 
 .controls label {
@@ -549,4 +576,60 @@ input[type="search"] {
   .two-col.aligned .cell-ranking { order: 2; }
   .two-col.aligned .cell-roster { order: 3; }
   .two-col.aligned .cell-h2h { order: 4; }
+}
+
+/* Tactical differences: the side a category favors, in its data color. */
+.favors-selected {
+  color: var(--sel);
+  font-weight: 700;
+}
+
+.favors-opponent {
+  color: var(--opp);
+  font-weight: 700;
+}
+
+.favors-even {
+  color: var(--muted);
+}
+
+.controls input[type="date"] {
+  width: 8.5rem;
+}
+
+/* Tactical: the chosen opponent's H2H row is marked with the selection color. */
+.record-table tr.opponent-row td {
+  background: var(--yours);
+}
+
+/* Separates the tool's description from the tool itself. */
+.section-rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 0.5rem 0 0.75rem;
+}
+
+.explainer .data-line {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.opponent-line {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0.15rem 0 0;
+}
+
+.radar-scale {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.radar-scale .area {
+  margin-left: 0.3rem;
+  font-weight: 400;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
