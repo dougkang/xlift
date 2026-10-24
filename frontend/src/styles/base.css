@@ -579,13 +579,14 @@ input[type="search"] {
 }
 
 /* Tactical differences: the side a category favors, in its data color. */
+/* Tactical Diff: green when the difference favors you, red when it favors the opponent. */
 .favors-selected {
-  color: var(--sel);
+  color: var(--better);
   font-weight: 700;
 }
 
 .favors-opponent {
-  color: var(--opp);
+  color: var(--worse);
   font-weight: 700;
 }
 
@@ -632,4 +633,129 @@ input[type="search"] {
   font-weight: 400;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* --- Change markers (003): small, inline, never wrapping (docs/style.md "Change") --- */
+.delta {
+  font-size: var(--header-size);
+  font-weight: 400;
+  margin-left: 0.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta-better {
+  color: var(--better);
+}
+
+.delta-worse {
+  color: var(--worse);
+}
+
+.delta-neutral {
+  color: var(--muted);
+}
+
+/* Changes sit on their own line below the value; that line is always reserved so the layout
+   never shifts when changes appear or disappear (003 FR-019). */
+.with-delta {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: inherit;
+  line-height: 1.2;
+}
+
+td.num .with-delta,
+.score .with-delta {
+  align-items: flex-end;
+}
+
+.delta-line {
+  display: block;
+  min-height: 0.8rem;
+  line-height: 0.8rem;
+}
+
+.delta-line .delta {
+  margin-left: 0;
+}
+
+.score .delta-line {
+  text-align: right;
+  min-height: 1.1rem;
+  line-height: 1.1rem;
+}
+
+.score .delta-line .delta {
+  font-size: 0.85rem;
+}
+
+.radar-scale .area {
+  display: inline-flex;
+  vertical-align: top;
+}
+
+.flip-better {
+  color: var(--better);
+  font-weight: 800;
+}
+
+.flip-worse {
+  color: var(--worse);
+  font-weight: 800;
+}
+
+.result-better {
+  color: var(--better);
+}
+
+.result-worse {
+  color: var(--worse);
+}
+
+/* A W count that changed is colored by the change (003). */
+.wins-better {
+  color: var(--better);
+}
+
+.wins-worse {
+  color: var(--worse);
+}
+
+/* H2H totals: the wins change ends at the right edge of the record above it. */
+.record-table tfoot .with-delta {
+  align-items: flex-end;
+}
+
+/* Radar area scores: larger than the tab label so the score reads at a glance. */
+.radar-scale .area {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.radar-scale button.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+/* The change sits below the score without counting toward its height, so the tab label lines up
+   with the middle of the score number. Space for it is reserved under the tab row. */
+.radar-scale .with-delta {
+  position: relative;
+}
+
+.radar-scale .delta-line {
+  position: absolute;
+  top: 100%;
+  right: 0;
+}
+
+.radar-scale {
+  margin-bottom: 1rem;
+}
+
+.radar-scale .area .delta {
+  font-size: var(--header-size);
 }

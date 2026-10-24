@@ -27,6 +27,12 @@
   --other-3: #ce7955;
   --other-4: #e89a78;
 
+  /* Change (before/after), docs/style.md "Change (before/after)". */
+  --better: #5c8e4e;
+  --worse: #c00;
+  --before-line: #aaa;
+  --before-fill: #eee;
+
   --data-size: 0.78rem;
   --header-size: 0.65rem;
 }

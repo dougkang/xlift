@@ -54,6 +54,38 @@ def main() -> None:
         )
         tactical.raise_for_status()
         (OUT / "tactical.json").write_text(json.dumps(tactical.json(), indent=1))
+        moves = client.post(
+            "/api/impact/analyze",
+            json={
+                "league_id": 1,
+                "team_id": 4,
+                "as_of": fx.IMPACT_TODAY.isoformat(),
+                "iterations": 2000,
+                # Deltas trade for Alpha One: +1 win and an L -> W flip against Alphas.
+                "moves": [
+                    {"type": "swap", "acquire_id": fx.ALPHA_1, "give_id": fx.DELTA_1, "team_id": 4}
+                ],
+            },
+        )
+        moves.raise_for_status()
+        (OUT / "strategic_moves.json").write_text(json.dumps(moves.json(), indent=1))
+        tactical_moves = client.post(
+            "/api/impact/analyze",
+            json={
+                "league_id": 1,
+                "team_id": 3,
+                "mode": "tactical",
+                "opponent_id": 4,
+                "as_of": fx.IMPACT_TODAY.isoformat(),
+                "iterations": 2000,
+                # Gammas trade with their opponent Deltas: both teams change.
+                "moves": [
+                    {"type": "swap", "acquire_id": fx.DELTA_1, "give_id": fx.GAMMA_2, "team_id": 3}
+                ],
+            },
+        )
+        tactical_moves.raise_for_status()
+        (OUT / "tactical_moves.json").write_text(json.dumps(tactical_moves.json(), indent=1))
         (OUT / "league.json").write_text(json.dumps(client.get("/api/leagues/1").json(), indent=1))
         (OUT / "leagues.json").write_text(json.dumps(client.get("/api/leagues").json(), indent=1))
         engine.dispose()

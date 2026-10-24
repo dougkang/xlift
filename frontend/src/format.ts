@@ -10,6 +10,7 @@ export function formatValue(value: number | null | undefined, cat: Category, sig
     const fixed = Math.abs(value).toFixed(cat.decimals).replace(/^0(?=\.)/, "");
     return `${value < 0 ? "−" : sign}${fixed}`;
   }
-  const rounded = Math.abs(value) >= 100 ? value.toFixed(0) : value.toFixed(1);
+  // Counting averages always show 1 decimal so a value and its change share precision (003 R2).
+  const rounded = value.toFixed(1);
   return `${sign}${rounded.replace("-", "−")}`;
 }

@@ -706,7 +706,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 161.61375,
      "density": [
       0.0033166070842951304,
@@ -1121,7 +1121,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 48.90825,
      "density": [
       0.007002681429881571,
@@ -1536,7 +1536,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 40.64275,
      "density": [
       0.0084046615778418,
@@ -1951,7 +1951,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 8.352,
      "density": [
       0.02320704091039181,
@@ -2366,7 +2366,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 8.353875,
      "density": [
       0.007198526216193458,
@@ -2781,7 +2781,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 15.85725,
      "density": [
       0.016894308561094813,
@@ -3196,7 +3196,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 0.4666706458404941,
      "density": [
       0.1440472743787907,
@@ -3611,7 +3611,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 0.7971571854905702,
      "density": [
       0.10604941930924827,
@@ -4026,7 +4026,7 @@
     {
      "role": "league_average",
      "team_id": null,
-     "label": "League average",
+     "label": "League Average",
      "mean": 15.894,
      "density": [
       0.016050174023990525,
@@ -4558,5 +4558,6 @@
  "freshness": {
   "nba_data_loaded_at": "2026-11-18T08:00:00+00:00",
   "roster_as_of": "2026-11-18"
- }
+ },
+ "changes": null
 }

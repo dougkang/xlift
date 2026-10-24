@@ -14,6 +14,7 @@ import {
 import { CategoryCurves } from "./components/CategoryCurves";
 import { CategoryTable } from "./components/CategoryTable";
 import { Controls, ModeToggle } from "./components/Controls";
+import { WithDelta } from "./components/Delta";
 import { PlayerPicker } from "./components/PlayerPicker";
 import { Radar } from "./components/Radar";
 import { DataLine, RecordHeadline } from "./components/RecordHeadline";
@@ -183,7 +184,9 @@ export default function App() {
                         {{ rank: "Rank", average: "Average", winrate: "Win %" }[sc]}
                         {selectedArea && (
                           <span className="area" aria-label="Radar area score">
-                            {Math.round(selectedArea[sc === "winrate" ? "win_rate" : sc] * 100)}
+                            <WithDelta change={result.changes?.radar.area[sc === "winrate" ? "win_rate" : sc]}>
+                              {Math.round(selectedArea[sc === "winrate" ? "win_rate" : sc] * 100)}
+                            </WithDelta>
                           </span>
                         )}
                       </button>

@@ -52,3 +52,37 @@ def projections(conn, player_ids: Iterable[int], fmt: ScoringFormat, settings) -
 
 def clear() -> None:
     _cache.clear()
+    _original.clear()
+
+
+# --- Original analysis (003 research R1) ------------------------------------------------------
+# The no-moves analysis depends only on settings and data, so a session of moves computes it once.
+ORIGINAL_MAX_KEYS = 8
+_original: OrderedDict[tuple, tuple] = OrderedDict()
+
+
+def original(conn, settings, compute):
+    """(result, Computed) for the no-moves scenario under `settings`; `compute()` on a miss."""
+    s = settings
+    key = (
+        str(conn.engine.url),
+        s.league_id,
+        s.team_id,
+        s.mode,
+        s.window,
+        s.as_of,
+        s.period_start,
+        s.period_end,
+        s.opponent_id,
+        s.seed,
+        s.iterations,
+        _latest_run(conn),
+    )
+    hit = _original.get(key)
+    if hit is None:
+        hit = compute()
+        _original[key] = hit
+        while len(_original) > ORIGINAL_MAX_KEYS:
+            _original.popitem(last=False)
+    _original.move_to_end(key)
+    return hit

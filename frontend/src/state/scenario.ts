@@ -44,7 +44,7 @@ export const initialState: ScenarioState = {
     opponentId: null,
     periodStart: null,
     periodEnd: null,
-    radarScale: "rank",
+    radarScale: "winrate",
   },
   moves: [],
 };

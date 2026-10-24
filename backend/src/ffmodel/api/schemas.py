@@ -180,7 +180,14 @@ class CategoryTable(BaseModel):
     rows: list[RankRow | DifferenceRow]
 
 
-CurveRole = Literal["selected", "leader", "next_best", "league_average", "opponent"]
+CurveRole = Literal[
+    "selected",
+    "leader",
+    "next_best",
+    "league_average",
+    "opponent",
+    "selected_original",
+]
 
 
 class CurveSeries(BaseModel):
@@ -257,6 +264,94 @@ class WarningModel(BaseModel):
     message: str
 
 
+# --- Changes vs the original roster (003 contracts/api.md) ---------------------------------
+
+
+class Change(BaseModel):
+    """Signed change rounded to display precision, classified for the selected team."""
+
+    delta: float
+    tone: Literal["better", "worse", "neutral"]
+
+
+class WLTChange(BaseModel):
+    wins: Change | None
+    losses: Change | None
+    ties: Change | None
+
+
+class HeaderChange(WLTChange):
+    chance_to_win: Change | None
+
+
+class RadarOriginal(BaseModel):
+    team_id: int
+    emphasis: Literal["selected", "opponent", "other"]
+    ranks: list[int]
+    normalized: list[float]
+    win_rate: list[float]
+
+
+ToneOrNone = Literal["better", "worse", "neutral"] | None
+
+
+class RadarTones(BaseModel):
+    rank: list[ToneOrNone]
+    average: list[ToneOrNone]
+    win_rate: list[ToneOrNone]
+
+
+class AreaChange(BaseModel):
+    rank: Change | None
+    average: Change | None
+    win_rate: Change | None
+
+
+class RadarChange(BaseModel):
+    original: list[RadarOriginal]
+    tones: dict[str, RadarTones]
+    area: AreaChange
+
+
+class CategoryChange(BaseModel):
+    # Strategic
+    rank: Change | None = None
+    average: Change | None = None
+    league_average: Change | None = None
+    leader_average: Change | None = None
+    win_rate: Change | None = None
+    # Tactical
+    selected_average: Change | None = None
+    opponent_average: Change | None = None
+    difference: Change | None = None
+    win_probability: Change | None = None
+
+
+class CurveChange(BaseModel):
+    means: dict[str, Change | None]
+
+
+class MatchupChange(BaseModel):
+    category_record: WLTChange
+    win: Change | None
+    original_result: Literal["win", "loss", "tie"]
+    transition: Literal["flip_better", "flip_worse", "better", "worse"] | None
+
+
+class TotalsChange(BaseModel):
+    matchups: WLTChange
+    categories: WLTChange
+
+
+class Changes(BaseModel):
+    header: HeaderChange
+    radar: RadarChange
+    category_table: dict[str, CategoryChange]
+    curves: dict[str, CurveChange]
+    matchups: dict[str, MatchupChange]
+    matchup_totals: TotalsChange
+
+
 class AnalysisResult(BaseModel):
     settings: SettingsEcho
     header: Header
@@ -270,6 +365,7 @@ class AnalysisResult(BaseModel):
     footnotes: list[Footnote]
     warnings: list[WarningModel]
     freshness: Freshness
+    changes: Changes | None = None
 
 
 # --- Picker and errors ---------------------------------------------------------------------

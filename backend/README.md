@@ -57,6 +57,11 @@ uv run ffm serve [--port 8000] [--reload]     # API (+ built frontend, if presen
 - `POST /api/impact/players`: the player picker with move eligibility
 
 Requests are stateless. Hypothetical moves travel in every request and never touch the database.
+When moves are present, `analyze` also returns `changes`: every displayed value compared with the
+original (no-moves) roster under the same settings. Each change is rounded to display precision
+and classified better, worse or neutral. The original is cached per settings, and untouched teams
+reuse its simulations. See
+[003 contracts/api.md](../specs/003-move-impact-diff/contracts/api.md).
 The default simulation is 25,000 iterations with a fixed seed.
 
 ## Tests

@@ -55,7 +55,7 @@ describe("strategic view (US1)", () => {
     expect(footnote.closest("section")).toContainElement(document.querySelector("table.roster"));
     const recordTable = document.querySelector("table.record-table")!;
     expect(recordTable.querySelectorAll("tbody tr")).toHaveLength(3);
-    expect(within(recordTable.querySelector("tfoot")! as HTMLElement).getByText("0–3–0")).toBeInTheDocument();
+    expect(recordTable.querySelector("tfoot .total-record")).toHaveTextContent("0–3–0");
     const firstCurve = screen.getAllByTestId("curve")[0];
     expect(within(firstCurve).getByText(/^You /)).toBeInTheDocument();
     expect(within(firstCurve).getByText(/^League /)).toBeInTheDocument();
@@ -87,17 +87,18 @@ describe("radar scale", () => {
       Array.from(document.querySelectorAll('[data-testid^="radar-"]'))
         .map((p) => p.getAttribute("d"))
         .join("|");
-    expect(screen.getByRole("radio", { name: /^Rank/ })).toHaveAttribute("aria-checked", "true");
+    // Win % is the default scale.
+    expect(screen.getByRole("radio", { name: /^Win %/ })).toHaveAttribute("aria-checked", "true");
     const sel = (strategic as { radar: { series: { emphasis: string; area: { rank: number } }[] } }).radar.series.find(
       (s) => s.emphasis === "selected",
     )!;
     expect(screen.getByRole("radio", { name: /^Rank/ })).toHaveTextContent(String(Math.round(sel.area.rank * 100)));
+    const byWin = path();
+    await user.click(screen.getByRole("radio", { name: /^Rank/ }));
+    expect(screen.getByRole("radio", { name: /^Rank/ })).toHaveAttribute("aria-checked", "true");
+    expect(path()).not.toBe(byWin);
     const byRank = path();
     await user.click(screen.getByRole("radio", { name: /^Average/ }));
-    expect(screen.getByRole("radio", { name: /^Average/ })).toHaveAttribute("aria-checked", "true");
     expect(path()).not.toBe(byRank);
-    const byAverage = path();
-    await user.click(screen.getByRole("radio", { name: /^Win %/ }));
-    expect(path()).not.toBe(byAverage);
   });
 });

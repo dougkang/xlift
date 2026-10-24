@@ -20,10 +20,14 @@ Three colors only for UI chrome (text, structure, controls):
 - **Yellow `#f5c518`**: the single accent. It means "yours" or "selected" (the selected team,
   selected rows, active mode toggle). It is never decorative, and never a primary-button color.
 
-Red `#c00` is a warning, not a design color. It appears only in two places:
+Red `#c00` is a warning, not a design color. It appears only in three places:
 - destructive actions on hover, e.g. the drop `−` button;
 - a player's availability status (Q, O, DTD, IL, NA, …), shown as small bold red text after the
-  player's NBA team.
+  player's NBA team;
+- a change for the worse after a roster move (see "Change (before/after)").
+
+Green `#5C8E4E` means "good for you" everywhere: a change for the better, and the tactical
+Diff column when the difference favors you. Red marks the opposite.
 
 Grays (`#555`, `#888`, `#aaa`, `#ccc`, `#eee`) mean muted state only: bench rows, inactive
 links, placeholders, disabled controls. Gray means secondary or unavailable.
@@ -191,4 +195,34 @@ no relationship between categories.
 - **Labels:** each average line is labeled with its role and value. A label moves to another row
   only when it would collide with another label.
 - **Name columns:** the player and category columns in tables are bold.
+
+## Change (before/after)
+
+After a hypothetical roster move, every projected value is compared with the original roster
+(no moves).
+
+- **Better:** green `#5C8E4E`, from the qualitative palette.
+- **Worse:** red `#c00`.
+- **Neutral:** muted `#555`, for changes that are neither good nor bad for the selected team
+  (ties, league averages).
+- **Deltas:** small text (0.65rem), normal weight, on the line directly below the value: `+2`,
+  `−1`, `+18.0`, `+.012`. Percentage changes include `%`, e.g. `+13%`.
+  - That line is always reserved, so nothing moves when changes appear.
+  - W–L–T records show only the change in wins (e.g. `+2`). The W number itself is colored too:
+    green when wins went up, red when they went down. The tactical Chance to Win
+    percentage is colored the same way by its change.
+  - Chart labels are the exception: there the change follows the label inline.
+  - Negative values use a real minus sign `−`.
+  - No parentheses in tables.
+  - Nothing is shown when the change rounds to zero at the value's display precision.
+- **Bold:** only for a result that flips between W and L. L→W is bold green, W→L bold red. Any
+  other better or worse result change is colored, not bold.
+- **Original (before) visuals:**
+  - Radar: your team's original shape is a gray dotted `#aaa` outline over the current shapes,
+    with no outline for the opponent. There are no colored fills for change.
+  - Distributions: the original is a light `#eee` area with a dotted `#aaa` outline, drawn
+    behind everything else. The legend labels it "<Team> (before)", right after the team's own
+    entry.
+- **Layout never changes:** values never wrap, and the change line is reserved even with no
+  moves. Showing markers never moves a section.
 

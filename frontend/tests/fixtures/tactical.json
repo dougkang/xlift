@@ -3490,5 +3490,6 @@
  "freshness": {
   "nba_data_loaded_at": "2026-11-18T08:00:00+00:00",
   "roster_as_of": "2026-11-18"
- }
+ },
+ "changes": null
 }

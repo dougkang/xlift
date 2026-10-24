@@ -90,3 +90,31 @@ def test_sc003_seed_stability(league):
                 worst = max(worst, float(spread.max()))
     print(f"\nSC-003: max spread across 5 seeds = {worst * 100:.2f} percentage points")
     assert worst <= 0.03
+
+
+def test_sc001_with_moves(league):  # 003 SC-001
+    from ffmodel.core.data import get_free_agents, get_league
+    from ffmodel.core.scenario import Add, Drop
+
+    engine, league_id, teams = league
+    worst = {}
+    with engine.connect() as conn:
+        snap = get_league(conn, league_id)
+        free_agent = get_free_agents(conn, league_id)[0].player_id
+        for mode in ("strategic", "tactical"):
+            team = teams[0]
+            roster = next(t for t in snap.teams if t.fantasy_team_id == team).roster
+            drop = next(r.player.player_id for r in roster if r.slot == "active")
+            moves = [Drop(drop, team), Add(free_agent, team)]
+            cache.clear()
+            s = settings(league_id, team, mode, teams)
+            start = time.perf_counter()
+            analyze(conn, s, moves)
+            cold = time.perf_counter() - start
+            start = time.perf_counter()
+            result = analyze(conn, s, moves[:1])
+            warm = time.perf_counter() - start
+            assert result["changes"] is not None
+            worst[mode] = (round(cold, 2), round(warm, 2))
+            assert cold < 2.0 and warm < 2.0
+    print(f"\n003 SC-001 with moves (cold, warm): {worst}")

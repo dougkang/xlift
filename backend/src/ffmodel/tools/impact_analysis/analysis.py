@@ -4,6 +4,7 @@ Returns plain JSON-ready dicts; the API layer validates them against its Pydanti
 """
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -24,12 +25,69 @@ from ffmodel.core.sim import (
     tactical_k,
 )
 from ffmodel.tools.impact_analysis import cache
+from ffmodel.tools.impact_analysis.changes import build_changes
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings, normalize
 from ffmodel.tools.impact_analysis.state import NotFound, load_state
 
 __all__ = ["NotFound", "analyze"]
 
 FOOTNOTE_MARKER = "*"
+
+
+@dataclass(eq=False)
+class Computed:
+    """Simulation internals for one scenario (003 research R1): enough to render, diff, and
+    reuse untouched teams' samples."""
+
+    active: dict  # team -> frozenset of active player ids
+    samples: dict
+    values: dict
+    averages: dict
+    team_ranks: dict
+    normalized: dict
+    win_rates: dict
+    area_scores: dict
+
+
+def _compute(s, fmt, scenario, projections, teams, reuse: "Computed | None" = None) -> Computed:
+    k, mode_code = (
+        (tactical_k, TACTICAL)
+        if s.mode == "tactical"
+        else (strategic_k(s.games_per_period), STRATEGIC)
+    )
+    active = {tid: frozenset(scenario.active_players(tid)) for tid in teams}
+    samples, values, averages = {}, {}, {}
+    for tid in teams:
+        if reuse is not None and reuse.active.get(tid) == active[tid]:
+            # Same active players, mode, seed and iterations: bit-identical samples (R1).
+            samples[tid] = reuse.samples[tid]
+            values[tid] = reuse.values[tid]
+            averages[tid] = reuse.averages[tid]
+            continue
+        samples[tid] = simulate_team(
+            tid,
+            [projections[p] for p in scenario.active_players(tid)],
+            k,
+            fmt,
+            iterations=s.iterations,
+            seed=s.seed,
+            mode_code=mode_code,
+        )
+        values[tid] = category_values(samples[tid], fmt)
+        averages[tid] = projected_averages(samples[tid], fmt)
+    team_ranks = ranks(averages, fmt)
+    normalized = _normalized(averages, fmt)
+    win_rates = _win_rates(values, fmt)
+    return Computed(
+        active,
+        samples,
+        values,
+        averages,
+        team_ranks,
+        normalized,
+        win_rates,
+        _area_scores(team_ranks, normalized, win_rates),
+    )
 
 
 def _odds(o) -> dict:
@@ -163,7 +221,9 @@ def _curves(
     names: dict,
     selected: int,
     seed: int,
+    originals: dict | None = None,
 ) -> list:
+    """`originals`: role -> (values array, averages) for before/after curves (003 research R5)."""
     curves = []
     for i, cat in enumerate(fmt.categories):
         # role -> (team_id, label, samples, mean); means are projected averages (ratio of means).
@@ -178,7 +238,9 @@ def _curves(
             leader = _leader(team_ranks, i)
             roles["leader"] = (leader, names[leader], values[leader][:, i], averages[leader][i])
         pooled = np.concatenate([v[:, i] for v in values.values()])
-        roles["league_average"] = (None, "League average", pooled, league_avg[i])
+        roles["league_average"] = (None, "League Average", pooled, league_avg[i])
+        for role, (vals, avgs) in (originals or {}).items():
+            roles[role] = (None, "Original", vals[:, i], avgs[i])
         dens = density_curves({r: v for r, (_, _, v, _) in roles.items()}, seed=seed)
         curves.append(
             {
@@ -201,6 +263,26 @@ def _curves(
 
 def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
     s = normalize(settings)
+    if not moves:
+        result, _ = _analyze(conn, s, ())
+        result["changes"] = None
+        return result
+    original, orig_comp = cache.original(conn, s, lambda: _analyze(conn, s, ()))
+    if orig_comp is None:  # unsupported format or opponent required: nothing to compare
+        result, _ = _analyze(conn, s, moves)
+        result["changes"] = None
+        return result
+    result, comp = _analyze(conn, s, moves, reuse=orig_comp)
+    result["changes"] = build_changes(original, result, orig_comp, comp, s)
+    return result
+
+
+def _analyze(conn, s: AnalysisSettings, moves: Sequence, reuse: Computed | None = None):
+    """One scenario's result dict and its internals (None when nothing was simulated).
+
+    With `reuse` (the original), untouched teams reuse its samples and the curves include the
+    selected team's original distribution (`selected_original`).
+    """
     state = load_state(conn, s.league_id, s.team_id, moves)
     snapshot, teams, names, scenario = state.snapshot, state.teams, state.names, state.scenario
     info = state.info
@@ -238,7 +320,7 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
             }
         )
         result["rosters"] = _roster_rows(scenario, snapshot, info, {}, False)
-        return result
+        return result, None
 
     result["categories"] = [
         {
@@ -263,31 +345,17 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
                     "message": "Choose an opponent to see this week's matchup.",
                 }
             )
-            return result
+            return result, None
         if s.opponent_id not in teams:
             raise NotFound(f"no team {s.opponent_id} in league {s.league_id}")
-        k, mode_code = tactical_k, TACTICAL
-    else:
-        k, mode_code = strategic_k(s.games_per_period), STRATEGIC
 
-    samples = {
-        tid: simulate_team(
-            tid,
-            [projections[p] for p in scenario.active_players(tid)],
-            k,
-            fmt,
-            iterations=s.iterations,
-            seed=s.seed,
-            mode_code=mode_code,
-        )
-        for tid in teams
-    }
-    values = {tid: category_values(ts, fmt) for tid, ts in samples.items()}
-    averages = {tid: projected_averages(ts, fmt) for tid, ts in samples.items()}
-    team_ranks = ranks(averages, fmt)
-    normalized = _normalized(averages, fmt)
-    win_rates = _win_rates(values, fmt)
-    area_scores = _area_scores(team_ranks, normalized, win_rates)
+    comp = _compute(s, fmt, scenario, projections, teams, reuse)
+    samples, values, averages = comp.samples, comp.values, comp.averages
+    team_ranks, normalized, win_rates = comp.team_ranks, comp.normalized, comp.win_rates
+    area_scores = comp.area_scores
+    originals = {}
+    if reuse is not None:
+        originals["selected_original"] = (reuse.values[s.team_id], reuse.averages[s.team_id])
 
     if tactical:
         _tactical_results(
@@ -304,8 +372,9 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
             normalized,
             win_rates,
             area_scores,
+            originals,
         )
-        return result
+        return result, comp
 
     odds = [
         matchup_odds(s.team_id, values[s.team_id], tid, values[tid], fmt)
@@ -356,9 +425,9 @@ def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
         ],
     }
     result["curves"] = _curves(
-        fmt, values, averages, league_avg, team_ranks, names, s.team_id, s.seed
+        fmt, values, averages, league_avg, team_ranks, names, s.team_id, s.seed, originals
     )
-    return result
+    return result, comp
 
 
 def _area(radii: list[float]) -> float:
@@ -455,6 +524,7 @@ def _tactical_results(
     normalized,
     win_rates,
     area_scores,
+    originals,
 ) -> None:
     """Tactical mode (Constitution IV): selected vs one opponent over the games left."""
     me, opp = s.team_id, s.opponent_id
@@ -521,6 +591,8 @@ def _tactical_results(
             "selected": (me, names[me], values[me][:, i], averages[me][i]),
             "opponent": (opp, names[opp], values[opp][:, i], averages[opp][i]),
         }
+        for role, (vals, avgs) in originals.items():
+            roles[role] = (None, "Original", vals[:, i], avgs[i])
         dens = density_curves({r: v for r, (_, _, v, _) in roles.items()}, seed=s.seed)
         curves.append(
             {

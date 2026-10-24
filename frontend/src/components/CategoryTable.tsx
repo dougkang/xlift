@@ -1,7 +1,12 @@
 import type { AnalysisResult, Schemas } from "../api/client";
 import { formatValue } from "../format";
+import { WithDelta } from "./Delta";
 
 type RankRow = Schemas["RankRow"];
+
+/** Delta precision for an average: ratios at their 3 decimals, counts at 1 (003 R2). */
+const avgDelta = (cat: Schemas["CategoryInfo"]) =>
+  cat.decimals > 0 ? { decimals: cat.decimals, ratio: true } : { decimals: 1 };
 type DifferenceRow = Schemas["DifferenceRow"];
 
 export function CategoryTable({ result }: { result: AnalysisResult }) {
@@ -28,16 +33,34 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
         <tbody>
           {(table.rows as RankRow[]).map((row) => {
             const cat = byKey[row.category];
+            const ch = result.changes?.category_table[row.category];
+            const avg = avgDelta(cat);
             return (
               <tr key={row.category}>
                 <td className="name-col">{cat.label}</td>
-                <td className="num">{row.rank}</td>
-                <td className="num">{formatValue(row.average, cat)}</td>
-                <td className="num">{formatValue(row.league_average, cat)}</td>
-                <td className="num" title={row.leader_name}>
-                  {formatValue(row.leader_average, cat)}
+                <td className="num">
+                  <WithDelta change={ch?.rank}>{row.rank}</WithDelta>
                 </td>
-                <td className="num">{Math.round(row.win_rate * 100)}%</td>
+                <td className="num">
+                  <WithDelta change={ch?.average} {...avg}>
+                    {formatValue(row.average, cat)}
+                  </WithDelta>
+                </td>
+                <td className="num">
+                  <WithDelta change={ch?.league_average} {...avg}>
+                    {formatValue(row.league_average, cat)}
+                  </WithDelta>
+                </td>
+                <td className="num" title={row.leader_name}>
+                  <WithDelta change={ch?.leader_average} {...avg}>
+                    {formatValue(row.leader_average, cat)}
+                  </WithDelta>
+                </td>
+                <td className="num">
+                  <WithDelta change={ch?.win_rate} percent>
+                    {Math.round(row.win_rate * 100)}%
+                  </WithDelta>
+                </td>
               </tr>
             );
           })}
@@ -66,15 +89,31 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
         <tbody>
           {(table.rows as DifferenceRow[]).map((row) => {
             const cat = byKey[row.category];
+            const ch = result.changes?.category_table[row.category];
+            const avg = avgDelta(cat);
             return (
               <tr key={row.category}>
                 <td className="name-col">{cat.label}</td>
-                <td className="num">{formatValue(row.selected_average, cat)}</td>
-                <td className="num">{formatValue(row.opponent_average, cat)}</td>
-                <td className={`num favors-${row.favors}`} data-favors={row.favors}>
-                  {formatValue(row.difference, cat, true)}
+                <td className="num">
+                  <WithDelta change={ch?.selected_average} {...avg}>
+                    {formatValue(row.selected_average, cat)}
+                  </WithDelta>
                 </td>
-                <td className="num">{Math.round(row.win_probability * 100)}%</td>
+                <td className="num">
+                  <WithDelta change={ch?.opponent_average} {...avg}>
+                    {formatValue(row.opponent_average, cat)}
+                  </WithDelta>
+                </td>
+                <td className={`num favors-${row.favors}`} data-favors={row.favors}>
+                  <WithDelta change={ch?.difference} {...avg}>
+                    {formatValue(row.difference, cat, true)}
+                  </WithDelta>
+                </td>
+                <td className="num">
+                  <WithDelta change={ch?.win_probability} percent>
+                    {Math.round(row.win_probability * 100)}%
+                  </WithDelta>
+                </td>
               </tr>
             );
           })}

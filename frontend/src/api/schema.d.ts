@@ -125,6 +125,25 @@ export interface components {
             /** Warnings */
             warnings: components["schemas"]["WarningModel"][];
             freshness: components["schemas"]["Freshness"];
+            changes?: components["schemas"]["Changes"] | null;
+        };
+        /** AreaChange */
+        AreaChange: {
+            rank: components["schemas"]["Change"] | null;
+            average: components["schemas"]["Change"] | null;
+            win_rate: components["schemas"]["Change"] | null;
+        };
+        /** CategoryChange */
+        CategoryChange: {
+            rank?: components["schemas"]["Change"] | null;
+            average?: components["schemas"]["Change"] | null;
+            league_average?: components["schemas"]["Change"] | null;
+            leader_average?: components["schemas"]["Change"] | null;
+            win_rate?: components["schemas"]["Change"] | null;
+            selected_average?: components["schemas"]["Change"] | null;
+            opponent_average?: components["schemas"]["Change"] | null;
+            difference?: components["schemas"]["Change"] | null;
+            win_probability?: components["schemas"]["Change"] | null;
         };
         /** CategoryInfo */
         CategoryInfo: {
@@ -147,6 +166,37 @@ export interface components {
             /** Rows */
             rows: (components["schemas"]["RankRow"] | components["schemas"]["DifferenceRow"])[];
         };
+        /**
+         * Change
+         * @description Signed change rounded to display precision, classified for the selected team.
+         */
+        Change: {
+            /** Delta */
+            delta: number;
+            /**
+             * Tone
+             * @enum {string}
+             */
+            tone: "better" | "worse" | "neutral";
+        };
+        /** Changes */
+        Changes: {
+            header: components["schemas"]["HeaderChange"];
+            radar: components["schemas"]["RadarChange"];
+            /** Category Table */
+            category_table: {
+                [key: string]: components["schemas"]["CategoryChange"];
+            };
+            /** Curves */
+            curves: {
+                [key: string]: components["schemas"]["CurveChange"];
+            };
+            /** Matchups */
+            matchups: {
+                [key: string]: components["schemas"]["MatchupChange"];
+            };
+            matchup_totals: components["schemas"]["TotalsChange"];
+        };
         /** Curve */
         Curve: {
             /** Category */
@@ -156,13 +206,20 @@ export interface components {
             /** Series */
             series: components["schemas"]["CurveSeries"][];
         };
+        /** CurveChange */
+        CurveChange: {
+            /** Means */
+            means: {
+                [key: string]: components["schemas"]["Change"] | null;
+            };
+        };
         /** CurveSeries */
         CurveSeries: {
             /**
              * Role
              * @enum {string}
              */
-            role: "selected" | "leader" | "next_best" | "league_average" | "opponent";
+            role: "selected" | "leader" | "next_best" | "league_average" | "opponent" | "selected_original";
             /** Team Id */
             team_id: number | null;
             /** Label */
@@ -244,6 +301,13 @@ export interface components {
             /** Matchup Win Probability */
             matchup_win_probability?: number | null;
         };
+        /** HeaderChange */
+        HeaderChange: {
+            wins: components["schemas"]["Change"] | null;
+            losses: components["schemas"]["Change"] | null;
+            ties: components["schemas"]["Change"] | null;
+            chance_to_win: components["schemas"]["Change"] | null;
+        };
         /** LeagueDetail */
         LeagueDetail: {
             /** League Id */
@@ -280,6 +344,18 @@ export interface components {
             active_roster_capacity: number;
             /** Team Count */
             team_count: number;
+        };
+        /** MatchupChange */
+        MatchupChange: {
+            category_record: components["schemas"]["WLTChange"];
+            win: components["schemas"]["Change"] | null;
+            /**
+             * Original Result
+             * @enum {string}
+             */
+            original_result: "win" | "loss" | "tie";
+            /** Transition */
+            transition: ("flip_better" | "flip_worse" | "better" | "worse") | null;
         };
         /** MatchupModel */
         MatchupModel: {
@@ -425,6 +501,32 @@ export interface components {
             /** Win Rate */
             win_rate: number;
         };
+        /** RadarChange */
+        RadarChange: {
+            /** Original */
+            original: components["schemas"]["RadarOriginal"][];
+            /** Tones */
+            tones: {
+                [key: string]: components["schemas"]["RadarTones"];
+            };
+            area: components["schemas"]["AreaChange"];
+        };
+        /** RadarOriginal */
+        RadarOriginal: {
+            /** Team Id */
+            team_id: number;
+            /**
+             * Emphasis
+             * @enum {string}
+             */
+            emphasis: "selected" | "opponent" | "other";
+            /** Ranks */
+            ranks: number[];
+            /** Normalized */
+            normalized: number[];
+            /** Win Rate */
+            win_rate: number[];
+        };
         /** RadarSeries */
         RadarSeries: {
             /** Team Id */
@@ -445,6 +547,15 @@ export interface components {
             area: components["schemas"]["RadarArea"];
             /** Averages */
             averages: (number | null)[];
+        };
+        /** RadarTones */
+        RadarTones: {
+            /** Rank */
+            rank: (("better" | "worse" | "neutral") | null)[];
+            /** Average */
+            average: (("better" | "worse" | "neutral") | null)[];
+            /** Win Rate */
+            win_rate: (("better" | "worse" | "neutral") | null)[];
         };
         /** RankRow */
         RankRow: {
@@ -617,6 +728,11 @@ export interface components {
             /** Manager */
             manager: string;
         };
+        /** TotalsChange */
+        TotalsChange: {
+            matchups: components["schemas"]["WLTChange"];
+            categories: components["schemas"]["WLTChange"];
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -629,6 +745,12 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** WLTChange */
+        WLTChange: {
+            wins: components["schemas"]["Change"] | null;
+            losses: components["schemas"]["Change"] | null;
+            ties: components["schemas"]["Change"] | null;
         };
         /** WarningModel */
         WarningModel: {

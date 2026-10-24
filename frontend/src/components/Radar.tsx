@@ -16,6 +16,8 @@ function strokeFor(emphasis: string, index: number): string {
 export function Radar({ result, scale = "rank" }: { result: AnalysisResult; scale?: RadarScale }) {
   const radar = result.radar;
   if (!radar) return null;
+  const pick = (s: { ranks: number[]; normalized: number[]; win_rate: number[] }) =>
+    scale === "rank" ? s.ranks : scale === "average" ? s.normalized : s.win_rate;
   const cats = result.categories;
   const n = radar.team_count;
   // Rank scale: rank 1 at the rim, rank n at the center.
@@ -63,7 +65,7 @@ export function Radar({ result, scale = "rank" }: { result: AnalysisResult; scal
         <path
           key={s.team_id}
           data-testid={`radar-${s.emphasis}`}
-          d={line(scale === "rank" ? s.ranks : scale === "average" ? s.normalized : s.win_rate) ?? undefined}
+          d={line(pick(s)) ?? undefined}
           // The selected team is drawn last and filled solid in its border color: wherever we're
           // already better, other teams are hidden; only where they're better do they show.
           fill={s.emphasis === "selected" ? "var(--sel)" : "var(--opp-light)"}
@@ -73,6 +75,20 @@ export function Radar({ result, scale = "rank" }: { result: AnalysisResult; scal
           strokeWidth={s.emphasis === "selected" ? 2.5 : 1}
         >
           <title>{s.team_name}</title>
+        </path>
+      ))}
+      {/* Original (before moves) shape as a gray dotted outline: the selected team only (003 FR-008). */}
+      {result.changes?.radar.original.filter((o) => o.emphasis === "selected").map((o) => (
+        <path
+          key={`orig-${o.team_id}`}
+          data-testid="radar-original"
+          d={line(pick(o)) ?? undefined}
+          fill="none"
+          stroke="var(--before-line)"
+          strokeWidth={1.5}
+          strokeDasharray="4,3"
+        >
+          <title>Original (before moves)</title>
         </path>
       ))}
     </svg>
