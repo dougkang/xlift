@@ -83,10 +83,10 @@ export function RecordTable({ result }: { result: AnalysisResult }) {
           <tr>
             <td className="name-col">Total</td>
             <td className="nowrap total-h2h" colSpan={2}>
-              <WLT counts={totals.categories} change={changes?.matchup_totals.categories} />
+              <WLT counts={totals.categories} change={changes?.matchup_totals?.categories} />
             </td>
             <td className="num total-record nowrap">
-              <WLT counts={totals.matchups} change={changes?.matchup_totals.matchups} />
+              <WLT counts={totals.matchups} change={changes?.matchup_totals?.matchups} />
             </td>
           </tr>
         </tfoot>

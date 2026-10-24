@@ -6,7 +6,7 @@ TypeScript types are generated from the OpenAPI schema these produce (`npm run g
 from datetime import date
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 Mode = Literal["strategic", "tactical"]
 
@@ -39,20 +39,11 @@ class ScenarioRequest(BaseModel):
     mode: Mode = "strategic"
     window: int = Field(15, ge=1, le=82)
     as_of: date | None = None
-    opponent_id: int | None = None
-    period_start: date | None = None
-    period_end: date | None = None
+    # Tactical's opponent and period come from the league's current matchup state (005);
+    # older clients that still send opponent_id / period_* have them ignored.
     iterations: int = Field(25_000, ge=1_000, le=50_000)
     seed: int = 20261023
     moves: list[Move] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def _check(self):
-        if self.period_start and self.period_end and self.period_end < self.period_start:
-            raise ValueError("period_end must not be before period_start")
-        if self.opponent_id is not None and self.opponent_id == self.team_id:
-            raise ValueError("opponent_id must differ from team_id")
-        return self
 
 
 class PlayersRequest(ScenarioRequest):
@@ -68,6 +59,17 @@ class PlayersRequest(ScenarioRequest):
 class Freshness(BaseModel):
     nba_data_loaded_at: str | None
     roster_as_of: str | None
+    matchup_as_of: str | None = None
+
+
+class CurrentMatchup(BaseModel):
+    """The league's imported matchup state (005); null until matchups.csv is loaded."""
+
+    week: int
+    period_start: date
+    period_end: date
+    as_of: date
+    loaded_at: str | None
 
 
 class LeagueSummary(BaseModel):
@@ -90,6 +92,7 @@ class TeamSummary(BaseModel):
 class LeagueDetail(LeagueSummary):
     teams: list[TeamSummary]
     freshness: Freshness
+    current_matchup: CurrentMatchup | None = None
 
 
 # --- Analysis ------------------------------------------------------------------------------
@@ -113,12 +116,32 @@ class RecordModel(BaseModel):
     unit: Literal["matchups", "categories"]
 
 
+class CurrentScore(BaseModel):
+    wins: int
+    losses: int
+    ties: int
+
+
+class MatchupHeader(BaseModel):
+    """Tactical: the current matchup (005). `current` is the score from week-to-date totals."""
+
+    opponent_id: int
+    opponent_name: str
+    week: int
+    period_start: date
+    period_end: date
+    as_of: date
+    final: bool
+    current: CurrentScore
+
+
 class Header(BaseModel):
     team_id: int
     team_name: str
     manager: str
     record: RecordModel | None
     matchup_win_probability: float | None = None
+    matchup: MatchupHeader | None = None
 
 
 class CategoryInfo(BaseModel):
@@ -180,6 +203,9 @@ class RankRow(BaseModel):
 
 class DifferenceRow(BaseModel):
     category: str
+    # Week-to-date values (005); the averages are projected finals (week to date + remaining).
+    selected_actual: float | None = None
+    opponent_actual: float | None = None
     selected_average: float | None
     opponent_average: float | None
     difference: float | None
@@ -272,7 +298,15 @@ class Footnote(BaseModel):
 
 
 class WarningModel(BaseModel):
-    code: Literal["OPPONENT_REQUIRED", "NO_GAMES_REMAINING", "UNSUPPORTED_FORMAT"]
+    code: Literal[
+        "NO_GAMES_REMAINING",
+        "UNSUPPORTED_FORMAT",
+        # Current matchup (005)
+        "MATCHUP_NOT_LOADED",
+        "MATCHUP_STALE",
+        "ROSTER_MATCHUP_DATES_DIFFER",
+        "MATCHUP_STATS_MISSING",
+    ]
     message: str
 
 
@@ -361,7 +395,7 @@ class Changes(BaseModel):
     category_table: dict[str, CategoryChange]
     curves: dict[str, CurveChange]
     matchups: dict[str, MatchupChange]
-    matchup_totals: TotalsChange
+    matchup_totals: TotalsChange | None  # None in tactical (no H2H, 005)
 
 
 class AnalysisResult(BaseModel):

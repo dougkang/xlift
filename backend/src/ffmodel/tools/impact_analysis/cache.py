@@ -21,7 +21,7 @@ def _latest_run(conn) -> int:
 
 
 def projections(conn, player_ids: Iterable[int], fmt: ScoringFormat, settings) -> dict:
-    period = (settings.period_start, settings.period_end) if settings.mode == "tactical" else None
+    period = settings.remaining  # tactical remaining-games window; None in strategic
     key = (
         str(conn.engine.url),
         settings.league_id,
@@ -71,8 +71,7 @@ def original(conn, settings, compute):
         s.mode,
         s.window,
         s.as_of,
-        s.period_start,
-        s.period_end,
+        s.remaining,
         s.opponent_id,
         s.seed,
         s.iterations,

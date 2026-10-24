@@ -6,7 +6,12 @@ Eligibility is computed here from the scenario so the frontend never applies ros
 from collections.abc import Sequence
 
 from ffmodel.contract.names import name_words
-from ffmodel.core.data import count_team_games_bulk, get_last_n_games_bulk, get_player_details
+from ffmodel.core.data import (
+    count_team_games_bulk,
+    get_last_n_games_bulk,
+    get_matchup_state,
+    get_player_details,
+)
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings, normalize
 from ffmodel.tools.impact_analysis.state import load_state
 
@@ -45,7 +50,10 @@ def list_players(
     offset: int = 0,
     free_agents_only: bool = False,
 ) -> dict:
-    s = normalize(settings)
+    s = normalize(
+        settings,
+        get_matchup_state(conn, settings.league_id) if settings.mode == "tactical" else None,
+    )
     state = load_state(conn, s.league_id, s.team_id, moves)
     scenario, names = state.scenario, state.names
     owner = scenario.owner
@@ -69,10 +77,8 @@ def list_players(
     ids = [c[2] for c in page]
     windows = get_last_n_games_bulk(conn, ids, s.window, as_of=s.as_of)
     remaining = (
-        count_team_games_bulk(
-            conn, ids, max(s.as_of, s.period_start), s.period_end, statuses=("scheduled",)
-        )
-        if s.mode == "tactical"
+        count_team_games_bulk(conn, ids, *s.remaining, statuses=("scheduled", "final"))
+        if s.remaining
         else {}
     )
     rows = []
@@ -90,7 +96,7 @@ def list_players(
                 "status": status,
                 "games_found": w.found,
                 "games_requested": w.requested,
-                "games_remaining": remaining.get(pid) if s.mode == "tactical" else None,
+                "games_remaining": remaining.get(pid, 0) if s.mode == "tactical" else None,
                 "footnote": f"{FOOTNOTE_MARKER} {w.found} of {w.requested} games"
                 if short
                 else None,

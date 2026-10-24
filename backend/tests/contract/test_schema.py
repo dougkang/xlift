@@ -98,12 +98,55 @@ VIOLATIONS = {
 }
 
 
+# Migration 0002 (005): matchup state and week-to-date team totals.
+_MATCHUP_SETUP = [
+    "INSERT INTO fantasy_team VALUES (2, 1, 't.02', 'Beta', 1)",
+    "INSERT INTO load_run (run_id, source, scope, started_at, outcome)"
+    " VALUES (1, 'matchups_csv', '{}', '2026-10-23', 'succeeded')",
+    "INSERT INTO matchup_state VALUES (1, 1, '2026-10-19', '2026-10-25', '2026-10-23', 1)",
+]
+
+
+def _line(**overrides):
+    vals = dict(fgm=5, fga=10, fg3m=1, ftm=2, fta=4, reb=5, ast=3, stl=1, blk=0, tov=2, pts=13)
+    vals.update(overrides)
+    cols = ", ".join(vals)
+    nums = ", ".join(str(v) for v in vals.values())
+    return (
+        "INSERT INTO matchup_team (league_id, fantasy_team_id, opponent_team_id, "
+        f"{cols}) VALUES (1, 1, 2, {nums})"
+    )
+
+
+VIOLATIONS.update(
+    {
+        "matchup_period_order": [
+            "INSERT INTO load_run (run_id, source, scope, started_at, outcome)"
+            " VALUES (1, 'matchups_csv', '{}', '2026-10-23', 'succeeded')",
+            "INSERT INTO matchup_state VALUES (1, 1, '2026-10-25', '2026-10-19', '2026-10-23', 1)",
+        ],
+        "matchup_fga_ge_fgm": [*_MATCHUP_SETUP, _line(fgm=11, pts=25)],
+        "matchup_pts_derived": [*_MATCHUP_SETUP, _line(pts=14)],
+        "matchup_plays_itself": [
+            *_MATCHUP_SETUP,
+            _line().replace("VALUES (1, 1, 2,", "VALUES (1, 1, 1,"),
+        ],
+    }
+)
+
+
+def test_matchup_line_is_valid(engine):
+    with engine.begin() as conn:
+        for stmt in [*BASE_ROWS, *_MATCHUP_SETUP, _line()]:
+            conn.execute(text(stmt))
+
+
 def test_migrate_fresh_db(tmp_path):
     from ffmodel.contract.db import get_engine
 
     eng = get_engine(f"sqlite:///{tmp_path}/fresh.sqlite")
-    assert migrate(eng) == [1]
-    assert current_version(eng) == 1
+    assert migrate(eng) == [1, 2]
+    assert current_version(eng) == 2
     assert migrate(eng) == []
 
 

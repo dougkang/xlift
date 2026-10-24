@@ -5,7 +5,7 @@ from sqlalchemy import text
 
 from ffmodel.api import schemas
 from ffmodel.contract.migrate import current_version
-from ffmodel.core.data import get_data_freshness, get_league, list_leagues
+from ffmodel.core.data import get_data_freshness, get_league, get_matchup_state, list_leagues
 from ffmodel.core.scenario import Add, Drop, MoveError, Swap
 from ffmodel.tools.impact_analysis.analysis import NotFound, analyze
 from ffmodel.tools.impact_analysis.picker import list_players
@@ -59,7 +59,20 @@ def league_detail(league_id: int, request: Request):
                 for t in snap.teams
             ],
             freshness=schemas.Freshness(**fresh.__dict__),
+            current_matchup=_current_matchup(get_matchup_state(conn, league_id)),
         )
+
+
+def _current_matchup(state) -> schemas.CurrentMatchup | None:
+    if state is None:
+        return None
+    return schemas.CurrentMatchup(
+        week=state.week,
+        period_start=state.period_start,
+        period_end=state.period_end,
+        as_of=state.as_of,
+        loaded_at=state.loaded_at,
+    )
 
 
 def _settings(req: schemas.ScenarioRequest) -> AnalysisSettings:
@@ -69,9 +82,6 @@ def _settings(req: schemas.ScenarioRequest) -> AnalysisSettings:
         mode=req.mode,
         window=req.window,
         as_of=req.as_of,
-        opponent_id=req.opponent_id,
-        period_start=req.period_start,
-        period_end=req.period_end,
         iterations=req.iterations,
         seed=req.seed,
     )

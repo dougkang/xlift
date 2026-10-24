@@ -30,6 +30,8 @@ def main() -> None:
                 text("UPDATE roster_entry SET player_id = :r WHERE player_id = :d"),
                 {"r": fx.ROOKIE, "d": fx.DELTA_3},
             )
+            # The current matchup (005), captured the same day as the rosters: Gammas play Deltas.
+            fx.load_matchup_state(conn, as_of=fx.IMPACT_TODAY)
         client = TestClient(create_app(engine))
         body = {
             "league_id": 1,
@@ -47,7 +49,6 @@ def main() -> None:
                 "league_id": 1,
                 "team_id": 3,
                 "mode": "tactical",
-                "opponent_id": 2,
                 "as_of": fx.IMPACT_TODAY.isoformat(),
                 "iterations": 2000,
             },
@@ -75,7 +76,6 @@ def main() -> None:
                 "league_id": 1,
                 "team_id": 3,
                 "mode": "tactical",
-                "opponent_id": 4,
                 "as_of": fx.IMPACT_TODAY.isoformat(),
                 "iterations": 2000,
                 # Gammas trade with their opponent Deltas: both teams change.

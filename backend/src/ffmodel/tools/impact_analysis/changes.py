@@ -223,11 +223,15 @@ def build_changes(original: dict, current: dict, orig_comp, comp, s) -> dict:
             "transition": transition(o["result"], m["result"]),
         }
 
-    # 9. H2H totals
-    totals = {
-        part: _wlt(current["matchup_totals"][part], original["matchup_totals"][part])
-        for part in ("matchups", "categories")
-    }
+    # 9. H2H totals (none in tactical: the opponent's roster replaces H2H, 005)
+    totals = (
+        {
+            part: _wlt(current["matchup_totals"][part], original["matchup_totals"][part])
+            for part in ("matchups", "categories")
+        }
+        if current["matchup_totals"] and original["matchup_totals"]
+        else None
+    )
     return {
         "header": header,
         "radar": radar,

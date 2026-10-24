@@ -202,3 +202,19 @@ def test_radar_league_average_shape(impact_engine):
     row = r["category_table"]["rows"][0]
     better = sum(s["averages"][0] > row["league_average"] for s in series)
     assert average["ranks"][0] == 1 + better
+
+
+def test_matchup_state_does_not_change_strategic(impact_engine):
+    """005 SC-005: strategic results are identical with and without a current matchup."""
+    from ffmodel.tools.impact_analysis import cache as impact_cache
+
+    impact_cache.clear()
+    before = run(impact_engine)
+    with impact_engine.begin() as conn:
+        fx.load_matchup_state(conn)
+    impact_cache.clear()
+    after = run(impact_engine)
+    before["freshness"].pop("matchup_as_of"), after["freshness"].pop("matchup_as_of")
+    assert json.dumps(before, default=str, sort_keys=True) == json.dumps(
+        after, default=str, sort_keys=True
+    )

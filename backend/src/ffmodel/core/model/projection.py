@@ -21,8 +21,10 @@ def build_projections(
 ) -> dict[int, PlayerProjection]:
     ids = sorted(set(player_ids))
     windows = get_last_n_games_bulk(conn, ids, window, as_of=as_of)
+    # `period` is the remaining-games window, used as given: tactical picks games by date after
+    # the matchup's as-of, whatever their status in our data (005 research R2).
     remaining = (
-        count_team_games_bulk(conn, ids, max(as_of, period[0]), period[1], statuses=("scheduled",))
+        count_team_games_bulk(conn, ids, period[0], period[1], statuses=("scheduled", "final"))
         if period
         else dict.fromkeys(ids, 0)
     )

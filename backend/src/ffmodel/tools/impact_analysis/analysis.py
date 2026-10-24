@@ -5,16 +5,21 @@ Returns plain JSON-ready dicts; the API layer validates them against its Pydanti
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import timedelta
 
 import numpy as np
 
-from ffmodel.core.data import get_data_freshness
+from ffmodel.core.data import count_team_games_bulk, get_data_freshness, get_matchup_state
 from ffmodel.core.scenario import Scenario
 from ffmodel.core.scoring import ScoringFormat, UnsupportedFormat, get_format
 from ffmodel.core.sim import (
     STRATEGIC,
     TACTICAL,
+    MissingStats,
+    actual_values,
+    base_vector,
     category_values,
+    current_record,
     density_curves,
     matchup_odds,
     projected_averages,
@@ -49,7 +54,10 @@ class Computed:
     area_scores: dict
 
 
-def _compute(s, fmt, scenario, projections, teams, reuse: "Computed | None" = None) -> Computed:
+def _compute(
+    s, fmt, scenario, projections, teams, reuse: "Computed | None" = None, bases: dict | None = None
+) -> Computed:
+    """`bases` (tactical, 005): each team's week-to-date totals, added to its simulated games."""
     k, mode_code = (
         (tactical_k, TACTICAL)
         if s.mode == "tactical"
@@ -72,6 +80,7 @@ def _compute(s, fmt, scenario, projections, teams, reuse: "Computed | None" = No
             iterations=s.iterations,
             seed=s.seed,
             mode_code=mode_code,
+            base=(bases or {}).get(tid),
         )
         values[tid] = category_values(samples[tid], fmt)
         averages[tid] = projected_averages(samples[tid], fmt)
@@ -149,14 +158,17 @@ def _roster_rows(scenario: Scenario, snapshot, info, projections, games_remainin
     return rows
 
 
-def _footnotes(roster_rows: list, team_id: int) -> list:
-    team = next(r for r in roster_rows if r["team_id"] == team_id)
+def _footnotes(roster_rows: list, team_ids: Sequence[int]) -> list:
+    """Short-history notes for the rosters on screen: yours, plus the opponent's in tactical."""
     return [
         {
             "marker": FOOTNOTE_MARKER,
             "player_id": p["player_id"],
             "text": f"{FOOTNOTE_MARKER} {p['games_found']} of {p['games_requested']} games",
         }
+        for team_id in team_ids
+        for team in roster_rows
+        if team["team_id"] == team_id
         for p in team["players"]
         if p["footnote_marker"]
     ]
@@ -262,22 +274,25 @@ def _curves(
 
 
 def analyze(conn, settings: AnalysisSettings, moves: Sequence = ()) -> dict:
-    s = normalize(settings)
+    matchup = get_matchup_state(conn, settings.league_id) if settings.mode == "tactical" else None
+    s = normalize(settings, matchup)
     if not moves:
-        result, _ = _analyze(conn, s, ())
+        result, _ = _analyze(conn, s, (), matchup=matchup)
         result["changes"] = None
         return result
-    original, orig_comp = cache.original(conn, s, lambda: _analyze(conn, s, ()))
-    if orig_comp is None:  # unsupported format or opponent required: nothing to compare
-        result, _ = _analyze(conn, s, moves)
+    original, orig_comp = cache.original(conn, s, lambda: _analyze(conn, s, (), matchup=matchup))
+    if orig_comp is None:  # unsupported format or no matchup state: nothing to compare
+        result, _ = _analyze(conn, s, moves, matchup=matchup)
         result["changes"] = None
         return result
-    result, comp = _analyze(conn, s, moves, reuse=orig_comp)
+    result, comp = _analyze(conn, s, moves, reuse=orig_comp, matchup=matchup)
     result["changes"] = build_changes(original, result, orig_comp, comp, s)
     return result
 
 
-def _analyze(conn, s: AnalysisSettings, moves: Sequence, reuse: Computed | None = None):
+def _analyze(
+    conn, s: AnalysisSettings, moves: Sequence, reuse: Computed | None = None, matchup=None
+):
     """One scenario's result dict and its internals (None when nothing was simulated).
 
     With `reuse` (the original), untouched teams reuse its samples and the curves include the
@@ -335,21 +350,34 @@ def _analyze(conn, s: AnalysisSettings, moves: Sequence, reuse: Computed | None 
     projections = cache.projections(conn, rostered, fmt, s)
     tactical = s.mode == "tactical"
     result["rosters"] = _roster_rows(scenario, snapshot, info, projections, tactical)
-    result["footnotes"] = _footnotes(result["rosters"], s.team_id)
+    shown = [s.team_id] + ([s.opponent_id] if tactical and s.opponent_id else [])
+    result["footnotes"] = _footnotes(result["rosters"], shown)
 
+    bases = None
     if tactical:
-        if s.opponent_id is None:
+        if matchup is None or s.opponent_id is None:
             result["warnings"].append(
                 {
-                    "code": "OPPONENT_REQUIRED",
-                    "message": "Choose an opponent to see this week's matchup.",
+                    "code": "MATCHUP_NOT_LOADED",
+                    "message": "This week's matchup hasn't been loaded yet.",
                 }
             )
             return result, None
         if s.opponent_id not in teams:
             raise NotFound(f"no team {s.opponent_id} in league {s.league_id}")
+        try:
+            bases = {t: base_vector(line, fmt) for t, line in matchup.lines.items() if t in teams}
+        except MissingStats as exc:
+            result["warnings"].append(
+                {
+                    "code": "MATCHUP_STATS_MISSING",
+                    "message": f"The matchup state lacks {', '.join(exc.names)}.",
+                }
+            )
+            return result, None
+        result["warnings"] += _matchup_warnings(conn, s, scenario, freshness)
 
-    comp = _compute(s, fmt, scenario, projections, teams, reuse)
+    comp = _compute(s, fmt, scenario, projections, teams, reuse, bases)
     samples, values, averages = comp.samples, comp.values, comp.averages
     team_ranks, normalized, win_rates = comp.team_ranks, comp.normalized, comp.win_rates
     area_scores = comp.area_scores
@@ -361,6 +389,7 @@ def _analyze(conn, s: AnalysisSettings, moves: Sequence, reuse: Computed | None 
         _tactical_results(
             result,
             s,
+            matchup,
             fmt,
             scenario,
             projections,
@@ -545,9 +574,39 @@ def _favors(diff: float, higher_is_better: bool) -> str:
     return "selected" if better else "opponent"
 
 
+def _matchup_warnings(conn, s: AnalysisSettings, scenario, freshness: dict) -> list[dict]:
+    """Notices about the matchup state's age (005 FR-017, FR-017a)."""
+    out = []
+    me, opp = s.team_id, s.opponent_id
+    players = scenario.active_players(me) + scenario.active_players(opp)
+    if s.as_of > s.matchup_as_of:
+        played = count_team_games_bulk(
+            conn, players, s.matchup_as_of + timedelta(days=1), s.as_of, statuses=("final",)
+        )
+        if any(played.values()):
+            out.append(
+                {
+                    "code": "MATCHUP_STALE",
+                    "message": f"Games have been played since the matchup was captured"
+                    f" ({s.matchup_as_of}), so recent games may be missing.",
+                }
+            )
+    roster_as_of = freshness.get("roster_as_of")
+    if roster_as_of and roster_as_of != s.matchup_as_of.isoformat():
+        out.append(
+            {
+                "code": "ROSTER_MATCHUP_DATES_DIFFER",
+                "message": f"Rosters are from {roster_as_of} but the matchup is from"
+                f" {s.matchup_as_of}, so they may not match.",
+            }
+        )
+    return out
+
+
 def _tactical_results(
     result,
     s,
+    matchup,
     fmt,
     scenario,
     projections,
@@ -561,16 +620,31 @@ def _tactical_results(
     area_scores,
     originals,
 ) -> None:
-    """Tactical mode (Constitution IV): selected vs one opponent over the games left."""
+    """Tactical mode (Constitution IV): the current matchup, week-to-date totals plus the games
+    left (005)."""
     me, opp = s.team_id, s.opponent_id
     involved = scenario.active_players(me) + scenario.active_players(opp)
-    if all(projections[p].games_remaining == 0 for p in involved):
+    final = s.matchup_as_of >= s.period_end
+    if final or all(projections[p].games_remaining == 0 for p in involved):
         result["warnings"].append(
             {
                 "code": "NO_GAMES_REMAINING",
-                "message": "No games remain for either team in this matchup period.",
+                "message": "No games remain: the matchup result is final.",
             }
         )
+    mine_now, theirs_now = matchup.lines[me], matchup.lines[opp]
+    now = current_record(mine_now, theirs_now, fmt)
+    result["header"]["matchup"] = {
+        "opponent_id": opp,
+        "opponent_name": names[opp],
+        "week": matchup.week,
+        "period_start": matchup.period_start,
+        "period_end": matchup.period_end,
+        "as_of": matchup.as_of,
+        "final": final,
+        "current": {"wins": now.wins, "losses": now.losses, "ties": now.ties},
+    }
+    actual_mine, actual_theirs = actual_values(mine_now, fmt), actual_values(theirs_now, fmt)
     odds = matchup_odds(me, values[me], opp, values[opp], fmt)
     rec = record(odds.categories)
     result["header"]["record"] = {
@@ -580,15 +654,9 @@ def _tactical_results(
         "unit": "categories",
     }
     result["header"]["matchup_win_probability"] = odds.matchup.win
-    # H2H stays league-wide (every opponent, under tactical scaling); the headline and the
-    # differences focus on the chosen opponent.
-    league_odds = [
-        odds if tid == opp else matchup_odds(me, values[me], tid, values[tid], fmt)
-        for tid in teams
-        if tid != me
-    ]
-    result["matchups"] = [_matchup_row(o, fmt, names, teams) for o in league_odds]
-    result["matchup_totals"] = _totals(result["matchups"])
+    # The opponent's roster replaces H2H in tactical mode (005 FR-016).
+    result["matchups"] = []
+    result["matchup_totals"] = None
     result["radar"] = {
         "team_count": len(teams),
         "series": [
@@ -612,6 +680,8 @@ def _tactical_results(
         rows.append(
             {
                 "category": c.key,
+                "selected_actual": _num(actual_mine[i]),
+                "opponent_actual": _num(actual_theirs[i]),
                 "selected_average": _num(mine),
                 "opponent_average": _num(theirs),
                 "difference": _num(diff),

@@ -36,9 +36,6 @@ export function toRequest(state: ScenarioState): ScenarioRequest | null {
     team_id: s.teamId,
     mode: s.mode,
     window: s.window,
-    opponent_id: s.mode === "tactical" ? s.opponentId : null,
-    period_start: s.mode === "tactical" ? s.periodStart : null,
-    period_end: s.mode === "tactical" ? s.periodEnd : null,
     moves: state.moves,
   };
 }
@@ -74,6 +71,14 @@ export default function App() {
       .catch((e: Error) => setError(e.message));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leagueId]);
+
+  // Tactical is the league's current matchup (005): without an imported one, fall back to strategic.
+  useEffect(() => {
+    if (state.settings.mode === "tactical" && league && !league.current_matchup) {
+      dispatch({ type: "setMode", mode: "strategic" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [league, state.settings.mode]);
 
   const req = useMemo(() => toRequest(state), [state]);
   const reqKey = JSON.stringify(req);
@@ -116,16 +121,16 @@ export default function App() {
   };
   const selectedRoster = result?.rosters.find((r) => r.team_id === teamId) ?? null;
   const selectedArea = result?.radar?.series.find((s) => s.emphasis === "selected")?.area ?? null;
-  const opponentId = result?.settings.opponent_id;
   const helpCtx = useMemo<HelpContext>(
     () => ({
       mode: state.settings.mode,
       iterations: result?.settings.iterations ?? null,
       window: state.settings.window,
       capacity: league?.active_roster_capacity ?? null,
-      opponentName: result?.matchups.find((m) => m.opponent_id === opponentId)?.opponent_name ?? null,
+      opponentName: result?.header.matchup?.opponent_name ?? null,
+      asOf: league?.current_matchup?.as_of ?? null,
     }),
-    [state.settings.mode, state.settings.window, result, league, opponentId],
+    [state.settings.mode, state.settings.window, result, league],
   );
 
   return (
@@ -135,6 +140,7 @@ export default function App() {
           <h1 className="masthead">Impact Analysis</h1>
           <ModeToggle
             settings={state.settings}
+            league={league}
             dispatch={(a) => {
               setMoveError(null);
               dispatch(a);
@@ -157,12 +163,9 @@ export default function App() {
             dispatch(a);
           }}
           moveCount={state.moves.length}
-          period={
-            result ? { start: result.settings.period_start ?? null, end: result.settings.period_end ?? null } : undefined
-          }
         />
         <hr className="section-rule" />
-      {error && <p className="error" role="alert">{error}</p>}
+        {error && <p className="error" role="alert">{error}</p>}
         {result?.warnings.map((w) => (
           <p key={w.code} className="error" role="status">
             {w.message}
@@ -221,7 +224,17 @@ export default function App() {
                     <CategoryTable result={result} />
                   </div>
                   <div className="cell-h2h">
-                    <RecordTable result={result} />
+                    {/* Tactical: the opponent's roster replaces H2H, read-only (005 FR-016). */}
+                    {result.header.matchup ? (
+                      <Roster
+                        result={result}
+                        teamId={result.header.matchup.opponent_id}
+                        title={result.header.matchup.opponent_name}
+                        helpTopic="opponentRoster"
+                      />
+                    ) : (
+                      <RecordTable result={result} />
+                    )}
                   </div>
                 </div>
                 <CategoryCurves result={result} />

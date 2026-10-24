@@ -9,6 +9,7 @@ const ctx = (mode: HelpContext["mode"], over: Partial<HelpContext> = {}): HelpCo
   window: 15,
   capacity: 13,
   opponentName: "Gammas",
+  asOf: "2026-11-18",
   ...over,
 });
 const topics = Object.keys(HELP) as TopicId[];
@@ -17,8 +18,8 @@ const text = (id: TopicId, mode: HelpContext["mode"], over?: Partial<HelpContext
   helpText(HELP[id](ctx(mode, over)));
 
 describe("help content", () => {
-  it("covers all 9 topics", () => {
-    expect(topics).toHaveLength(9);
+  it("covers all 10 topics", () => {
+    expect(topics).toHaveLength(10);
   });
 
   it.each(modes.flatMap((m) => topics.map((t) => [t, m] as const)))("%s (%s) is at most 120 words", (t, m) => {
@@ -53,7 +54,7 @@ describe("help content", () => {
 
   it("names controls exactly as they appear on screen", () => {
     const s = HELP.settings(ctx("tactical")).controls!.map(([n]) => n);
-    expect(s).toEqual(["Last X games", "League / Team", "vs", "Week", "Reset"]);
+    expect(s).toEqual(["Last X games", "League / Team", "Reset"]);
   });
 });
 
@@ -65,15 +66,15 @@ describe("mode variants (US2)", () => {
   it("describes the version on screen", () => {
     expect(text("headline", "strategic")).toMatch(/Aggregated Record/);
     expect(text("headline", "tactical")).toMatch(/Chance to Win/);
-    expect(text("headline", "tactical")).toMatch(/Choose an opponent/);
+    expect(text("headline", "tactical")).toMatch(/Now is the category score so far, as of 2026-11-18/);
     for (const w of ["Rank", "Avg", "League", "Leader", "Win %"]) expect(text("categoryTable", "strategic")).toContain(w);
-    for (const w of ["You / Opp", "Diff", "Win %"]) expect(text("categoryTable", "tactical")).toContain(w);
+    for (const w of ["Now", "You / Opp", "Diff", "Win %"]) expect(text("categoryTable", "tactical")).toContain(w);
     expect(text("breakdown", "strategic")).toMatch(/League Leader and League Average/);
     expect(text("breakdown", "tactical")).toMatch(/opponent \(Gammas\)/);
   });
 
-  it("adds vs, Week and G only in tactical", () => {
-    expect(text("settings", "strategic")).not.toMatch(/\bvs\b|Week/);
+  it("has no vs or Week controls (005) and adds G only in tactical", () => {
+    for (const m of modes) expect(text("settings", m)).not.toMatch(/\bvs\b|Week/);
     for (const t of ["roster", "players"] as const) {
       expect(text(t, "strategic")).not.toMatch(/G: games/);
       expect(text(t, "tactical")).toMatch(/G: games left this week/);
@@ -84,5 +85,18 @@ describe("mode variants (US2)", () => {
     expect(text("settings", "strategic", { iterations: 12345 })).toContain("12,345");
     expect(text("settings", "strategic", { window: 7 })).toContain("now 7");
     expect(text("roster", "strategic", { capacity: 10 })).toContain("10 active slots");
+  });
+});
+
+describe("current matchup (005)", () => {
+  it("explains tactical as the current matchup, without mentioning files", () => {
+    expect(text("mode", "tactical")).toMatch(/your current matchup against this week's opponent/);
+    for (const m of modes) for (const t of topics) expect(text(t, m)).not.toMatch(/\.csv|import/i);
+    expect(text("mode", "tactical")).toMatch(/stats already played this week/);
+  });
+
+  it("says the opponent's roster is read-only", () => {
+    expect(text("opponentRoster", "tactical")).toMatch(/read-only/);
+    expect(HELP.opponentRoster(ctx("tactical")).title).toBe("Gammas roster");
   });
 });

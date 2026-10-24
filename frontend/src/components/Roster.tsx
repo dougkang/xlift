@@ -1,20 +1,24 @@
 import type { AnalysisResult } from "../api/client";
+import type { TopicId } from "../help/content";
 import { HelpButton } from "../help/HelpButton";
 
 interface RosterProps {
   result: AnalysisResult;
   teamId: number;
+  /** Without it the roster is read-only (the tactical opponent's roster, 005 FR-016). */
   onDrop?: (playerId: number) => void;
+  title?: string;
+  helpTopic?: TopicId;
 }
 
-export function Roster({ result, teamId, onDrop }: RosterProps) {
+export function Roster({ result, teamId, onDrop, title = "Roster", helpTopic = "roster" }: RosterProps) {
   const roster = result.rosters.find((r) => r.team_id === teamId);
   if (!roster) return null;
   const tactical = roster.players.some((p) => p.games_remaining !== null);
   return (
     <section>
       <h3 className="section-divider">
-        Roster <HelpButton topic="roster" />
+        {title} <HelpButton topic={helpTopic} />
       </h3>
       <table className="data roster">
         <thead>
@@ -55,17 +59,19 @@ export function Roster({ result, teamId, onDrop }: RosterProps) {
       <div className="col-header open-slots">
         {roster.open_active_slots} open active slot{roster.open_active_slots === 1 ? "" : "s"}
       </div>
-      <Footnotes result={result} />
+      <Footnotes result={result} playerIds={roster.players.map((p) => p.player_id)} />
     </section>
   );
 }
 
-export function Footnotes({ result }: { result: AnalysisResult }) {
-  if (!result.footnotes.length) return null;
+/** Footnotes for the players in this roster (yours, or the opponent's in tactical). */
+export function Footnotes({ result, playerIds }: { result: AnalysisResult; playerIds: number[] }) {
+  const notes = result.footnotes.filter((f) => playerIds.includes(f.player_id));
+  if (!notes.length) return null;
   const names = new Map(result.rosters.flatMap((r) => r.players.map((p) => [p.player_id, p.name] as const)));
   return (
     <ul className="footnotes">
-      {result.footnotes.map((f) => (
+      {notes.map((f) => (
         <li key={f.player_id}>
           {f.text} — {names.get(f.player_id) ?? f.player_id}
         </li>

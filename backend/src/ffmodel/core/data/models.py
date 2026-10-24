@@ -98,3 +98,30 @@ class LeagueSnapshot:
 class DataFreshness:
     nba_data_loaded_at: str | None
     roster_as_of: str | None
+    matchup_as_of: str | None = None
+
+
+# The contract's fixed stat vocabulary for matchup totals (migration 0002, research R5).
+MATCHUP_STATS = ("fgm", "fga", "fg3m", "ftm", "fta", "reb", "ast", "stl", "blk", "tov", "pts")
+
+
+@dataclass(frozen=True)
+class MatchupLine:
+    """One team's week-to-date totals in the current matchup (005)."""
+
+    team_id: int
+    opponent_id: int
+    totals: dict[str, int]
+
+
+@dataclass(frozen=True)
+class MatchupState:
+    """A league's current matchup: games on or before `as_of` are in the totals."""
+
+    league_id: int
+    week: int
+    period_start: date
+    period_end: date
+    as_of: date
+    loaded_at: str | None
+    lines: dict[int, MatchupLine]

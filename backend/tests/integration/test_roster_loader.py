@@ -218,3 +218,24 @@ def test_as_of_default_season():
     from ffmodel.contract.seasons import current_season
 
     assert current_season(date(2026, 10, 29)) == "2026-27"
+
+
+def test_as_of_defaults_to_file_modified_date(cli, fixture_engine, tmp_path):
+    """005 FR-002a: with no --as-of, the roster's as-of is the file's modified date."""
+    import os
+    import shutil
+    from datetime import datetime
+
+    path = tmp_path / "valid.csv"
+    shutil.copy(ROSTERS / "valid.csv", path)
+    stamp = datetime(2026, 10, 30, 21, 15).timestamp()
+    os.utime(path, (stamp, stamp))
+    result = cli("load", "roster", str(path), "--league-key", "cats", "--capacity", "3")
+    assert result.exit_code == 0, result.output
+    with fixture_engine.connect() as conn:
+        dates = (
+            conn.execute(text("SELECT DISTINCT as_of FROM player_status WHERE source = 'yahoo'"))
+            .scalars()
+            .all()
+        )
+    assert "2026-10-30" in dates

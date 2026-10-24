@@ -1,5 +1,5 @@
 import type { AnalysisResult, Schemas } from "../api/client";
-import { formatValue } from "../format";
+import { formatActual, formatValue } from "../format";
 import { WithDelta } from "./Delta";
 import { HelpButton } from "../help/HelpButton";
 
@@ -72,8 +72,7 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
       </div>
     );
   }
-  const opponent =
-    result.matchups.find((m) => m.opponent_id === result.settings.opponent_id)?.opponent_name ?? "Opponent";
+  const opponent = result.header.matchup?.opponent_name ?? "Opponent";
   return (
     <div className="category-table-wrap">
       <h3 className="section-divider">
@@ -83,6 +82,9 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
         <thead>
           <tr>
             <th className="col-header" aria-label="Category" />
+            <th className="col-header num now-col" title="Week to date: you–opponent">
+              Now
+            </th>
             <th className="col-header num">You</th>
             <th className="col-header num" title={opponent}>
               Opp
@@ -99,6 +101,9 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
             return (
               <tr key={row.category}>
                 <td className="name-col">{cat.label}</td>
+                <td className="num now-col nowrap">
+                  {formatActual(row.selected_actual, cat)}–{formatActual(row.opponent_actual, cat)}
+                </td>
                 <td className="num">
                   <WithDelta change={ch?.selected_average} {...avg}>
                     {formatValue(row.selected_average, cat)}

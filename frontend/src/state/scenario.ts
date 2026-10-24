@@ -9,9 +9,6 @@ export interface Settings {
   teamId: number | null;
   mode: Mode;
   window: number;
-  opponentId: number | null;
-  periodStart: string | null;
-  periodEnd: string | null;
   /** Radar scale: category rank, or each category's average min-max scaled across the league. */
   radarScale: RadarScale;
 }
@@ -26,8 +23,6 @@ export type Action =
   | { type: "setTeam"; teamId: number }
   | { type: "setMode"; mode: Mode }
   | { type: "setWindow"; window: number }
-  | { type: "setOpponent"; opponentId: number | null }
-  | { type: "setPeriod"; start: string | null; end: string | null }
   | { type: "setRadarScale"; scale: RadarScale }
   | { type: "addMove"; move: Move }
   | { type: "popMove" }
@@ -41,9 +36,6 @@ export const initialState: ScenarioState = {
     teamId: null,
     mode: "strategic",
     window: 15,
-    opponentId: null,
-    periodStart: null,
-    periodEnd: null,
     radarScale: "winrate",
   },
   moves: [],
@@ -53,17 +45,13 @@ export function reducer(state: ScenarioState, action: Action): ScenarioState {
   const s = state.settings;
   switch (action.type) {
     case "setLeague":
-      return { settings: { ...s, leagueId: action.leagueId, teamId: null, opponentId: null }, moves: [] };
+      return { settings: { ...s, leagueId: action.leagueId, teamId: null }, moves: [] };
     case "setTeam":
-      return { ...state, settings: { ...s, teamId: action.teamId, opponentId: s.opponentId === action.teamId ? null : s.opponentId } };
+      return { ...state, settings: { ...s, teamId: action.teamId } };
     case "setMode":
       return { ...state, settings: { ...s, mode: action.mode } };
     case "setWindow":
       return { ...state, settings: { ...s, window: action.window } };
-    case "setOpponent":
-      return { ...state, settings: { ...s, opponentId: action.opponentId } };
-    case "setPeriod":
-      return { ...state, settings: { ...s, periodStart: action.start, periodEnd: action.end } };
     case "setRadarScale":
       return { ...state, settings: { ...s, radarScale: action.scale } };
     case "addMove":
@@ -80,7 +68,12 @@ function load(): ScenarioState {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as ScenarioState;
-      return { settings: { ...initialState.settings, ...parsed.settings }, moves: parsed.moves ?? [] };
+      // Keep only known settings: sessions saved before 005 may still carry an opponent or week.
+      const settings = { ...initialState.settings };
+      for (const k of Object.keys(settings) as (keyof Settings)[]) {
+        if (parsed.settings && k in parsed.settings) (settings as Record<string, unknown>)[k] = parsed.settings[k];
+      }
+      return { settings, moves: parsed.moves ?? [] };
     }
   } catch {
     // storage unavailable or corrupt: start fresh

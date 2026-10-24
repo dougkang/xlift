@@ -6,19 +6,27 @@ export function RecordHeadline({ result, pending = false }: { result: AnalysisRe
   const { header, radar } = result;
   const rec = header.record;
   const opponents = radar ? radar.team_count - 1 : 0;
-  const opponentName = result.matchups.find((m) => m.opponent_id === result.settings.opponent_id)?.opponent_name;
-  const needsOpponent = result.warnings.some((w) => w.code === "OPPONENT_REQUIRED");
+  const m = header.matchup;
   const ch = result.changes?.header;
   return (
     <header className={`record-headline${pending ? " pending" : ""}`}>
       <div className="team-block">
+        {m && (
+          // The week and the score so far, above the team (005 FR-014); the as-of date sits with
+          // the other "last updated" dates under the intro.
+          <div className="matchup-line" aria-label="Current matchup score">
+            Week {m.week} · {shortDate(m.period_start)}–{shortDate(m.period_end)} ·{" "}
+            {m.final ? "Final" : "Now"} {m.current.wins}–{m.current.losses}–{m.current.ties}
+          </div>
+        )}
         <div className="team">
           <h2 className="team-name">{header.team_name}</h2>
           <div className="manager">{header.manager}</div>
         </div>
-        {rec?.unit === "categories" && opponentName && <h3 className="opponent-line">vs. {opponentName}</h3>}
+        {m && (
+          <h3 className="opponent-line">vs. {m.opponent_name}</h3>
+        )}
       </div>
-      {needsOpponent && <div className="score units">Choose an opponent</div>}
       {rec && rec.unit === "matchups" && (
         <div className="score">
           <div className="units" title={`W–L–T vs ${opponents} teams`}>Aggregated Record <HelpButton topic="headline" /></div>
@@ -52,10 +60,21 @@ export function RecordHeadline({ result, pending = false }: { result: AnalysisRe
 
 export function DataLine({ result }: { result: AnalysisResult }) {
   const f = result.freshness;
-  const loaded = f.nba_data_loaded_at ? f.nba_data_loaded_at.slice(0, 16).replace("T", " ") : "never";
+  // Local calendar date (YYYY-MM-DD), like the roster and matchup dates; the stored time is UTC.
+  const loaded = f.nba_data_loaded_at ? new Date(f.nba_data_loaded_at).toLocaleDateString("en-CA") : "never";
   return (
     <span className="data-line col-header">
-      Statistics last updated: {loaded} · Rosters last updated: {f.roster_as_of ?? "–"}
+      <span>Statistics last updated: {loaded}</span>
+      <span>Rosters last updated: {f.roster_as_of ?? "–"}</span>
+      {f.matchup_as_of && <span>Matchup last updated: {f.matchup_as_of}</span>}
     </span>
   );
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "2026-11-18" → "Nov 18", without time-zone shifts. */
+export function shortDate(iso: string): string {
+  const [, mm, dd] = iso.split("-").map(Number);
+  return `${MONTHS[mm - 1]} ${dd}`;
 }

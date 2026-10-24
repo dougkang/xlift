@@ -30,12 +30,16 @@ def test_analyze_shape_and_echo(client):
         {"window": 0},
         {"window": 83},
         {"iterations": 500},
-        {"opponent_id": 1},
-        {"period_start": "2026-11-20", "period_end": "2026-11-19"},
     ],
 )
 def test_bad_settings(client, bad):
     assert client.post("/api/impact/analyze", json=BODY | bad).status_code == 422
+
+
+def test_old_opponent_and_period_fields_are_ignored(client):
+    """005: tactical takes these from the matchup state; older clients still work."""
+    old = {"opponent_id": 1, "period_start": "2026-11-20", "period_end": "2026-11-19"}
+    assert client.post("/api/impact/analyze", json=BODY | old).status_code == 200
 
 
 def test_unknown_team_and_league(client):

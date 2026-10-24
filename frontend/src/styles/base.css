@@ -628,10 +628,28 @@ input[type="search"] {
   margin-top: 0.35rem;
 }
 
+/* One "last updated" date per line. */
+.data-line > span {
+  display: block;
+}
+
 .opponent-line {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0.15rem 0 0;
+}
+
+/* Tactical (005): the week and the score so far, a quiet line above the team name. */
+.matchup-line {
+  font-size: var(--data-size);
+  font-weight: 400;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+/* Week-to-date values in the difference table: context, not the projection. */
+.category-table .now-col {
+  color: var(--muted);
 }
 
 .radar-scale {

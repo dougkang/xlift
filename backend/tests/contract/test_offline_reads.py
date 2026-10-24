@@ -27,6 +27,7 @@ def test_every_public_read_works_offline(fixture_engine):
         "get_last_n_games",
         "get_last_n_games_bulk",
         "get_league",
+        "get_matchup_state",
         "get_player",
         "get_player_details",
         "get_player_history",
@@ -37,6 +38,7 @@ def test_every_public_read_works_offline(fixture_engine):
         # SC-007: each Impact Analysis input maps to the read that answers it.
         window = data.get_last_n_games(conn, fx.DONCIC, 15, as_of=fx.FIXTURE_TODAY)
         assert window.found == 15  # last-X-game window
+        assert data.get_matchup_state(conn, 1) is None  # no matchups.csv imported
         assert (
             data.count_team_games(
                 conn, fx.IGGY, date(2026, 10, 31), date(2026, 11, 8), statuses=("scheduled",)

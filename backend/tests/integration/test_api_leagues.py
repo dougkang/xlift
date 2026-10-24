@@ -10,7 +10,7 @@ def client(impact_engine):
 
 
 def test_health(client):
-    assert client.get("/api/health").json() == {"status": "ok", "schema_version": 1}
+    assert client.get("/api/health").json() == {"status": "ok", "schema_version": 2}
 
 
 def test_leagues(client):
@@ -25,7 +25,25 @@ def test_league_detail(client):
     assert body["freshness"] == {
         "nba_data_loaded_at": "2026-11-18T08:00:00+00:00",
         "roster_as_of": "2026-11-18",
+        "matchup_as_of": None,
     }
+    assert body["current_matchup"] is None  # no matchups.csv imported
+
+
+def test_league_detail_with_matchup(impact_engine, client):
+    from tests.fixtures.impact_dataset import load_matchup_state
+
+    with impact_engine.begin() as conn:
+        load_matchup_state(conn)
+    body = client.get("/api/leagues/1").json()
+    cm = body["current_matchup"]
+    assert (cm["week"], cm["period_start"], cm["period_end"], cm["as_of"]) == (
+        1,
+        "2026-11-16",
+        "2026-11-22",
+        "2026-11-17",
+    )
+    assert body["freshness"]["matchup_as_of"] == "2026-11-17"
 
 
 def test_unknown_league(client):

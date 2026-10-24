@@ -93,4 +93,7 @@ def get_data_freshness(conn, league_id: int) -> DataFreshness:
         ),
         {"l": league_id},
     ).scalar_one()
-    return DataFreshness(nba_data_loaded_at=loaded, roster_as_of=roster)
+    matchup = conn.execute(
+        text("SELECT as_of FROM matchup_state WHERE league_id = :l"), {"l": league_id}
+    ).scalar_one_or_none()
+    return DataFreshness(nba_data_loaded_at=loaded, roster_as_of=roster, matchup_as_of=matchup)

@@ -14,3 +14,9 @@ export function formatValue(value: number | null | undefined, cat: Category, sig
   const rounded = value.toFixed(1);
   return `${sign}${rounded.replace("-", "−")}`;
 }
+
+/** Display an actual (week-to-date) value: ratios as .473, counts as whole numbers (005). */
+export function formatActual(value: number | null | undefined, cat: Category): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return "–";
+  return cat.decimals > 0 ? formatValue(value, cat) : String(Math.round(value));
+}

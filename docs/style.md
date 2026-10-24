@@ -213,6 +213,21 @@ no relationship between categories.
   only when it would collide with another label.
 - **Name columns:** the player and category columns in tables are bold.
 
+## Current matchup (tactical)
+
+- **Score so far:** "Week N · Mon D–Mon D · Now W–L–T" is a muted line at data size above the
+  team name ("Final W–L–T" once the week is over). The opponent line below the team name reads
+  "vs. Opponent".
+- **Last updated:** under the intro, one date per line: statistics, rosters and, once loaded, the
+  matchup.
+- **Now column:** the Per Category Difference table's first value column holds the week-to-date
+  pair, you–opponent, in muted text. Counts are whole numbers; ratios use the category's format.
+  You, Opp and Diff are the projected finals.
+- **Opponent's roster:** in tactical mode it replaces H2H, titled with the opponent's team name.
+  It uses the Roster table style with no drop buttons, because moves apply only to your team.
+- **No matchup imported:** the Tactical toggle is disabled, with the tooltip "This week's
+  matchup hasn't been loaded yet". User-facing text never names data files.
+
 ## Change (before/after)
 
 After a hypothetical roster move, every projected value is compared with the original roster

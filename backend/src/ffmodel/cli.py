@@ -36,6 +36,12 @@ def _summary_text(summary) -> str:
             f"  {table:<20} +{summary.inserted.get(table, 0):>6}"
             f"  ~{summary.updated.get(table, 0):>6}"
         )
+    d = summary.details
+    if d:
+        lines.append(f"  week {d['week']}  {d['period'][0]} → {d['period'][1]}  as of {d['as_of']}")
+        lines += [f"  {a}  vs  {b}" for a, b in d["pairings"]]
+    if summary.replaced:
+        lines.append(f"  replaced the previous matchup state ({summary.replaced} teams)")
     if summary.report:
         lines.append(summary.report)
     return "\n".join(lines)
@@ -48,6 +54,7 @@ def _summary_payload(summary) -> dict:
         "inserted": summary.inserted,
         "updated": summary.updated,
         "report": summary.report,
+        **({"details": summary.details} if summary.details else {}),
     }
 
 
@@ -100,7 +107,13 @@ def load_roster_cmd(
     scoring_format: Annotated[str | None, typer.Option("--format")] = None,
     capacity: Annotated[int | None, typer.Option("--capacity")] = None,
     source: Annotated[str, typer.Option("--source")] = "yahoo",
-    as_of: Annotated[str | None, typer.Option("--as-of", help="YYYY-MM-DD")] = None,
+    as_of: Annotated[
+        str | None,
+        typer.Option(
+            "--as-of",
+            help="YYYY-MM-DD; defaults to the file's modified date (before noon: the day before)",
+        ),
+    ] = None,
 ):
     """Load a roster file into a league (all-or-nothing)."""
     from ffmodel.adapters.roster_csv.loader import load_roster
@@ -116,6 +129,44 @@ def load_roster_cmd(
             capacity=capacity,
             source=source,
             as_of=_parse_date(as_of),
+        )
+    except Exception as exc:
+        typer.echo(f"load failed: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    _emit(_summary_payload(summary), _summary_text(summary))
+    if summary.outcome == "rejected":
+        raise typer.Exit(2)
+
+
+@load_app.command("matchups")
+def load_matchups_cmd(
+    path: Annotated[str, typer.Argument(help="matchups.csv export (week-to-date team totals).")],
+    league_key: Annotated[str, typer.Option("--league-key")],
+    as_of: Annotated[
+        str | None,
+        typer.Option(
+            "--as-of",
+            help="YYYY-MM-DD; defaults to the file's modified date (before noon: the day before)",
+        ),
+    ] = None,
+    period_start: Annotated[
+        str | None, typer.Option("--period-start", help="defaults to the as-of week's Monday")
+    ] = None,
+    period_end: Annotated[
+        str | None, typer.Option("--period-end", help="defaults to the as-of week's Sunday")
+    ] = None,
+):
+    """Load the league's current matchup state (all-or-nothing; replaces the previous one)."""
+    from ffmodel.adapters.matchup_csv.loader import load_matchups
+
+    try:
+        summary = load_matchups(
+            _engine(),
+            path,
+            league_key,
+            as_of=_parse_date(as_of),
+            period_start=_parse_date(period_start),
+            period_end=_parse_date(period_end),
         )
     except Exception as exc:
         typer.echo(f"load failed: {exc}", err=True)

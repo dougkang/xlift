@@ -195,7 +195,41 @@ export interface components {
             matchups: {
                 [key: string]: components["schemas"]["MatchupChange"];
             };
-            matchup_totals: components["schemas"]["TotalsChange"];
+            matchup_totals: components["schemas"]["TotalsChange"] | null;
+        };
+        /**
+         * CurrentMatchup
+         * @description The league's imported matchup state (005); null until matchups.csv is loaded.
+         */
+        CurrentMatchup: {
+            /** Week */
+            week: number;
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Loaded At */
+            loaded_at: string | null;
+        };
+        /** CurrentScore */
+        CurrentScore: {
+            /** Wins */
+            wins: number;
+            /** Losses */
+            losses: number;
+            /** Ties */
+            ties: number;
         };
         /** Curve */
         Curve: {
@@ -233,6 +267,10 @@ export interface components {
         DifferenceRow: {
             /** Category */
             category: string;
+            /** Selected Actual */
+            selected_actual?: number | null;
+            /** Opponent Actual */
+            opponent_actual?: number | null;
             /** Selected Average */
             selected_average: number | null;
             /** Opponent Average */
@@ -283,6 +321,8 @@ export interface components {
             nba_data_loaded_at: string | null;
             /** Roster As Of */
             roster_as_of: string | null;
+            /** Matchup As Of */
+            matchup_as_of?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -300,6 +340,7 @@ export interface components {
             record: components["schemas"]["RecordModel"] | null;
             /** Matchup Win Probability */
             matchup_win_probability?: number | null;
+            matchup?: components["schemas"]["MatchupHeader"] | null;
         };
         /** HeaderChange */
         HeaderChange: {
@@ -327,6 +368,7 @@ export interface components {
             /** Teams */
             teams: components["schemas"]["TeamSummary"][];
             freshness: components["schemas"]["Freshness"];
+            current_matchup?: components["schemas"]["CurrentMatchup"] | null;
         };
         /** LeagueSummary */
         LeagueSummary: {
@@ -356,6 +398,36 @@ export interface components {
             original_result: "win" | "loss" | "tie";
             /** Transition */
             transition: ("flip_better" | "flip_worse" | "better" | "worse") | null;
+        };
+        /**
+         * MatchupHeader
+         * @description Tactical: the current matchup (005). `current` is the score from week-to-date totals.
+         */
+        MatchupHeader: {
+            /** Opponent Id */
+            opponent_id: number;
+            /** Opponent Name */
+            opponent_name: string;
+            /** Week */
+            week: number;
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Final */
+            final: boolean;
+            current: components["schemas"]["CurrentScore"];
         };
         /** MatchupModel */
         MatchupModel: {
@@ -443,12 +515,6 @@ export interface components {
             window: number;
             /** As Of */
             as_of?: string | null;
-            /** Opponent Id */
-            opponent_id?: number | null;
-            /** Period Start */
-            period_start?: string | null;
-            /** Period End */
-            period_end?: string | null;
             /**
              * Iterations
              * @default 25000
@@ -670,12 +736,6 @@ export interface components {
             window: number;
             /** As Of */
             as_of?: string | null;
-            /** Opponent Id */
-            opponent_id?: number | null;
-            /** Period Start */
-            period_start?: string | null;
-            /** Period End */
-            period_end?: string | null;
             /**
              * Iterations
              * @default 25000
@@ -782,7 +842,7 @@ export interface components {
              * Code
              * @enum {string}
              */
-            code: "OPPONENT_REQUIRED" | "NO_GAMES_REMAINING" | "UNSUPPORTED_FORMAT";
+            code: "NO_GAMES_REMAINING" | "UNSUPPORTED_FORMAT" | "MATCHUP_NOT_LOADED" | "MATCHUP_STALE" | "ROSTER_MATCHUP_DATES_DIFFER" | "MATCHUP_STATS_MISSING";
             /** Message */
             message: string;
         };

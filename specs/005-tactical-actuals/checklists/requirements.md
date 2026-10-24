@@ -35,6 +35,5 @@
 
 - **Base statistic names (FGM, FGA, …):** these are domain terms from the league's scoring
   format, not implementation details.
-- **External dependency:** the roster exporter, which lives outside this repo, must be extended
-  to write the snapshot file, including players dropped mid-week and their stats for the team.
-  This is recorded in Assumptions; the column layout is decided in `/speckit-plan`.
+- **External dependency:** resolved. The exporter now writes `matchups.csv` (team totals and
+  pairings). Its as-of date is inferred from the file's modified date at import.

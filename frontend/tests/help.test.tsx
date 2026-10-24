@@ -21,11 +21,11 @@ vi.mock("../src/api/client", async (orig) => {
 });
 const { default: App } = await import("../src/App");
 
-async function renderMode(mode: "strategic" | "tactical", opponentId: number | null = null) {
-  analyze.mockImplementation(async () => (mode === "tactical" && opponentId ? tactical : strategic));
+async function renderMode(mode: "strategic" | "tactical") {
+  analyze.mockImplementation(async () => (mode === "tactical" ? tactical : strategic));
   sessionStorage.setItem(
     "ffm.impact.v1",
-    JSON.stringify({ settings: { leagueId: 1, teamId: mode === "tactical" ? 3 : 4, mode, opponentId }, moves: [] }),
+    JSON.stringify({ settings: { leagueId: 1, teamId: mode === "tactical" ? 3 : 4, mode }, moves: [] }),
   );
   render(<App />);
   await screen.findByRole("heading", { level: 2 }, { timeout: 2000 });
@@ -93,13 +93,16 @@ describe("section help", () => {
 
   it("tactical shows the tactical variants (US2)", async () => {
     const user = userEvent.setup();
-    await renderMode("tactical", 4);
+    await renderMode("tactical");
     await user.click(screen.getByRole("button", { name: "Help: Chance to Win" }));
-    expect(screen.getByRole("dialog")).toHaveTextContent("Chance to Win");
+    expect(screen.getByRole("dialog")).toHaveTextContent("Now is the category score so far");
     await user.click(screen.getByRole("button", { name: "Help: Per Category Difference" }));
     expect(screen.getByRole("dialog")).toHaveTextContent("You / Opp");
     await user.click(screen.getByRole("button", { name: "Help: Analysis settings" }));
-    expect(screen.getByRole("dialog")).toHaveTextContent("Week");
+    expect(screen.getByRole("dialog")).not.toHaveTextContent("Week");
+    // The opponent's roster replaces H2H, with its own help (005).
+    await user.click(screen.getByRole("button", { name: "Help: Deltas roster" }));
+    expect(screen.getByRole("dialog")).toHaveTextContent("read-only");
   });
 
   it("help buttons sit inline in their headings and add no blocks (FR-003)", async () => {

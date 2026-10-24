@@ -65,7 +65,11 @@ def simulate_team(
     iterations: int,
     seed: int,
     mode_code: int,
+    base: np.ndarray | None = None,
 ) -> TeamSamples:
+    """Monte Carlo team totals. `base` (tactical, 005) is the team's week-to-date totals per base
+    stat: a fixed offset added after the simulated remainder is made valid, so clipping never
+    eats into real totals (research R3)."""
     d = len(fmt.base_stats)
     raw = np.zeros((iterations, d))
     for proj in projections:
@@ -81,6 +85,9 @@ def simulate_team(
     totals = {s: team[:, i] for i, s in enumerate(fmt.base_stats)}
     for small, big in fmt.subset_constraints:
         totals[small] = np.minimum(totals[small], totals[big])
+    if base is not None:
+        for i, stat in enumerate(fmt.base_stats):
+            totals[stat] = totals[stat] + base[i]
     for name, fn in fmt.derived_stats.items():
         totals[name] = fn(totals)
     return TeamSamples(team_id=team_id, totals=totals)

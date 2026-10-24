@@ -43,3 +43,6 @@ The content is defined in `frontend/src/help/content.ts`, seeded from the spec a
 | `h2h` | H2H divider | — |
 | `breakdown` | Category Breakdown divider | Yes |
 | `players` | Players divider | Tactical adds G |
+
+**Update (005):** the settings topic no longer lists vs or Week, and a tenth topic,
+`opponentRoster`, explains the opponent's read-only roster, which replaces H2H in tactical mode.

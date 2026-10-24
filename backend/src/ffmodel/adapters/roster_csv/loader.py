@@ -10,7 +10,7 @@ from pathlib import Path
 
 from sqlalchemy import Engine, text
 
-from ffmodel.adapters.common import LoadSummary, finish_run, start_run, upsert
+from ffmodel.adapters.common import LoadSummary, file_date, finish_run, start_run, upsert
 from ffmodel.adapters.roster_csv.match import match_rows
 from ffmodel.adapters.roster_csv.parse import Problem, RosterRow, parse_roster_csv
 from ffmodel.contract.seasons import current_season
@@ -223,7 +223,7 @@ def load_roster(
     source: str = "yahoo",
     as_of: date | None = None,
 ) -> LoadSummary:
-    as_of = as_of or date.today()
+    as_of = as_of or file_date(path)
     season = season or current_season(as_of)
     scope = {
         "path": str(path),

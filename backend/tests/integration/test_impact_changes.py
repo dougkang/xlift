@@ -48,8 +48,15 @@ def test_headline_strategic(impact_engine):
     assert ch["chance_to_win"] is None
 
 
+def load_matchup(engine, **kw):
+    cache.clear()
+    with engine.begin() as conn:
+        fx.load_matchup_state(conn, **kw)
+
+
 def test_headline_tactical(impact_engine):
-    kw = {"team": GAMMAS, "mode": "tactical", "opponent_id": DELTAS}
+    load_matchup(impact_engine)  # Gammas play Deltas
+    kw = {"team": GAMMAS, "mode": "tactical"}
     moves = [Swap(acquire_id=fx.DELTA_1, give_id=fx.GAMMA_2, team_id=GAMMAS)]
     before, after = run(impact_engine, **kw), run(impact_engine, moves, **kw)
     expected = round(
@@ -148,10 +155,10 @@ def test_original_cache_hit(impact_engine, monkeypatch):
     calls = {"n": 0}
     real = analysis._analyze
 
-    def counting(conn, s, moves, reuse=None):
+    def counting(conn, s, moves, reuse=None, matchup=None):
         if not moves:
             calls["n"] += 1
-        return real(conn, s, moves, reuse=reuse)
+        return real(conn, s, moves, reuse=reuse, matchup=matchup)
 
     monkeypatch.setattr(analysis, "_analyze", counting)
     run(impact_engine, [Drop(fx.DELTA_1, DELTAS)])
@@ -171,14 +178,20 @@ def test_settings_change_recomputes_original(impact_engine):  # US3
     assert [o["team_id"] for o in other["changes"]["radar"]["original"]] == [GAMMAS]
 
 
-def test_opponent_switch_recomputes_original(impact_engine):
+def test_reimport_recomputes_original(impact_engine):
+    """A new matchup import invalidates the cached original (005 research R6)."""
     moves = [Add(fx.BUSY, GAMMAS)]
-    a = run(impact_engine, moves, team=GAMMAS, mode="tactical", opponent_id=BETAS)
-    b = run(impact_engine, moves, team=GAMMAS, mode="tactical", opponent_id=DELTAS)
-    base_b = run(impact_engine, team=GAMMAS, mode="tactical", opponent_id=DELTAS)
+    load_matchup(impact_engine)
+    a = run(impact_engine, moves, team=GAMMAS, mode="tactical")
+    with impact_engine.begin() as conn:
+        fx.load_matchup_state(conn, as_of=fx.date(2026, 11, 19))
+    b = run(impact_engine, moves, team=GAMMAS, mode="tactical")
+    base_b = run(impact_engine, team=GAMMAS, mode="tactical")
     expected = round(
         (b["header"]["matchup_win_probability"] - base_b["header"]["matchup_win_probability"]) * 100
     )
     got = b["changes"]["header"]["chance_to_win"]
     assert (got["delta"] if got else 0) == expected
-    assert a["settings"]["opponent_id"] == BETAS
+    assert a["header"]["matchup"]["as_of"] != b["header"]["matchup"]["as_of"]
+    # Before and after share the same week-to-date totals (FR-019).
+    assert b["header"]["matchup"]["current"] == base_b["header"]["matchup"]["current"]

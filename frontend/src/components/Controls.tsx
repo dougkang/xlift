@@ -9,21 +9,11 @@ interface Props {
   settings: Settings;
   dispatch: (a: Action) => void;
   moveCount?: number;
-  /** Effective period from the last result, used to show the server's default week. */
-  period?: { start: string | null; end: string | null };
 }
 
-export function Controls({
-  leagues,
-  league,
-  settings,
-  dispatch,
-  moveCount = 0,
-  period,
-}: Props) {
-  const tactical = settings.mode === "tactical";
-  const start = settings.periodStart ?? period?.start ?? "";
-  const end = settings.periodEnd ?? period?.end ?? "";
+/** Last X games, League, Team and Reset. Tactical's opponent and week come from the imported
+ * matchup (005), so there are no vs or Week controls. */
+export function Controls({ leagues, league, settings, dispatch, moveCount = 0 }: Props) {
   return (
     <div className="controls" role="group" aria-label="Analysis settings">
       <div className="controls-row">
@@ -70,48 +60,8 @@ export function Controls({
             ))}
           </select>
         </label>
-        {tactical && (
-          <label>
-            <span className="col-header">vs</span>
-            <select
-              aria-label="Opponent"
-              value={settings.opponentId ?? ""}
-              onChange={(e) =>
-                dispatch({ type: "setOpponent", opponentId: e.target.value ? Number(e.target.value) : null })
-              }
-            >
-              <option value="">Choose opponent…</option>
-              {league?.teams
-                .filter((t) => t.team_id !== settings.teamId)
-                .map((t) => (
-                  <option key={t.team_id} value={t.team_id}>
-                    {t.name} — {t.manager}
-                  </option>
-                ))}
-            </select>
-          </label>
-        )}
       </div>
       <div className="controls-row">
-        {tactical && (
-          <label>
-            <span className="col-header">Week</span>
-            <input
-              type="date"
-              aria-label="Period start"
-              value={start}
-              onChange={(e) => dispatch({ type: "setPeriod", start: e.target.value || null, end: end || null })}
-            />
-            <span className="col-header">to</span>
-            <input
-              type="date"
-              aria-label="Period end"
-              value={end}
-              min={start || undefined}
-              onChange={(e) => dispatch({ type: "setPeriod", start: start || null, end: e.target.value || null })}
-            />
-          </label>
-        )}
         <button onClick={() => dispatch({ type: "reset" })} disabled={moveCount === 0}>
           Reset{moveCount ? ` (${moveCount} move${moveCount === 1 ? "" : "s"})` : ""}
         </button>
@@ -121,7 +71,19 @@ export function Controls({
 }
 
 /** Strategic / Tactical toggle; sits in the masthead row, right-aligned. */
-export function ModeToggle({ settings, dispatch }: { settings: Settings; dispatch: (a: Action) => void }) {
+export const NO_MATCHUP = "This week's matchup hasn't been loaded yet";
+
+/** Tactical needs the league's imported current matchup (005); without it the toggle is off. */
+export function ModeToggle({
+  settings,
+  league,
+  dispatch,
+}: {
+  settings: Settings;
+  league: LeagueDetail | null;
+  dispatch: (a: Action) => void;
+}) {
+  const noMatchup = league !== null && !league.current_matchup;
   return (
     <span className="mode-toggle" role="radiogroup" aria-label="Mode">
       {(["strategic", "tactical"] as const).map((m) => (
@@ -130,6 +92,8 @@ export function ModeToggle({ settings, dispatch }: { settings: Settings; dispatc
           className={`pill${settings.mode === m ? " active" : ""}`}
           role="radio"
           aria-checked={settings.mode === m}
+          disabled={m === "tactical" && noMatchup}
+          title={m === "tactical" && noMatchup ? NO_MATCHUP : undefined}
           onClick={() => dispatch({ type: "setMode", mode: m })}
         >
           {m === "strategic" ? "Strategic" : "Tactical"}

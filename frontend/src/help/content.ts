@@ -10,6 +10,7 @@ export type TopicId =
   | "radar"
   | "categoryTable"
   | "roster"
+  | "opponentRoster"
   | "h2h"
   | "breakdown"
   | "players";
@@ -21,6 +22,8 @@ export interface HelpContext {
   window: number;
   capacity: number | null;
   opponentName: string | null;
+  /** The imported matchup's as-of date (005); null when none is loaded. */
+  asOf: string | null;
 }
 
 export interface HelpTopic {
@@ -40,11 +43,12 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     title: "Strategic / Tactical",
     controls: [
       ["Strategic", "the long run: your team against every other team in the league."],
-      ["Tactical", "this week: your team against one opponent (pick it under vs)."],
+      ["Tactical", "this week: your current matchup against this week's opponent."],
     ],
     reading: [
       "Strategic plays a typical week: about 3 games per player, fewer for players who often miss games.",
-      "Tactical counts only the games each player has left in the chosen week.",
+      "Tactical adds the games each player has left to the stats already played this week.",
+      "Tactical is unavailable until this week's matchup has been loaded.",
       "Strategic shows the Aggregated Record, Per Category Ranking and league overlays.",
       "Tactical shows Chance to Win, Per Category Difference and your opponent's overlay.",
     ],
@@ -54,13 +58,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     title: "Analysis settings",
     controls: [
       ["Last X games", `how many recent games each projection uses (now ${ctx.window}).`],
-      ["League / Team", "whose team you're analyzing."],
-      ...(ctx.mode === "tactical"
-        ? ([
-            ["vs", "this week's opponent."],
-            ["Week", "the matchup dates; only games left in it count."],
-          ] as [string, string][])
-        : []),
+      ["League / Team", "whose team you're analyzing; in tactical, its current opponent comes with it."],
       ["Reset", "undo every roster move."],
     ],
     reading: [
@@ -88,13 +86,13 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
           title: "Chance to Win",
           reading: [
             `The line under your team names this week's opponent${ctx.opponentName ? ` (${ctx.opponentName})` : ""}.`,
-            "\"Choose an opponent\" means pick one under vs; \"no games remaining\" means the week is over.",
+            `Now is the category score so far${ctx.asOf ? `, as of ${ctx.asOf}` : ""}; Final once the week is over.`,
             "Green or red below shows the change from your moves.",
           ],
           terms: [
             [
               "Chance to Win",
-              `how often you win the matchup across ${fmt(ctx.iterations)} simulations, counting only games left this week.`,
+              `how often you win the matchup across ${fmt(ctx.iterations)} simulations: stats so far plus the games left.`,
             ],
           ],
         },
@@ -132,7 +130,8 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
       : {
           title: "Per Category Difference",
           reading: [
-            "You / Opp: projected totals for the rest of the week.",
+            "Now: the week-to-date values, you–opponent.",
+            "You / Opp: projected final totals, so far plus the games left.",
             "Diff: green favors you, red favors them.",
             "Changes from your moves sit on the line below.",
           ],
@@ -149,6 +148,15 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
       ...(ctx.mode === "tactical" ? ["G: games left this week."] : []),
     ],
     terms: [["*", "fewer games in the window than requested."]],
+  }),
+
+  opponentRoster: (ctx) => ({
+    title: ctx.opponentName ? `${ctx.opponentName} roster` : "Opponent's roster",
+    reading: [
+      "Your opponent's players this week, read-only: moves apply only to your team.",
+      "Muted rows are IL/NA reserve slots; red text is status.",
+      "G: games left this week.",
+    ],
   }),
 
   h2h: () => ({

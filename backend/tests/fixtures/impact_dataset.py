@@ -301,3 +301,71 @@ def load_impact_fixture(conn) -> None:
             }
         ],
     )
+
+
+# --- Current matchup state (005) ---------------------------------------------------------------
+# Week-to-date team totals through LAST_FINAL. Not loaded by load_impact_fixture, so strategic
+# and pre-005 tests see no matchup state.
+MATCHUP_PAIRS = {1: 2, 2: 1, 3: 4, 4: 3}  # Alphas–Betas, Gammas–Deltas
+MATCHUP_WEEK = 1
+
+
+def _totals(fgm, fga, fg3m, ftm, fta, reb, ast, stl, blk, tov) -> dict:
+    return dict(
+        fgm=fgm,
+        fga=fga,
+        fg3m=fg3m,
+        ftm=ftm,
+        fta=fta,
+        reb=reb,
+        ast=ast,
+        stl=stl,
+        blk=blk,
+        tov=tov,
+        pts=2 * fgm + fg3m + ftm,
+    )
+
+
+MATCHUP_TOTALS = {
+    1: _totals(40, 80, 10, 20, 25, 60, 30, 8, 6, 12),
+    2: _totals(30, 70, 8, 18, 24, 45, 25, 6, 4, 10),
+    3: _totals(28, 60, 6, 12, 16, 40, 20, 5, 5, 9),
+    4: _totals(22, 58, 5, 10, 15, 50, 18, 7, 3, 11),
+}
+
+
+def load_matchup_state(
+    conn, as_of: date = LAST_FINAL, period: tuple[date, date] = WEEK, totals: dict | None = None
+) -> None:
+    """Insert a current matchup state for league 1, replacing any earlier one."""
+    conn.execute(text("DELETE FROM matchup_team WHERE league_id = 1"))
+    conn.execute(text("DELETE FROM matchup_state WHERE league_id = 1"))
+    run_id = conn.execute(
+        text(
+            "INSERT INTO load_run (source, scope, started_at, finished_at, outcome)"
+            " VALUES ('matchups_csv', '{}', :t, :t, 'succeeded') RETURNING run_id"
+        ),
+        {"t": f"{as_of.isoformat()}T23:00:00+00:00"},
+    ).scalar_one()
+    _insert(
+        conn,
+        "matchup_state",
+        [
+            {
+                "league_id": 1,
+                "week": MATCHUP_WEEK,
+                "period_start": period[0].isoformat(),
+                "period_end": period[1].isoformat(),
+                "as_of": as_of.isoformat(),
+                "run_id": run_id,
+            }
+        ],
+    )
+    _insert(
+        conn,
+        "matchup_team",
+        [
+            {"league_id": 1, "fantasy_team_id": t, "opponent_team_id": MATCHUP_PAIRS[t], **tot}
+            for t, tot in (totals or MATCHUP_TOTALS).items()
+        ],
+    )

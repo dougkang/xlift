@@ -15,15 +15,20 @@ from ffmodel.core.sim.engine import (
     strategic_k,
     tactical_k,
 )
+from ffmodel.core.sim.matchup import MissingStats, actual_values, base_vector, current_record
 
 __all__ = [
     "STRATEGIC",
     "TACTICAL",
     "MatchupOdds",
+    "MissingStats",
     "Odds",
     "Record",
     "TeamSamples",
+    "actual_values",
+    "base_vector",
     "category_values",
+    "current_record",
     "density_curves",
     "matchup_odds",
     "projected_averages",

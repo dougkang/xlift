@@ -4,6 +4,7 @@ from ffmodel.core.data.availability import count_team_games, get_availability
 from ffmodel.core.data.bulk import count_team_games_bulk, get_data_freshness, get_last_n_games_bulk
 from ffmodel.core.data.games import get_last_n_games, get_player_history
 from ffmodel.core.data.league import get_free_agents, get_league, list_leagues
+from ffmodel.core.data.matchup import get_matchup_state
 from ffmodel.core.data.models import (
     Availability,
     DataFreshness,
@@ -11,6 +12,8 @@ from ffmodel.core.data.models import (
     GameWindow,
     LeagueSettings,
     LeagueSnapshot,
+    MatchupLine,
+    MatchupState,
     PlayerGameLine,
     PlayerSummary,
     RosterPlayer,
@@ -24,6 +27,8 @@ __all__ = [
     "GameWindow",
     "LeagueSettings",
     "LeagueSnapshot",
+    "MatchupLine",
+    "MatchupState",
     "PlayerGameLine",
     "PlayerSummary",
     "RosterPlayer",
@@ -35,6 +40,7 @@ __all__ = [
     "get_league",
     "get_last_n_games",
     "get_last_n_games_bulk",
+    "get_matchup_state",
     "get_player",
     "get_player_details",
     "get_player_history",

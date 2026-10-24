@@ -3,7 +3,8 @@
 import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
 
 from sqlalchemy import Engine, text
 
@@ -17,6 +18,9 @@ class LoadSummary:
     inserted: dict[str, int] = field(default_factory=dict)
     updated: dict[str, int] = field(default_factory=dict)
     report: str | None = None
+    # Loader-specific facts for the summary (e.g. the matchup week, period and pairings).
+    details: dict = field(default_factory=dict)
+    replaced: int = 0
 
     def add(self, table: str, counts: tuple[int, int]) -> None:
         self.inserted[table] = self.inserted.get(table, 0) + counts[0]
@@ -92,6 +96,21 @@ def upsert(conn, table: str, key_cols: Sequence[str], rows: Sequence[Mapping]) -
             to_update,
         )
     return len(to_insert), len(to_update)
+
+
+# Exports captured before noon describe the previous day: that day's games are done, and the
+# new day's games haven't started (e.g. a 00:07 capture is "as of" the evening before).
+AS_OF_CUTOFF_HOUR = 12
+
+
+def file_date(path: str | Path) -> date:
+    """The day an export describes, from its last-modified time in local time (005).
+
+    Modified at or after noon: that date. Before noon: the previous date.
+    """
+    modified = datetime.fromtimestamp(Path(path).stat().st_mtime)
+    day = modified.date()
+    return day - timedelta(days=1) if modified.hour < AS_OF_CUTOFF_HOUR else day
 
 
 def _now() -> str:
