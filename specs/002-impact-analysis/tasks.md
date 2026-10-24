@@ -734,7 +734,7 @@ as the docs intend.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T057 [P] Write `backend/tests/slow/test_real_league.py`, marked `@pytest.mark.slow`, against
+- [X] T057 [P] Write `backend/tests/slow/test_real_league.py`, marked `@pytest.mark.slow`, against
   the real DB (`FFMODEL_DB_URL`, league `ccsv-2026`):
   - **SC-001**: for 3 teams in each mode (tactical uses each team's first other team as the
     opponent), `analyze` with a warm projection cache takes under 2.0 s. Also one cold call under
@@ -742,20 +742,20 @@ as the docs intend.
   - **SC-003**: for **every** team in both modes, run 5 seeds (1–5) at default iterations. The
     maximum spread of every matchup and category `p_win` stays at or under 0.03. Record the
     observed maximum in the test output.
-- [ ] T058 [P] Write `backend/tests/integration/test_layering_002.py`, or extend the existing
+- [X] T058 [P] Write `backend/tests/integration/test_layering_002.py`, or extend the existing
   layering test, asserting that `lint-imports` passes with the new contracts. Also add a test that
   `ffmodel.core.sim` and `ffmodel.core.scoring` import without SQLAlchemy usage at import time.
-- [ ] T059 [P] Update `backend/README.md` with:
+- [X] T059 [P] Update `backend/README.md` with:
   - `ffm serve`;
   - the API overview, linking `specs/002-impact-analysis/contracts/api.md`;
   - the frontend dev loop (`npm run dev`, `npm run gen:api`);
   - the `slow` test marker.
 
   Create `frontend/README.md` with setup, scripts, and the Node 22 prerequisite.
-- [ ] T060 Run `uv run ruff check src tests && uv run ruff format`, `uv run lint-imports`, and
+- [X] T060 Run `uv run ruff check src tests && uv run ruff format`, `uv run lint-imports`, and
   `uv run pytest` in `backend/`, plus `npm run build && npm test` in `frontend/`. Fix all
   findings.
-- [ ] T061 Run quickstart sections B, C and D manually: the real league, the browser
+- [X] T061 Run quickstart sections B, C and D manually: the real league, the browser
   walk-through steps 1–7, and the built bundle served by `ffm serve`. Append a "Validation log" to
   `specs/002-impact-analysis/quickstart.md` with:
   - the timings and the SC-003 observed maximum spread;

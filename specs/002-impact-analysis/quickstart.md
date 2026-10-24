@@ -86,3 +86,34 @@ Manual walk-through, with `ffm serve` running:
 cd frontend && npm run build
 cd ../backend && uv run ffm serve      # serves frontend/dist at http://localhost:8000/
 ```
+
+## Validation log
+
+**2026-10-23**, real `ccsv-2026` league (18 teams), Python 3.14 (uv), Node 22.23, default 25,000
+iterations:
+
+- **A. Offline checks:** 237 backend tests and 16 frontend tests pass. Lint is clean, the
+  6 import-linter contracts hold, and the frontend builds.
+- **No database at import time:** `ffmodel.core.sim`, `ffmodel.core.scoring`,
+  `ffmodel.core.model` and `ffmodel.core.scenario` import without loading SQLAlchemy. Getting
+  there needed a split of `core/model` into a database-free `fit` module and a database-backed
+  `projection` module; `contract/test_layering_002.py` now enforces it.
+- **B. `pytest -m slow` on the real league** (95 s):
+  - **SC-001:** a cold analysis takes 0.59 s and the slowest warm one 0.53 s, against a 2 s
+    target.
+  - **SC-003:** across 5 seeds, every team in both modes stays within **1.71 percentage points**
+    on every matchup and category win probability, against a limit of 3.
+- **C. API walk-through** (the same flow as the page):
+  1. Strategic analysis in 0.61 s. Keyboard Cats project 1–16–0, with 9 curves and 2
+     short-history footnotes ("* 1 of 15", "* 6 of 15").
+  2. Dropping an active player re-analyzes in 0.52 s.
+  3. The picker answers instantly. Free agents come first, with `can_add` true.
+  4. Shai Gilgeous-Alexander (Elsie's World) offers `["roster", "free_agent"]`. Trading for him
+     moves the record to 2–14–1.
+  5. Tactical vs Elsie's World for Oct 19–25: categories 5–4–0, 66% to win. The radar shows
+     2 series, and H2H stays league-wide with 17 rows.
+  6. An empty move list (Reset) returns the base result exactly.
+- **C. Browser:** the user reviewed the layout and style interactively throughout the session.
+  Style changes are recorded in `docs/style.md` (subtle controls, red status text, radar fill,
+  average lines and labels).
+- **D. Single server:** `ffm serve` serves the built `frontend/dist` at `/` alongside `/api`.

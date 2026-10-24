@@ -1,7 +1,19 @@
 # ffmodel backend
 
-The shared data contract (SQLite schema), its loaders, and the core read interface. The design is
-in [`specs/001-league-data-schema/`](../specs/001-league-data-schema/).
+The shared data contract (SQLite schema) and its loaders
+([`specs/001-league-data-schema/`](../specs/001-league-data-schema/)), the modeling core, the Impact
+Analysis tool, and its HTTP API
+([`specs/002-impact-analysis/`](../specs/002-impact-analysis/)).
+
+```text
+src/ffmodel/
+  contract/   schema, migrations, connection, name normalization   (imports nothing else)
+  adapters/   nba_stats, roster_csv loaders                         (write only)
+  core/       data (reads), scoring, model, sim, scenario           (DB-free math except data)
+  tools/      impact_analysis                                       (orchestration)
+  api/        FastAPI app                                           (thin routes)
+  cli.py      `ffm`
+```
 
 ## Setup
 
@@ -25,6 +37,7 @@ uv run ffm load roster ~/dev/ccsv-rumble-page/data/rosters.csv \
 uv run ffm roster resolve --source yahoo nba.p.6205 <player_id>   # confirm an unmatched row
 uv run ffm players search doncic
 uv run ffm runs
+uv run ffm serve [--port 8000] [--reload]     # API (+ built frontend, if present)
 ```
 
 - **Network:** stats.nba.com blocks many cloud and data-center IPs. Run `ffm load nba` from a home
@@ -32,12 +45,27 @@ uv run ffm runs
 - **Regular season only (FR-012):** postseason, preseason and All-Star games are never loaded or
   counted.
 
+## API
+
+`ffm serve` exposes the following; the full shapes are in
+[contracts/api.md](../specs/002-impact-analysis/contracts/api.md), and live docs are at
+`http://localhost:8000/docs`.
+
+- `GET /api/health`
+- `GET /api/leagues`, `GET /api/leagues/{id}`
+- `POST /api/impact/analyze`: settings + moves → full analysis (strategic or tactical)
+- `POST /api/impact/players`: the player picker with move eligibility
+
+Requests are stateless. Hypothetical moves travel in every request and never touch the database.
+The default simulation is 25,000 iterations with a fixed seed.
+
 ## Tests
 
 ```bash
 uv run pytest            # offline: fixture DB + recorded nba_api responses, network blocked
-uv run pytest -m live    # real-source checks (SC-001, SC-002, SC-004)
-uv run lint-imports      # layering: core and adapters never import each other
+uv run pytest -m live    # 001 real-source checks (load speed, totals, schedule)
+uv run pytest -m slow    # 002 real-league checks: <2 s per analysis, seed stability ≤3 points
+uv run lint-imports      # layering: contract ← adapters / core ← tools ← api
 uv run ruff check src tests
 ```
 

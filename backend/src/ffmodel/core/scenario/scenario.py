@@ -3,12 +3,16 @@
 Nothing here touches the database; Reset is simply an empty move list.
 """
 
+from __future__ import annotations
+
 from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import cached_property
 from types import MappingProxyType
+from typing import TYPE_CHECKING
 
-from ffmodel.core.data.models import LeagueSettings, LeagueSnapshot
+if TYPE_CHECKING:  # type-only: importing ffmodel.core.data would load the database layer
+    from ffmodel.core.data.models import LeagueSettings, LeagueSnapshot
 
 ACTIVE, RESERVE = "active", "reserve"
 
