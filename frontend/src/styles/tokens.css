@@ -5,6 +5,7 @@
   /* Chrome: three colors, plus red for destructive actions and grays for muted state. */
   --ink: #111;
   --paper: #fff;
+  --popover: #fffbf0; /* a touch creamier than the page, so help panels stand apart */
   --yours: #f5c518;
   --danger: #c00;
   --muted: #555;

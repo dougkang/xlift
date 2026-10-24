@@ -35,7 +35,7 @@ numbers it quotes already come from the API response.
   - Its left edge is clamped to [16, viewport − width − 16].
   - It flips above the button when there's no room below.
   - It sets `max-height: calc(100vh − 32px)` with internal scrolling (FR-006).
-- **Closing:** on Esc, on the × button, and on `mousedown` outside both the popover and its
+- **Closing:** on Esc and on `mousedown` outside both the popover and its
   button. Focus then returns to the button.
 - **Focus on open:** moves to the popover's title, which has `tabIndex=-1` (FR-005, FR-007).
 - **One at a time:** a `HelpProvider` context holds `openId`, and opening one closes any other

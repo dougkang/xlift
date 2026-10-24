@@ -488,6 +488,11 @@ export interface components {
             team_count: number;
             /** Series */
             series: components["schemas"]["RadarSeries"][];
+            /**
+             * League
+             * @default []
+             */
+            league: components["schemas"]["RadarReference"][];
         };
         /**
          * RadarArea
@@ -520,6 +525,25 @@ export interface components {
              * @enum {string}
              */
             emphasis: "selected" | "opponent" | "other";
+            /** Ranks */
+            ranks: number[];
+            /** Normalized */
+            normalized: number[];
+            /** Win Rate */
+            win_rate: number[];
+        };
+        /**
+         * RadarReference
+         * @description A league reference shape on the radar (strategic): the League Average.
+         */
+        RadarReference: {
+            /**
+             * Role
+             * @constant
+             */
+            role: "league_average";
+            /** Label */
+            label: string;
             /** Ranks */
             ranks: number[];
             /** Normalized */

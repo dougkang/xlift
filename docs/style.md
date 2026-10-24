@@ -112,8 +112,8 @@ interactive element has exactly two states beyond default:
   toggle, or at the far right of the settings row. It's a
   quiet control (yellow on hover) and never adds a line or shifts the layout.
 - **Popup**: anchored below its button (above when there's no room), at most 22rem wide, kept
-  16px inside the viewport and scrolling when tall. It has a 1px `#111` border, white
-  background, and no radius or shadow.
+  16px inside the viewport and scrolling when tall. It has a 1px `#111` border, a
+  slightly cream `#FFFBF0` background so it stands apart from the page, and no radius or shadow.
   - It has a bold title with a 1px `#111` rule under it, like a section divider, then
     column-header labels: **Controls**, **Reading it**, **Terms**.
   - Body text is at data size, with control and term names in bold.
@@ -205,8 +205,10 @@ no relationship between categories.
   use a solid one.
 - **Radar:** the selected team is drawn last, filled solid in its primary border color. Any team
   inside our area is hidden, so only categories where another team beats us show through. Other teams
-  use the secondary shades, muted, with a faint light-secondary fill. The opponent in tactical
-  mode uses secondary `#A96043`.
+  use the secondary shades as muted outlines, with a faint (15%) light-secondary fill. In strategic mode, the League Average
+  (`#898240`) is a dotted outline, matching the breakdown's average line, with a legend under
+  the radar. The opponent in tactical mode uses secondary
+  `#A96043`.
 - **Labels:** each average line is labeled with its role and value. A label moves to another row
   only when it would collide with another label.
 - **Name columns:** the player and category columns in tables are bold.

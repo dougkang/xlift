@@ -40,8 +40,12 @@ describe("strategic view (US1)", () => {
     render(<App />);
     await screen.findByRole("heading", { level: 2 }, { timeout: 2000 });
     const radar = screen.getByRole("img", { name: "Category rank radar" });
-    expect(within(radar as unknown as HTMLElement).getAllByTestId(/radar-/)).toHaveLength(4);
+    expect(within(radar as unknown as HTMLElement).getAllByTestId(/radar-(selected|other)/)).toHaveLength(4);
     expect(radar.querySelector('[data-testid="radar-selected"]')).toHaveAttribute("stroke", "var(--sel)");
+    // The League Average is dotted in its breakdown color.
+    expect(radar.querySelector('[data-testid="radar-leader"]')).toBeNull();
+    expect(radar.querySelector('[data-testid="radar-league_average"]')).toHaveAttribute("stroke-dasharray", "2,3");
+    expect(document.querySelector(".radar-legend")).toHaveTextContent(/^League Average$/);
     const table = document.querySelector(".category-table")!;
     expect(table.querySelectorAll("tbody tr")).toHaveLength(9);
     expect(within(table as HTMLElement).getByText("League")).toBeInTheDocument();

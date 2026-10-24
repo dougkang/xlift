@@ -13,7 +13,7 @@ interface Props {
 
 /**
  * Anchored help panel: below its button (above when there's no room), clamped inside the
- * viewport, scrolling when tall (FR-006). Esc, × or a click outside close it, and focus goes
+ * viewport, scrolling when tall (FR-006). Esc or a click outside closes it, and focus goes
  * back to the button (FR-005).
  */
 export function HelpPopover({ topic, anchor, onClose }: Props) {
@@ -89,9 +89,6 @@ export function HelpPopover({ topic, anchor, onClose }: Props) {
         <h4 id={titleId} ref={title} tabIndex={-1} className="help-title">
           {topic.title}
         </h4>
-        <button type="button" className="help-close" aria-label="Close help" onClick={dismiss}>
-          ×
-        </button>
       </div>
       {topic.controls?.length ? (
         <section>

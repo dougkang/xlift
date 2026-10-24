@@ -47,7 +47,7 @@ Several measures (win rate, area score, aggregated record) aren't standard fanta
 1. press its help button;
 2. confirm a popup opens with the section's title, a controls part first (where the section has
    controls), then how to read it;
-3. close it with the close button, with Esc, or by clicking outside;
+3. close it with Esc or by clicking outside;
 4. confirm focus returns to the help button.
 
 **Acceptance Scenarios**:
@@ -60,7 +60,7 @@ Several measures (win rate, area score, aggregated record) aren't standard fanta
      section has controls;
    - a **Reading it** part;
    - optionally a **Terms** part with short definitions.
-3. **Given** an open popup, **When** I press Esc, click the close button, or click anywhere
+3. **Given** an open popup, **When** I press Esc or click anywhere
    outside it, **Then** it closes and keyboard focus returns to the help button that opened it.
 4. **Given** an open popup, **When** I open another section's help, **Then** the first closes;
    only one popup is open at a time.
@@ -122,8 +122,8 @@ Record. Switch to tactical and open it again; it explains Chance to Win.
 **Popup**
 
 - **FR-004**: Pressing a help button MUST open a popup anchored near the button. It MUST have a
-  title (the section name) and a close control.
-- **FR-005**: The popup MUST close on Esc, on the close control, and on a click outside it. Focus
+  title (the section name). It has no close button; Esc or a click outside closes it.
+- **FR-005**: The popup MUST close on Esc and on a click outside it. Focus
   MUST then return to the help button. Only one popup MUST be open at a time.
 - **FR-006**: The popup MUST stay within the viewport at every width down to 360 px, scrolling
   internally if needed.

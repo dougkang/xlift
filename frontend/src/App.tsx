@@ -161,7 +161,8 @@ export default function App() {
             result ? { start: result.settings.period_start ?? null, end: result.settings.period_end ?? null } : undefined
           }
         />
-        {error && <p className="error" role="alert">{error}</p>}
+        <hr className="section-rule" />
+      {error && <p className="error" role="alert">{error}</p>}
         {result?.warnings.map((w) => (
           <p key={w.code} className="error" role="status">
             {w.message}

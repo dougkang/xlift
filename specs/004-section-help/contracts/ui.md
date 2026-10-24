@@ -10,7 +10,7 @@
 
 ```text
 ┌───────────────────────────────┐
-│ Radar                       × │   ← title (bold, focus target) + close
+│ Radar                         │   ← title (bold, focus target); no close button
 │ CONTROLS                      │
 │ Rank / Average / Win % — …    │   ← bold name — effect
 │ Score — …                     │
@@ -25,7 +25,7 @@
 - **Size and position:** the width is `min(22rem, 100vw − 32px)`, and it is placed below the
   button, or above it when there's no room. It is clamped 16px inside the viewport and scrolls
   internally when taller than the viewport.
-- **Closing:** Esc, ×, or a mouse-down outside closes it, and focus returns to the button.
+- **Closing:** Esc or a mouse-down outside closes it, and focus returns to the button.
 - **Style:** a 1px `#111` border, `#fff` background, and no radius or shadow. Labels use
   column-header style.
 

@@ -8,7 +8,7 @@ cd frontend && npm test && npm run build
 
 | Check | Proves |
 |---|---|
-| Each of the 8 topics: the button exists with an aria-label; a click opens a dialog titled with the section name; Esc, × and outside clicks close it; focus returns to the button | SC-001, FR-001, FR-004, FR-005 |
+| Each of the 8 topics: the button exists with an aria-label; a click opens a dialog titled with the section name; Esc and outside clicks close it; focus returns to the button | SC-001, FR-001, FR-004, FR-005 |
 | Opening a second help closes the first | FR-005 |
 | Content: at most 120 words per topic in both modes; Controls before Reading it; every FR-010 term covered; mode variants differ | SC-002, SC-003, SC-004 |
 | Quoted numbers match the result (e.g. the iteration count) | FR-012 |

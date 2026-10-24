@@ -186,3 +186,19 @@ def test_ranking_rows_carry_win_rate(impact_engine):
     r = run(impact_engine)
     selected = next(s for s in r["radar"]["series"] if s["emphasis"] == "selected")
     assert [row["win_rate"] for row in r["category_table"]["rows"]] == selected["win_rate"]
+
+
+def test_radar_league_average_shape(impact_engine):
+    """The League Average radar line (strategic), from the server."""
+    r = run(impact_engine)
+    series = r["radar"]["series"]
+    [average] = r["radar"]["league"]
+    assert average["role"] == "league_average"
+    for i in range(len(r["categories"])):
+        assert 0.0 <= average["normalized"][i] <= 1.0
+        assert 1 <= average["ranks"][i] <= len(series)
+        assert average["win_rate"][i] == pytest.approx(0.5)  # ties count half, so the mean is 0.5
+    # A team with the league average would rank behind exactly the teams that beat it.
+    row = r["category_table"]["rows"][0]
+    better = sum(s["averages"][0] > row["league_average"] for s in series)
+    assert average["ranks"][0] == 1 + better

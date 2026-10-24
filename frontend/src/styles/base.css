@@ -190,6 +190,8 @@ select:hover {
   font-size: var(--data-size);
   color: var(--muted);
   margin-top: 1rem;
+  list-style: none;
+  padding-left: 0;
 }
 
 .controls {
@@ -231,6 +233,14 @@ select:hover {
   display: inline-flex;
   gap: 0.35rem;
   align-items: center;
+}
+
+/* Setting values (Last X games, League, Team) read like section headers: same size and weight,
+   but not uppercase. */
+.controls .window-input,
+.controls select {
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .controls input[type="number"] {
@@ -282,10 +292,12 @@ select:hover {
 .record-headline {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  /* The record shares its baseline with the team name (or the "vs." line in tactical). */
+  align-items: last baseline;
   gap: 2rem;
   margin: 1rem 0 0.5rem;
-  padding-bottom: 0.5rem;
+  /* Room for the record's change, which hangs below it (see .score .delta-line). */
+  padding-bottom: 1.1rem;
   border-bottom: 1px solid var(--ink);
 }
 
@@ -303,6 +315,7 @@ select:hover {
 }
 
 .score {
+  position: relative;
   text-align: right;
 }
 
@@ -679,10 +692,16 @@ td.num .with-delta,
   margin-left: 0;
 }
 
+/* The headline's change hangs below the record, out of the flow, so the record's baseline is
+   the score's last baseline and lines up with the team name. */
 .score .delta-line {
-  text-align: right;
-  min-height: 1.1rem;
-  line-height: 1.1rem;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: -0.2rem;
+  min-height: 0;
+  line-height: 0.9rem;
+  white-space: nowrap;
 }
 
 .score .delta-line .delta {
@@ -805,7 +824,7 @@ button.help-button {
   overflow: auto;
   box-sizing: border-box;
   padding: 0.6rem 0.75rem;
-  background: var(--paper);
+  background: var(--popover);
   border: 1px solid var(--ink);
   color: var(--ink);
   font-size: var(--data-size);
@@ -832,12 +851,6 @@ button.help-button {
   outline: none;
 }
 
-.help-popover .help-close {
-  padding: 0 0.3rem;
-  font-size: 0.9rem;
-  line-height: 1;
-}
-
 .help-popover section {
   margin-top: 0.45rem;
 }
@@ -849,4 +862,15 @@ button.help-button {
 
 .help-popover li + li {
   margin-top: 0.15rem;
+}
+
+/* Radar legend for the league reference lines: centered under the chart, line swatches. */
+.radar-legend {
+  justify-content: center;
+  margin: 0.25rem 0 0;
+}
+
+.swatch.line-swatch {
+  height: 0;
+  vertical-align: 0.2rem;
 }

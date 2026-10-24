@@ -5,6 +5,9 @@ import type { RadarScale } from "../state/scenario";
 
 const SIZE = 320;
 const R = 120;
+/** The League Average uses the Category Breakdown's color and dotted average style. */
+const LEAGUE_STROKE = { league_average: "var(--avg)" } as const;
+
 const OTHER = ["var(--other-1)", "var(--other-2)", "var(--other-3)", "var(--other-4)"];
 
 function strokeFor(emphasis: string, index: number): string {
@@ -35,7 +38,9 @@ export function Radar({ result, scale = "rank" }: { result: AnalysisResult; scal
   const ordered = [...radar.series].sort((a, b) =>
     a.emphasis === "selected" ? 1 : b.emphasis === "selected" ? -1 : 0,
   );
+  const league = radar.league ?? [];
   return (
+    <>
     <svg
       className="radar"
       viewBox={`${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`}
@@ -69,12 +74,26 @@ export function Radar({ result, scale = "rank" }: { result: AnalysisResult; scal
           // The selected team is drawn last and filled solid in its border color: wherever we're
           // already better, other teams are hidden; only where they're better do they show.
           fill={s.emphasis === "selected" ? "var(--sel)" : "var(--opp-light)"}
-          fillOpacity={s.emphasis === "selected" ? 1 : 0.12}
+          fillOpacity={s.emphasis === "selected" ? 1 : 0.15}
           stroke={strokeFor(s.emphasis, idx)}
           strokeOpacity={s.emphasis === "other" ? 0.55 : 1}
           strokeWidth={s.emphasis === "selected" ? 2.5 : 1}
         >
           <title>{s.team_name}</title>
+        </path>
+      ))}
+      {/* League Average (strategic), dotted like the breakdown's average line. */}
+      {league.map((l) => (
+        <path
+          key={l.role}
+          data-testid={`radar-${l.role}`}
+          d={line(pick(l)) ?? undefined}
+          fill="none"
+          stroke={LEAGUE_STROKE[l.role]}
+          strokeWidth={1.5}
+          strokeDasharray="2,3"
+        >
+          <title>{l.label}</title>
         </path>
       ))}
       {/* Original (before moves) shape as a gray dotted outline: the selected team only (003 FR-008). */}
@@ -92,5 +111,16 @@ export function Radar({ result, scale = "rank" }: { result: AnalysisResult; scal
         </path>
       ))}
     </svg>
+    {league.length > 0 && (
+      <div className="curve-legend radar-legend">
+        {league.map((l) => (
+          <span key={l.role} className="legend-item">
+            <span className="swatch line-swatch" style={{ borderTop: `2px dotted ${LEAGUE_STROKE[l.role]}` }} />
+            {l.label}
+          </span>
+        ))}
+      </div>
+    )}
+    </>
   );
 }

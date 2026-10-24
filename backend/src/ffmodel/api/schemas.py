@@ -150,9 +150,21 @@ class RadarArea(BaseModel):
     win_rate: float
 
 
+class RadarReference(BaseModel):
+    """A league reference shape on the radar (strategic): the League Average."""
+
+    role: Literal["league_average"]
+    label: str
+    ranks: list[int]
+    normalized: list[float]
+    win_rate: list[float]
+
+
 class Radar(BaseModel):
     team_count: int
     series: list[RadarSeries]
+    # Strategic only; empty in tactical mode.
+    league: list[RadarReference] = []
 
 
 class RankRow(BaseModel):

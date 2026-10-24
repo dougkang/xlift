@@ -408,6 +408,7 @@ def _analyze(conn, s: AnalysisSettings, moves: Sequence, reuse: Computed | None 
     }
     league_avg = _league_average(samples, fmt)
     leaders = [_leader(team_ranks, i) for i in range(len(fmt.categories))]
+    result["radar"]["league"] = _radar_league(fmt, averages, league_avg, win_rates)
     result["category_table"] = {
         "kind": "ranks",
         "rows": [
@@ -478,6 +479,40 @@ def _win_rates(values: dict, fmt: ScoringFormat) -> dict[int, list[float]]:
             score[b] += 1 - s
     n = max(len(teams) - 1, 1)
     return {t: [float(v / n) for v in s] for t, s in score.items()}
+
+
+def _radar_league(
+    fmt: ScoringFormat, averages: dict, league_avg: np.ndarray, win_rates: dict
+) -> list[dict]:
+    """The League Average as a radar reference shape (strategic).
+
+    It is placed on each scale as a team with the league's average would be: its competition
+    rank, its min-max position, and the league's mean win rate (0.5 by construction).
+    """
+    keys = {t: fmt.rank_key(a) for t, a in averages.items()}
+    avg_key = fmt.rank_key(league_avg)
+    avg_ranks, avg_norm = [], []
+    for i in range(len(fmt.categories)):
+        col = np.array([k[i] for k in keys.values()], dtype=float)
+        finite = col[np.isfinite(col)]
+        v = avg_key[i]
+        avg_ranks.append(1 + int(np.sum(finite > v)) if np.isfinite(v) else len(keys))
+        if not np.isfinite(v) or not finite.size:
+            avg_norm.append(0.0)
+        elif finite.max() == finite.min():
+            avg_norm.append(0.5)
+        else:
+            avg_norm.append(float((v - finite.min()) / (finite.max() - finite.min())))
+    n = len(fmt.categories)
+    return [
+        {
+            "role": "league_average",
+            "label": "League Average",
+            "ranks": avg_ranks,
+            "normalized": avg_norm,
+            "win_rate": [float(np.mean([w[i] for w in win_rates.values()])) for i in range(n)],
+        },
+    ]
 
 
 def _normalized(averages: dict, fmt: ScoringFormat) -> dict[int, list[float]]:

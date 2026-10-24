@@ -1,4 +1,4 @@
-/** 004 US1/US2: every section has a "?" that opens its help, which closes on Esc, ×, or a click
+/** 004 US1/US2: every section has a "?" that opens its help, which closes on Esc or a click
  * outside, returning focus to the button; one help at a time; no extra layout. */
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -50,13 +50,13 @@ describe("section help", () => {
   });
   afterEach(cleanup);
 
-  it.each(STRATEGIC)("%s: opens, and closes via ×, Esc and outside click with focus returned", async (title) => {
+  it.each(STRATEGIC)("%s: opens, and closes via Esc and outside click with focus returned", async (title) => {
     const user = userEvent.setup();
     await renderMode("strategic");
     const btn = screen.getByRole("button", { name: `Help: ${title}` });
     expect(btn).toHaveAttribute("aria-haspopup", "dialog");
 
-    for (const close of ["x", "esc", "outside"] as const) {
+    for (const close of ["esc", "outside"] as const) {
       await user.click(btn);
       expect(btn).toHaveAttribute("aria-expanded", "true");
       const dlg = screen.getByRole("dialog", { name: title });
@@ -66,8 +66,8 @@ describe("section help", () => {
       expect(labels.indexOf("Reading it")).toBeGreaterThanOrEqual(0);
       if (labels.includes("Controls")) expect(labels.indexOf("Controls")).toBe(0);
 
-      if (close === "x") await user.click(within(dlg).getByRole("button", { name: "Close help" }));
-      else if (close === "esc") await user.keyboard("{Escape}");
+      expect(within(dlg).queryByRole("button")).toBeNull(); // no close button
+      if (close === "esc") await user.keyboard("{Escape}");
       else await user.click(document.querySelector("hr.section-rule")!);
       expect(screen.queryByRole("dialog")).toBeNull();
       await waitFor(() => expect(btn).toHaveFocus());
