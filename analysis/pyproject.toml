@@ -1,0 +1,17 @@
+[project]
+name = "analysis"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "altair>=6.3.0",
+    "ffmodel",
+    "marimo>=0.25.2",
+    "polars>=2.0.0",
+    "pyarrow>=26.0.0",
+    "scikit-learn>=1.9.1",
+]
+
+[tool.uv.sources]
+ffmodel = { path = "../backend", editable = true }

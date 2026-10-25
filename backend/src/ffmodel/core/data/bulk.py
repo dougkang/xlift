@@ -6,8 +6,8 @@ from datetime import date
 
 from sqlalchemy import bindparam, text
 
-from ffmodel.core.data.games import _STATS, _line
-from ffmodel.core.data.models import DataFreshness, GameWindow
+from ffmodel.core.data.games import _STATS
+from ffmodel.core.data.models import DataFreshness, GameWindow, PlayerGameLine
 
 _LAST_N = f"""
 SELECT * FROM (
@@ -46,9 +46,12 @@ def get_last_n_games_bulk(
     games: dict[int, list] = defaultdict(list)
     if ids:
         stmt = text(_LAST_N).bindparams(bindparam("ids", expanding=True))
-        for row in conn.execute(stmt, {"ids": ids, "as_of": as_of.isoformat(), "n": n}).mappings():
-            data = {k: v for k, v in row.items() if not k.startswith("_")}
-            games[row["_pid"]].append(_line(data))
+        # Positional rows: _pid, then PlayerGameLine's fields in order, then _rn. Building lines
+        # directly (not via a dict per row) matters at 82-game windows for the whole pool.
+        dates: dict[str, date] = {}
+        for row in conn.execute(stmt, {"ids": ids, "as_of": as_of.isoformat(), "n": n}):
+            day = dates.get(row[3]) or dates.setdefault(row[3], date.fromisoformat(row[3]))
+            games[row[0]].append(PlayerGameLine(row[1], row[2], day, *row[4:-1]))
     return {
         pid: GameWindow(player_id=pid, requested=n, found=len(games[pid]), games=tuple(games[pid]))
         for pid in ids
@@ -77,6 +80,19 @@ def count_team_games_bulk(
         }
         counts.update(dict(conn.execute(stmt, params).all()))
     return counts
+
+
+def get_players_with_games(conn, start: date, end: date) -> list[int]:
+    """Every player with a regular-season game played in [start, end]."""
+    rows = conn.execute(
+        text(
+            "SELECT DISTINCT pg.player_id FROM player_game pg JOIN game g ON g.game_id = pg.game_id"
+            " WHERE g.season_type = 'regular' AND g.game_date BETWEEN :a AND :b"
+            " ORDER BY pg.player_id"
+        ),
+        {"a": start.isoformat(), "b": end.isoformat()},
+    )
+    return [r[0] for r in rows]
 
 
 def get_data_freshness(conn, league_id: int) -> DataFreshness:

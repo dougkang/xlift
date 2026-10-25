@@ -88,4 +88,5 @@ def test_free_agents_only_and_footnote(client):
     page = players(client, GAMMAS, free_agents_only=True, limit=200)
     assert {p["owner_label"] for p in page["players"]} == {"FA"}
     rookie = by_name(page)["Rookie Ray"]
-    assert rookie["footnote"] == "* 2 of 15 games" and rookie["status"] == "Q"
+    # 006: the default lookback is 82 games; the rule (games found < window) is unchanged.
+    assert rookie["footnote"] == "* 2 of 82 games" and rookie["status"] == "Q"

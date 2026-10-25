@@ -20,7 +20,7 @@ describe("strategic view (US1)", () => {
   beforeEach(() => {
     sessionStorage.clear();
     sessionStorage.setItem(
-      "ffm.impact.v1",
+      "ffm.impact.v2",
       JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }),
     );
   });
@@ -70,7 +70,7 @@ describe("strategic view (US1)", () => {
 
 describe("explainer", () => {
   it("states the simulation count from the result", async () => {
-    sessionStorage.setItem("ffm.impact.v1", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
+    sessionStorage.setItem("ffm.impact.v2", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
     render(<App />);
     await screen.findByRole("heading", { level: 2 }, { timeout: 2000 });
     const n = (strategic as { settings: { iterations: number } }).settings.iterations.toLocaleString("en-US");
@@ -82,7 +82,7 @@ describe("radar scale", () => {
   it("switches between rank and normalized average", async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const user = userEvent.setup();
-    sessionStorage.setItem("ffm.impact.v1", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
+    sessionStorage.setItem("ffm.impact.v2", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
     render(<App />);
     await screen.findByRole("heading", { level: 2 }, { timeout: 2000 });
     // Compare every series: the fixture's selected team (Deltas) is last everywhere, so its own

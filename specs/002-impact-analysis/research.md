@@ -20,6 +20,27 @@ Python 3.14.
   Thin histories lean on the prior; long histories use their own covariance. Σ is always positive
   definite, so a Cholesky factor always exists (a 1e-9 jitter guards round-off).
 - **Players with n = 0** have no fit. They contribute nothing and are flagged "0 of X".
+- **Recency weighting** (006): the fit uses up to X games (default 82). Game j games ago weighs
+  0.5^(j/40) × 0.25^(season age); the mean and covariance are weighted, and the effective number
+  of games n_eff = (Σw)²/Σw² replaces n in λ, the standard error and the shrinkage below. With
+  equal weights everything reduces to the formulas above. Availability stays over the most
+  recent 15 games. Details and evidence: `specs/006-recency-weighted-projections/research.md`.
+- **Mean shrinkage (empirical Bayes)**: added after 005, specified in 006. The prior is
+  estimated from every player with a game in the past year and at least 5 games in the window
+  (30+ such players, or no shrinkage). Stats in the format's `unshrunk_stats` (9cat: blocks) are
+  left unshrunk:
+  - Counting stats: μ̂ = m + w·(x̄ − m), with m the pool mean, τ² = Var(x̄) − mean(se²) the pool
+    spread that isn't sampling error, and w = τ² / (τ² + se²) from the player's own standard
+    error.
+  - Percentages (beta-binomial): p̂ = (makes + κ·p̄) / (attempts + κ), with p̄ the pool rate and
+    κ = p̄(1 − p̄)/τₚ² − 1, with makes and attempts counted over n_eff. Made = p̂ × the shrunk
+    attempts.
+  - Subset constraints (FG3M ≤ FGM) are kept. Σ and the standard errors are unchanged.
+
+  Rationale: short samples over-credit hot streaks, most of all FT% (only ~58% of the spread
+  between players' 15-game FT% is skill), FG% (~62%), STL (~74%) and BLK (~80%). Backtested in
+  006 (`analysis/projection_backtest.py`): it lowers FG% and FT% error and removes most of
+  stars' points bias; shrinking blocks made them worse, hence the exemption.
 - **Fit error is kept but unused**: each projection also stores n and the standard error of the
   mean (Σ / n). Constitution III requires leaving room for the docs' "propagate fit error" next
   step, and a later feature can use these without a redesign.

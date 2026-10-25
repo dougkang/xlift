@@ -24,7 +24,7 @@ const { default: App } = await import("../src/App");
 async function renderWith(fixture: unknown, teamId: number, mode = "strategic", opp: number | null = null) {
   analyze.mockImplementation(async () => fixture);
   sessionStorage.setItem(
-    "ffm.impact.v1",
+    "ffm.impact.v2",
     JSON.stringify({ settings: { leagueId: 1, teamId, mode, opponentId: opp }, moves: [] }),
   );
   render(<App />);

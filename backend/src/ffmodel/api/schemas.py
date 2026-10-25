@@ -37,7 +37,7 @@ class ScenarioRequest(BaseModel):
     league_id: int
     team_id: int
     mode: Mode = "strategic"
-    window: int = Field(15, ge=1, le=82)
+    window: int = Field(82, ge=1, le=82)
     as_of: date | None = None
     # Tactical's opponent and period come from the league's current matchup state (005);
     # older clients that still send opponent_id / period_* have them ignored.

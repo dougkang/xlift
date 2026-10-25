@@ -118,3 +118,9 @@ def test_ratio_of_means(fid):
 def test_unknown_format():
     with pytest.raises(UnsupportedFormat):
         get_format("unknown")
+
+
+@pytest.mark.parametrize("fid", FORMATS)
+def test_unshrunk_stats_are_base_stats(fid):
+    fmt = get_format(fid)
+    assert set(fmt.unshrunk_stats) <= set(fmt.base_stats)

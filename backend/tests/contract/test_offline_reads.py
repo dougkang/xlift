@@ -31,6 +31,7 @@ def test_every_public_read_works_offline(fixture_engine):
         "get_player",
         "get_player_details",
         "get_player_history",
+        "get_players_with_games",
         "list_leagues",
         "search_players",
     ]
@@ -65,6 +66,8 @@ def test_every_public_read_works_offline(fixture_engine):
             conn, [fx.IGGY], date(2026, 10, 31), date(2026, 11, 8), statuses=("scheduled",)
         )
         assert scheduled == {fx.IGGY: 3}
+        pool = data.get_players_with_games(conn, date(2025, 10, 30), fx.FIXTURE_TODAY)
+        assert fx.DONCIC in pool and pool == sorted(pool)  # the projection prior's pool
         details = data.get_player_details(conn, league_id=league.league_id)
         assert details[fx.IGGY][1] == "IL" and fx.OLD_VET not in details
         assert data.get_player_details(conn, player_ids=[fx.OLD_VET])[fx.OLD_VET][1] == "healthy"

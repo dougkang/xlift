@@ -24,7 +24,7 @@ const { default: App } = await import("../src/App");
 async function renderMode(mode: "strategic" | "tactical") {
   analyze.mockImplementation(async () => (mode === "tactical" ? tactical : strategic));
   sessionStorage.setItem(
-    "ffm.impact.v1",
+    "ffm.impact.v2",
     JSON.stringify({ settings: { leagueId: 1, teamId: mode === "tactical" ? 3 : 4, mode }, moves: [] }),
   );
   render(<App />);
@@ -117,7 +117,7 @@ describe("section help", () => {
 
   it("shows only the mode, settings and Players help before there is a result", async () => {
     analyze.mockImplementation(() => new Promise(() => {}));
-    sessionStorage.setItem("ffm.impact.v1", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
+    sessionStorage.setItem("ffm.impact.v2", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
     render(<App />);
     await screen.findByRole("button", { name: "Help: Analysis settings" });
     expect(document.querySelectorAll("button.help-button")).toHaveLength(3); // mode, settings and Players

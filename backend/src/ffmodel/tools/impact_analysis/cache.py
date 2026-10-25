@@ -9,11 +9,19 @@ from collections.abc import Iterable
 
 from sqlalchemy import text
 
-from ffmodel.core.model import PlayerProjection, build_projections
+from ffmodel.core.model import (
+    MeanPrior,
+    PlayerProjection,
+    build_prior,
+    build_projections,
+    prior_pool_windows,
+)
 from ffmodel.core.scoring import ScoringFormat
 
 MAX_KEYS = 32
 _cache: OrderedDict[tuple, dict[int, PlayerProjection]] = OrderedDict()
+# Mean prior per key: built once, so every projection in a bucket shrinks toward the same prior.
+_priors: dict[tuple, MeanPrior | None] = {}
 
 
 def _latest_run(conn) -> int:
@@ -37,14 +45,28 @@ def projections(conn, player_ids: Iterable[int], fmt: ScoringFormat, settings) -
         bucket = {}
         _cache[key] = bucket
         while len(_cache) > MAX_KEYS:
-            _cache.popitem(last=False)
+            _priors.pop(_cache.popitem(last=False)[0], None)
     _cache.move_to_end(key)
     wanted = set(player_ids)
     missing = wanted - bucket.keys()
     if missing:
+        pool = None
+        if key not in _priors:
+            # Fetch the pool once: it serves the prior and most requested players' windows.
+            pool = prior_pool_windows(conn, window=settings.window, as_of=settings.as_of)
+            _priors[key] = build_prior(
+                conn, fmt, window=settings.window, as_of=settings.as_of, windows=pool
+            )
         bucket.update(
             build_projections(
-                conn, missing, fmt, window=settings.window, as_of=settings.as_of, period=period
+                conn,
+                missing,
+                fmt,
+                window=settings.window,
+                as_of=settings.as_of,
+                period=period,
+                prior=_priors[key],
+                windows=pool,
             )
         )
     return {pid: bucket[pid] for pid in wanted}
@@ -52,6 +74,7 @@ def projections(conn, player_ids: Iterable[int], fmt: ScoringFormat, settings) -
 
 def clear() -> None:
     _cache.clear()
+    _priors.clear()
     _original.clear()
 
 

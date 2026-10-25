@@ -84,13 +84,13 @@ def test_window_changes_projections(impact_engine):
 
 
 def test_short_history_footnote(impact_engine):
-    assert run(impact_engine, team=DELTAS)["footnotes"] == []
+    assert run(impact_engine, team=DELTAS, window=15)["footnotes"] == []
     with impact_engine.begin() as conn:
         conn.execute(
             text("UPDATE roster_entry SET player_id = :r WHERE player_id = :d"),
             {"r": fx.ROOKIE, "d": fx.DELTA_3},
         )
-    r = run(impact_engine, team=DELTAS)
+    r = run(impact_engine, team=DELTAS, window=15)
     assert r["footnotes"] == [{"marker": "*", "player_id": fx.ROOKIE, "text": "* 2 of 15 games"}]
     rookie = next(p for t in r["rosters"] for p in t["players"] if p["player_id"] == fx.ROOKIE)
     assert rookie["footnote_marker"] == "*"
@@ -218,3 +218,13 @@ def test_matchup_state_does_not_change_strategic(impact_engine):
     assert json.dumps(before, default=str, sort_keys=True) == json.dumps(
         after, default=str, sort_keys=True
     )
+
+
+def test_footnote_rule_at_the_default_window(impact_engine):
+    # 006: the default lookback is 82; every footnote is a player with fewer games than that.
+    r = run(impact_engine, team=DELTAS)
+    assert r["settings"]["window"] == 82
+    rows = {p["player_id"]: p for t in r["rosters"] for p in t["players"]}
+    for note in r["footnotes"]:
+        found = rows[note["player_id"]]["games_found"]
+        assert found < 82 and note["text"] == f"* {found} of 82 games"

@@ -44,6 +44,9 @@ class ScoringFormat:
     derived_stats: Mapping[str, Callable[[Totals], np.ndarray]] = field(default_factory=dict)
     # (smaller, larger): after rounding, smaller <= larger is enforced on team totals.
     subset_constraints: tuple[tuple[str, str], ...] = ()
+    # Base stats whose per-game means aren't shrunk toward the typical player: their
+    # player-to-player differences are mostly skill a pooled prior would erase (006 R4).
+    unshrunk_stats: tuple[str, ...] = ()
 
     def category_values(self, totals: Totals) -> np.ndarray:
         cols = []

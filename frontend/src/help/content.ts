@@ -57,7 +57,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
   settings: (ctx) => ({
     title: "Analysis settings",
     controls: [
-      ["Last X games", `how many recent games each projection uses (now ${ctx.window}).`],
+      ["Last X games", `the most games each projection draws on (now ${ctx.window}); recent games count more, and last season's count less. Small samples are pulled toward a typical player.`],
       ["League / Team", "whose team you're analyzing; in tactical, its current opponent comes with it."],
       ["Reset", "undo every roster move."],
     ],

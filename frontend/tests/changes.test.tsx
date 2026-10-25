@@ -23,7 +23,7 @@ type Any = Record<string, any>; // eslint-disable-line @typescript-eslint/no-exp
 
 function seed(teamId: number, mode = "strategic", opponentId: number | null = null) {
   sessionStorage.setItem(
-    "ffm.impact.v1",
+    "ffm.impact.v2",
     JSON.stringify({ settings: { leagueId: 1, teamId, mode, opponentId }, moves: [] }),
   );
 }

@@ -28,14 +28,15 @@ export type Action =
   | { type: "popMove" }
   | { type: "reset" };
 
-export const STORAGE_KEY = "ffm.impact.v1";
+// v2: 006 changed the default window to 82; sessions saved with the old default start fresh.
+export const STORAGE_KEY = "ffm.impact.v2";
 
 export const initialState: ScenarioState = {
   settings: {
     leagueId: null,
     teamId: null,
     mode: "strategic",
-    window: 15,
+    window: 82,
     radarScale: "winrate",
   },
   moves: [],

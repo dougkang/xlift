@@ -50,7 +50,7 @@ const lastMoves = () => (analyze.mock.calls.at(-1)?.[0] as Req).moves;
 describe("roster moves (US2)", () => {
   beforeEach(() => {
     sessionStorage.clear();
-    sessionStorage.setItem("ffm.impact.v1", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
+    sessionStorage.setItem("ffm.impact.v2", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
     analyze.mockReset();
     analyze.mockImplementation(async () => strategic);
   });

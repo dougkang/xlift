@@ -20,5 +20,6 @@ NINE_CAT_H2H = register(
         base_stats=("fgm", "fga", "fg3m", "ftm", "fta", "reb", "ast", "stl", "blk", "tov"),
         derived_stats={"pts": lambda t: 2 * t["fgm"] + t["fg3m"] + t["ftm"]},
         subset_constraints=(("fgm", "fga"), ("fg3m", "fgm"), ("ftm", "fta")),
+        unshrunk_stats=("blk",),
     )
 )

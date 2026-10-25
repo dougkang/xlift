@@ -5,7 +5,7 @@ from datetime import date, timedelta
 
 from ffmodel.core.data import MatchupState
 
-DEFAULT_WINDOW = 15
+DEFAULT_WINDOW = 82  # most games a fit looks back; recent games weigh more
 DEFAULT_ITERATIONS = 25_000
 DEFAULT_SEED = 20261023
 GAMES_PER_PERIOD = 3

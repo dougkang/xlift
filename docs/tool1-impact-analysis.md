@@ -4,13 +4,27 @@ See [Project Overview](overview.md) for a primer on fantasy basketball and an ov
 
 The general idea of this tool is to provide a tool that visualizes the impact of adding/dropping players tactically and
 strategically. We accomplish this by doing a Monte Carlo simulation based on player's stat distributions over
-the past X games, where X may be specified by the user.
+up to the past X games, where X may be specified by the user (default 82).
 
 Only regular-season games are considered. Play-in, playoff, preseason, and All-Star games are
-never part of any calculation. The window of X games spans the season boundary when needed. If the current season has fewer than
+never part of any calculation. The X games span season boundaries when needed: if the current season has fewer than
 X games, earlier seasons fill the rest. A player with fewer than X games in total (e.g. a rookie)
 is still simulated on the games available, but is marked with an asterisk wherever they appear,
-with a footnote stating how many games the distribution is based on (e.g. "* 3 of 15 games").
+with a footnote stating how many games the distribution is based on (e.g. "* 3 of 82 games").
+
+Recent games count more. Each game's weight halves every 40 games back, and falls to a quarter
+for each season it is older, so last night counts most and a game from two seasons ago counts
+little. This keeps a long, steady history while still following a real change in role.
+
+Part of any player's record is luck, so each player's per-game averages are pulled toward a
+typical player's before simulating, more strongly the noisier they are: hard for a rookie with
+two games, barely for an established veteran. Counting stats are pulled according to the
+player's own sampling error. FG% and FT% are pulled toward the league rate according to the
+player's attempts, so a hot streak on few free throws counts for little. Blocks are not pulled:
+a center's block rate is skill, not noise.
+
+How often a player is available is still measured over their most recent 15 games, whatever X
+is.
 
 ## The Comparison
 
