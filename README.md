@@ -34,6 +34,10 @@ uv run ffm load roster ~/dev/ccsv-rumble-page/data/rosters.csv \
     --league-key ccsv-2026 --name "CCSV Rumble" --season 2026-27 --capacity 10
 ```
 
+**Daily refresh.** `scripts/daily_update.sh` does all of it in one go: it captures rosters and
+matchups from Yahoo through Chrome (with the league page open), then loads NBA stats, rosters and
+matchups. `--skip-capture` loads the CSVs already on disk; `--dry-run` prints the commands.
+
 If a roster row can't be matched to an NBA player, the load stops, lists candidates, and prints
 the command to fix it, for example
 `uv run ffm roster resolve --source yahoo nba.p.6205 <player_id>`. Run the roster load again after
