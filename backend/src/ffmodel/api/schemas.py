@@ -406,6 +406,41 @@ class Changes(BaseModel):
     matchup_totals: TotalsChange | None  # None in tactical (no H2H, 005)
 
 
+class ShapeTeam(BaseModel):
+    """One team in a category's league shape (008)."""
+
+    team_id: int
+    team_name: str
+    place: int  # 1…N by competition rank, ties broken by team id
+    rank: int  # the Per Category Ranking table's rank (ties share it)
+    value: float
+    selected: bool
+
+
+class ShapeGap(BaseModel):
+    """The gap between places `to_place` and `to_place` + 1, and a normal league's (008)."""
+
+    to_place: int
+    gap: float
+    null_gap: float
+    mark: Literal["climb", "cushion"] | None
+
+
+class ShapePoint(BaseModel):
+    place: int
+    rank: int
+    value: float
+
+
+class CategoryShape(BaseModel):
+    """Strategic only: every team's place and value in one category, and the gaps (008)."""
+
+    category: str
+    teams: list[ShapeTeam]
+    gaps: list[ShapeGap]
+    before: ShapePoint | None  # the selected team before moves; null without moves
+
+
 class AnalysisResult(BaseModel):
     settings: SettingsEcho
     header: Header
@@ -413,6 +448,7 @@ class AnalysisResult(BaseModel):
     radar: Radar | None
     category_table: CategoryTable | None
     curves: list[Curve]
+    league_shape: list[CategoryShape] | None = None
     matchups: list[MatchupModel]
     matchup_totals: MatchupTotals | None
     rosters: list[TeamRoster]

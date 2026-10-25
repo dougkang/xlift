@@ -62,7 +62,8 @@ describe("strategic view (US1)", () => {
     expect(recordTable.querySelector("tfoot .total-record")).toHaveTextContent("0–3–0");
     const firstCurve = screen.getAllByTestId("curve")[0];
     expect(within(firstCurve).getByText(/^You /)).toBeInTheDocument();
-    expect(within(firstCurve).getByText(/^League /)).toBeInTheDocument();
+    // The League Average label ("League 412.3").
+    expect(within(firstCurve).getByText(/^League [−\d.]/)).toBeInTheDocument();
     const rookieRow = screen.getAllByText("Rookie Ray")[0].closest("tr")!;
     expect(within(rookieRow).getByText("*")).toBeInTheDocument();
     // xLift (007): one column, the weakest active player at 0.00, every value signed.

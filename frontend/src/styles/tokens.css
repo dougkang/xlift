@@ -27,6 +27,12 @@
   --other-2: #a96043;
   --other-3: #ce7955;
   --other-4: #e89a78;
+  /* League shape and Against null (008, docs/style.md "League shape"). */
+  --shape-team: var(--leader);
+  --shape-line: var(--leader-light);
+  --gap: var(--leader-light);
+  --climb: var(--sel);
+  --cushion: var(--sel-light);
 
   /* Change (before/after), docs/style.md "Change (before/after)". */
   --better: #5c8e4e;

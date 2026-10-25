@@ -115,6 +115,8 @@ export interface components {
             category_table: components["schemas"]["CategoryTable"] | null;
             /** Curves */
             curves: components["schemas"]["Curve"][];
+            /** League Shape */
+            league_shape?: components["schemas"]["CategoryShape"][] | null;
             /** Matchups */
             matchups: components["schemas"]["MatchupModel"][];
             matchup_totals: components["schemas"]["MatchupTotals"] | null;
@@ -155,6 +157,19 @@ export interface components {
             decimals: number;
             /** Higher Is Better */
             higher_is_better: boolean;
+        };
+        /**
+         * CategoryShape
+         * @description Strategic only: every team's place and value in one category, and the gaps (008).
+         */
+        CategoryShape: {
+            /** Category */
+            category: string;
+            /** Teams */
+            teams: components["schemas"]["ShapeTeam"][];
+            /** Gaps */
+            gaps: components["schemas"]["ShapeGap"][];
+            before: components["schemas"]["ShapePoint"] | null;
         };
         /** CategoryTable */
         CategoryTable: {
@@ -794,6 +809,47 @@ export interface components {
             period_start: string | null;
             /** Period End */
             period_end: string | null;
+        };
+        /**
+         * ShapeGap
+         * @description The gap between places `to_place` and `to_place` + 1, and a normal league's (008).
+         */
+        ShapeGap: {
+            /** To Place */
+            to_place: number;
+            /** Gap */
+            gap: number;
+            /** Null Gap */
+            null_gap: number;
+            /** Mark */
+            mark: ("climb" | "cushion") | null;
+        };
+        /** ShapePoint */
+        ShapePoint: {
+            /** Place */
+            place: number;
+            /** Rank */
+            rank: number;
+            /** Value */
+            value: number;
+        };
+        /**
+         * ShapeTeam
+         * @description One team in a category's league shape (008).
+         */
+        ShapeTeam: {
+            /** Team Id */
+            team_id: number;
+            /** Team Name */
+            team_name: string;
+            /** Place */
+            place: number;
+            /** Rank */
+            rank: number;
+            /** Value */
+            value: number;
+            /** Selected */
+            selected: boolean;
         };
         /** SwapMove */
         SwapMove: {

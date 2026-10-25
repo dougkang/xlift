@@ -112,6 +112,17 @@ selected team. In strategic mode, the league leader and league average in that c
 mode, only the opponent's distribution should be overlaid. In both cases, it should highlight the selected team's radar,
 with other distributions overlaid with muted transparency/colors.
 
+In strategic mode, each category also shows the league's shape, so you can see which ranks are
+cheap to gain and which aren't:
+
+- **League shape**: every team's projected value, ordered by place, joined by a line. Even
+  spacing means every place costs the same; clusters and cliffs show where it doesn't. Your
+  team's dot is marked, and after a move a hollow marker shows where you were.
+- **Against null**: the gap to reach each place, as bars, against the gap a league of the same
+  size and spread would show if teams were normally distributed (a dotted line). A bar above the
+  line is an unusually big step; below it, an unusually tight cluster. Your **climb** (the gap
+  to move up one place) and your **cushion** (the gap to the team below) are marked.
+
 ### Player Picker 
 
 On the right sidebar, we should list out all players not on selected team: free agents first,

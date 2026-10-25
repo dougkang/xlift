@@ -6017,5 +6017,565 @@
     }
    }
   }
- }
+ },
+ "league_shape": [
+  {
+   "category": "pts",
+   "teams": [
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 1,
+     "rank": 1,
+     "value": 201.6335,
+     "selected": false
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 2,
+     "rank": 2,
+     "value": 168.3605,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 3,
+     "rank": 3,
+     "value": 133.0335,
+     "selected": true
+    },
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 4,
+     "rank": 4,
+     "value": 112.07,
+     "selected": false
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 33.272999999999996,
+     "null_gap": 29.59255488991774,
+     "mark": null
+    },
+    {
+     "to_place": 2,
+     "gap": 35.327,
+     "null_gap": 23.624878420383634,
+     "mark": "climb"
+    },
+    {
+     "to_place": 3,
+     "gap": 20.96350000000001,
+     "null_gap": 29.59255488991774,
+     "mark": "cushion"
+    }
+   ],
+   "before": {
+    "place": 4,
+    "rank": 4,
+    "value": 82.695
+   }
+  },
+  {
+   "category": "reb",
+   "teams": [
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 1,
+     "rank": 1,
+     "value": 61.0345,
+     "selected": false
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 2,
+     "rank": 2,
+     "value": 50.6285,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 3,
+     "rank": 3,
+     "value": 40.9115,
+     "selected": true
+    },
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 4,
+     "rank": 4,
+     "value": 33.6145,
+     "selected": false
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 10.405999999999999,
+     "null_gap": 8.930518926636584,
+     "mark": null
+    },
+    {
+     "to_place": 2,
+     "gap": 9.717000000000006,
+     "null_gap": 7.129577850157387,
+     "mark": "climb"
+    },
+    {
+     "to_place": 3,
+     "gap": 7.296999999999997,
+     "null_gap": 8.930518926636584,
+     "mark": "cushion"
+    }
+   ],
+   "before": {
+    "place": 4,
+    "rank": 4,
+    "value": 26.102
+   }
+  },
+  {
+   "category": "ast",
+   "teams": [
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 1,
+     "rank": 1,
+     "value": 50.6185,
+     "selected": false
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 2,
+     "rank": 2,
+     "value": 42.3435,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 3,
+     "rank": 3,
+     "value": 33.8105,
+     "selected": true
+    },
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 4,
+     "rank": 4,
+     "value": 28.0025,
+     "selected": false
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 8.274999999999999,
+     "null_gap": 7.418707735501335,
+     "mark": null
+    },
+    {
+     "to_place": 2,
+     "gap": 8.533000000000001,
+     "null_gap": 5.922640641862667,
+     "mark": "climb"
+    },
+    {
+     "to_place": 3,
+     "gap": 5.807999999999996,
+     "null_gap": 7.418707735501335,
+     "mark": "cushion"
+    }
+   ],
+   "before": {
+    "place": 4,
+    "rank": 4,
+    "value": 21.23
+   }
+  },
+  {
+   "category": "stl",
+   "teams": [
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 1,
+     "rank": 1,
+     "value": 10.4635,
+     "selected": false
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 2,
+     "rank": 2,
+     "value": 8.4355,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 3,
+     "rank": 3,
+     "value": 7.168,
+     "selected": true
+    },
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 4,
+     "rank": 4,
+     "value": 5.592,
+     "selected": false
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 2.0280000000000005,
+     "null_gap": 1.5439898099734612,
+     "mark": null
+    },
+    {
+     "to_place": 2,
+     "gap": 1.2674999999999992,
+     "null_gap": 1.2326266413503186,
+     "mark": "climb"
+    },
+    {
+     "to_place": 3,
+     "gap": 1.5760000000000005,
+     "null_gap": 1.5439898099734612,
+     "mark": "cushion"
+    }
+   ],
+   "before": {
+    "place": 4,
+    "rank": 4,
+    "value": 4.9395
+   }
+  },
+  {
+   "category": "blk",
+   "teams": [
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 1,
+     "rank": 1,
+     "value": 10.487,
+     "selected": false
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 2,
+     "rank": 2,
+     "value": 8.4265,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 3,
+     "rank": 3,
+     "value": 7.153,
+     "selected": true
+    },
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 4,
+     "rank": 4,
+     "value": 5.6285,
+     "selected": false
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 2.0604999999999993,
+     "null_gap": 1.541871822933179,
+     "mark": null
+    },
+    {
+     "to_place": 2,
+     "gap": 1.2735000000000012,
+     "null_gap": 1.2309357705718829,
+     "mark": "climb"
+    },
+    {
+     "to_place": 3,
+     "gap": 1.5244999999999997,
+     "null_gap": 1.541871822933179,
+     "mark": "cushion"
+    }
+   ],
+   "before": {
+    "place": 4,
+    "rank": 4,
+    "value": 4.965
+   }
+  },
+  {
+   "category": "fg3m",
+   "teams": [
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 1,
+     "rank": 1,
+     "value": 19.6755,
+     "selected": false
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 2,
+     "rank": 2,
+     "value": 16.7825,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 3,
+     "rank": 3,
+     "value": 12.597,
+     "selected": true
+    },
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 4,
+     "rank": 4,
+     "value": 11.1815,
+     "selected": false
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 2.8930000000000007,
+     "null_gap": 2.9162606075557296,
+     "mark": null
+    },
+    {
+     "to_place": 2,
+     "gap": 4.185499999999999,
+     "null_gap": 2.328163369197006,
+     "mark": "climb"
+    },
+    {
+     "to_place": 3,
+     "gap": 1.4154999999999998,
+     "null_gap": 2.9162606075557296,
+     "mark": "cushion"
+    }
+   ],
+   "before": {
+    "place": 4,
+    "rank": 4,
+    "value": 7.088
+   }
+  },
+  {
+   "category": "fg_pct",
+   "teams": [
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 1,
+     "rank": 1,
+     "value": 0.468719417591598,
+     "selected": false
+    },
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 2,
+     "rank": 2,
+     "value": 0.4664412276538522,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 3,
+     "rank": 3,
+     "value": 0.46610342374078884,
+     "selected": true
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 4,
+     "rank": 4,
+     "value": 0.46542932414871807,
+     "selected": false
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 0.0022781899377458115,
+     "null_gap": 0.0010703237557605561,
+     "mark": null
+    },
+    {
+     "to_place": 2,
+     "gap": 0.00033780391306337254,
+     "null_gap": 0.0008544807534988005,
+     "mark": "climb"
+    },
+    {
+     "to_place": 3,
+     "gap": 0.0006740995920707649,
+     "null_gap": 0.0010703237557605561,
+     "mark": "cushion"
+    }
+   ],
+   "before": {
+    "place": 4,
+    "rank": 4,
+    "value": 0.4651776794633937
+   }
+  },
+  {
+   "category": "ft_pct",
+   "teams": [
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 1,
+     "rank": 1,
+     "value": 0.7983021568530674,
+     "selected": false
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 2,
+     "rank": 2,
+     "value": 0.7979473111668164,
+     "selected": false
+    },
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 3,
+     "rank": 3,
+     "value": 0.7968931138418733,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 4,
+     "rank": 4,
+     "value": 0.7936030131379934,
+     "selected": true
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 0.000354845686250993,
+     "null_gap": 0.0016053117313399746,
+     "mark": null
+    },
+    {
+     "to_place": 2,
+     "gap": 0.0010541973249430514,
+     "null_gap": 0.001281582297331269,
+     "mark": null
+    },
+    {
+     "to_place": 3,
+     "gap": 0.003290100703879917,
+     "null_gap": 0.0016053117313399746,
+     "mark": "climb"
+    }
+   ],
+   "before": {
+    "place": 1,
+    "rank": 1,
+    "value": 0.8057280144627608
+   }
+  },
+  {
+   "category": "tov",
+   "teams": [
+    {
+     "team_id": 3,
+     "team_name": "Gammas",
+     "place": 1,
+     "rank": 1,
+     "value": 11.195,
+     "selected": false
+    },
+    {
+     "team_id": 4,
+     "team_name": "Deltas",
+     "place": 2,
+     "rank": 2,
+     "value": 12.5325,
+     "selected": true
+    },
+    {
+     "team_id": 2,
+     "team_name": "Betas",
+     "place": 3,
+     "rank": 3,
+     "value": 16.866,
+     "selected": false
+    },
+    {
+     "team_id": 1,
+     "team_name": "Alphas",
+     "place": 4,
+     "rank": 4,
+     "value": 19.702,
+     "selected": false
+    }
+   ],
+   "gaps": [
+    {
+     "to_place": 1,
+     "gap": 1.3375000000000004,
+     "null_gap": 2.940469374418432,
+     "mark": "climb"
+    },
+    {
+     "to_place": 2,
+     "gap": 4.333499999999999,
+     "null_gap": 2.3474901618976123,
+     "mark": "cushion"
+    },
+    {
+     "to_place": 3,
+     "gap": 2.836000000000002,
+     "null_gap": 2.940469374418432,
+     "mark": null
+    }
+   ],
+   "before": {
+    "place": 1,
+    "rank": 1,
+    "value": 7.097
+   }
+  }
+ ]
 }

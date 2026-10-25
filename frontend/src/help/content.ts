@@ -183,6 +183,12 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
         ? "League Leader and League Average are overlaid."
         : `Your opponent${ctx.opponentName ? ` (${ctx.opponentName})` : ""} is overlaid.`,
       "A dotted \"(before)\" shape is your distribution before moves.",
+      ...(ctx.mode === "strategic"
+        ? [
+            "Below each, the line shows every team's projected value by place; your dot is navy (hollow gray: before your moves).",
+            "The bars show the gap to reach each place. The dotted line is a normally spread league's gap; bars above it are cliffs, below it clusters. Navy is your gap to climb a place; light blue, your cushion over the team below.",
+          ]
+        : []),
     ],
     terms: [["FG% / FT%", "total makes ÷ total attempts, not an average of percentages."]],
   }),

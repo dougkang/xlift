@@ -197,9 +197,10 @@ no relationship between categories.
 
 ## Distributions and Radar
 
-- **Fills:** a curve's fill uses a lighter shade from the same palette as its line. For example,
-  a primary `#1C324A` line gets a primary `#9DC0F5` fill. Overlays sit under the selected team's
-  curve.
+- **Fills:** a distribution is a fill only, with no outline, in a lighter shade from the same
+  palette as its average line. For example, a primary `#1C324A` average line goes with a primary
+  `#9DC0F5` fill. Overlays sit under the selected team's curve; the before-moves distribution is
+  the gray `#eee` fill behind everything.
 - **Average markers:** each distribution has a vertical line at its average. Distributions about
   the league (league leader, next best, league average) use a dotted line; team distributions
   use a solid one.
@@ -212,6 +213,22 @@ no relationship between categories.
 - **Labels:** each average line is labeled with its role and value. A label moves to another row
   only when it would collide with another label.
 - **Name columns:** the player and category columns in tables are bold.
+
+## League shape
+
+Two small charts under each strategic category's distribution, at the same width, without
+captions (the help names them). No gridlines; the x axis shows only the first and last place.
+
+- **Rank ladder (League shape):** one point per team at (place, value), joined by a thin
+  light-secondary line (`#F5C1A9`). Other teams' points are secondary `#CE7955`; the selected
+  team's point is primary `#1C324A`, larger, drawn last. With moves, the selected team's
+  pre-move position is a hollow `#aaa` circle, like the "before" distribution.
+- **Gap bars against a null line (Against null):** one bar per gap between adjacent places, in
+  light secondary `#F5C1A9`. The selected team's climb (the gap to move up a place) is primary
+  `#1C324A`; its cushion (the gap to the team below) is primary light `#9DC0F5`. The null line
+  is dotted tertiary `#898240`, like the League Average line, since it's a league reference.
+- **Tooltips:** each point and bar has a title with the team (or place), rank and formatted
+  value.
 
 ## Current matchup (tactical)
 

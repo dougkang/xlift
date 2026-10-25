@@ -16,6 +16,7 @@ from ffmodel.core.sim.engine import (
     tactical_k,
 )
 from ffmodel.core.sim.matchup import MissingStats, actual_values, base_vector, current_record
+from ffmodel.core.sim.shape import league_shape
 
 __all__ = [
     "STRATEGIC",
@@ -30,6 +31,7 @@ __all__ = [
     "category_values",
     "current_record",
     "density_curves",
+    "league_shape",
     "matchup_odds",
     "projected_averages",
     "ranks",

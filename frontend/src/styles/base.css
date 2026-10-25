@@ -353,6 +353,20 @@ select:hover {
   margin: 0;
 }
 
+/* League shape and Against null (008): small charts under each category's distribution. */
+.shape-chart {
+  margin: 0.25rem 0 0;
+}
+
+.shape-chart svg {
+  display: block;
+}
+
+.shape-axis text {
+  font-size: 9px;
+  fill: var(--muted);
+}
+
 .curve-legend {
   display: flex;
   flex-wrap: wrap;

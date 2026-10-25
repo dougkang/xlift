@@ -21,6 +21,7 @@ from ffmodel.core.sim import (
     category_values,
     current_record,
     density_curves,
+    league_shape,
     matchup_odds,
     projected_averages,
     ranks,
@@ -322,6 +323,7 @@ def _analyze(
         "radar": None,
         "category_table": None,
         "curves": [],
+        "league_shape": None,  # strategic only (008 FR-015)
         "matchups": [],
         "matchup_totals": None,
         "rosters": [],
@@ -471,7 +473,50 @@ def _analyze(
     result["curves"] = _curves(
         fmt, values, averages, league_avg, team_ranks, names, s.team_id, s.seed, originals
     )
+    result["league_shape"] = _league_shape(fmt, comp, names, s.team_id, reuse)
     return result, comp
+
+
+def _league_shape(fmt: ScoringFormat, comp: Computed, names: dict, selected: int, reuse) -> list:
+    """Each category's league shape with names, the selected team's climb and cushion marks,
+    and, with moves, its pre-move place (008 research R4, R5)."""
+    before = league_shape(reuse.averages, fmt) if reuse is not None else None
+    out = []
+    for i, (cat, shape) in enumerate(
+        zip(fmt.categories, league_shape(comp.averages, fmt), strict=True)
+    ):
+        mine = next((place for t, place, _, _ in shape["teams"] if t == selected), None)
+        marks = {} if mine is None else {mine - 1: "climb", mine: "cushion"}
+        prior = before and next(
+            (
+                {"place": place, "rank": rank, "value": value}
+                for t, place, rank, value in before[i]["teams"]
+                if t == selected
+            ),
+            None,
+        )
+        out.append(
+            {
+                "category": cat.key,
+                "teams": [
+                    {
+                        "team_id": t,
+                        "team_name": names[t],
+                        "place": place,
+                        "rank": rank,
+                        "value": value,
+                        "selected": t == selected,
+                    }
+                    for t, place, rank, value in shape["teams"]
+                ],
+                "gaps": [
+                    {"to_place": r, "gap": g, "null_gap": n, "mark": marks.get(r)}
+                    for r, g, n in shape["gaps"]
+                ],
+                "before": prior or None,
+            }
+        )
+    return out
 
 
 def _area(radii: list[float]) -> float:

@@ -2,6 +2,7 @@ import * as Plot from "@observablehq/plot";
 import { useEffect, useRef, useState } from "react";
 import type { AnalysisResult, Schemas } from "../api/client";
 import { HelpButton } from "../help/HelpButton";
+import { AgainstNullChart, LeagueShapeChart } from "./LeagueShape";
 
 type Curve = Schemas["Curve"];
 type Role = Schemas["CurveSeries"]["role"];
@@ -90,11 +91,16 @@ function CurveChart({
   label,
   decimals,
   meanChanges,
+  cat,
+  shape,
 }: {
   curve: Curve;
   label: string;
   decimals: number;
   meanChanges?: MeanChanges;
+  cat: Schemas["CategoryInfo"];
+  /** Strategic only (008): League shape and Against null under the distribution. */
+  shape?: Schemas["CategoryShape"];
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(DEFAULT_WIDTH);
@@ -170,19 +176,6 @@ function CurveChart({
             },
           ),
         ),
-        ...order.map((s) =>
-          Plot.lineY(
-            rows.filter((r) => r.role === s.role),
-            {
-              x: "x",
-              y: "y",
-              stroke: STROKE[s.role],
-              strokeWidth: s.role === "selected" ? 1.5 : ORIGINAL_ROLES.includes(s.role) ? 1.5 : 1,
-              // The original (before moves) distribution is outlined with a dotted line.
-              strokeDasharray: ORIGINAL_ROLES.includes(s.role) ? "3,3" : undefined,
-            },
-          ),
-        ),
         Plot.ruleX(
           means.filter((m) => !LEAGUE_ROLES.includes(m.role)),
           { x: "x", stroke: (m: { role: Role }) => STROKE[m.role], strokeWidth: 1.5 },
@@ -235,6 +228,12 @@ function CurveChart({
     <figure className="curve" data-testid="curve">
       <figcaption className="name-col curve-label">{label}</figcaption>
       <div ref={ref} />
+      {shape && (
+        <>
+          <LeagueShapeChart shape={shape} cat={cat} width={width} />
+          <AgainstNullChart shape={shape} cat={cat} width={width} />
+        </>
+      )}
     </figure>
   );
 }
@@ -283,6 +282,8 @@ export function CategoryCurves({ result }: { result: AnalysisResult }) {
             label={byKey[c.category].label}
             decimals={byKey[c.category].decimals}
             meanChanges={result.changes?.curves[c.category]?.means}
+            cat={byKey[c.category]}
+            shape={result.league_shape?.find((s) => s.category === c.category)}
           />
         ))}
       </div>
