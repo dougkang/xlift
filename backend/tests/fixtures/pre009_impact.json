@@ -1,0 +1,389 @@
+{
+ "category_table": {
+  "kind": "ranks",
+  "rows": [
+   {
+    "average": 251.14152,
+    "category": "pts",
+    "leader_average": 251.14152,
+    "leader_name": "Alphas",
+    "leader_team_id": 1,
+    "league_average": 157.50584,
+    "rank": 1,
+    "win_rate": 0.99648
+   },
+   {
+    "average": 75.812,
+    "category": "reb",
+    "leader_average": 75.812,
+    "leader_name": "Alphas",
+    "leader_team_id": 1,
+    "league_average": 47.89809,
+    "rank": 1,
+    "win_rate": 0.9958333333333332
+   },
+   {
+    "average": 63.11604,
+    "category": "ast",
+    "leader_average": 63.11604,
+    "leader_name": "Alphas",
+    "leader_team_id": 1,
+    "league_average": 39.64135,
+    "rank": 1,
+    "win_rate": 0.9955266666666667
+   },
+   {
+    "average": 12.64852,
+    "category": "stl",
+    "leader_average": 12.64852,
+    "leader_name": "Alphas",
+    "leader_team_id": 1,
+    "league_average": 8.23814,
+    "rank": 1,
+    "win_rate": 0.9750666666666667
+   },
+   {
+    "average": 12.66064,
+    "category": "blk",
+    "leader_average": 12.66064,
+    "leader_name": "Alphas",
+    "leader_team_id": 1,
+    "league_average": 8.23193,
+    "rank": 1,
+    "win_rate": 0.9764266666666667
+   },
+   {
+    "average": 25.12944,
+    "category": "fg3m",
+    "leader_average": 25.12944,
+    "leader_name": "Alphas",
+    "leader_team_id": 1,
+    "league_average": 15.37999,
+    "rank": 1,
+    "win_rate": 0.9908466666666665
+   },
+   {
+    "average": 0.46586466471293814,
+    "category": "fg_pct",
+    "leader_average": 0.4679286625444928,
+    "leader_name": "Gammas",
+    "leader_team_id": 3,
+    "league_average": 0.4653789455757044,
+    "rank": 2,
+    "win_rate": 0.50914
+   },
+   {
+    "average": 0.793631610883723,
+    "category": "ft_pct",
+    "leader_average": 0.8078835971334092,
+    "leader_name": "Deltas",
+    "leader_team_id": 4,
+    "league_average": 0.7972559545840995,
+    "rank": 4,
+    "win_rate": 0.47503333333333336
+   },
+   {
+    "average": 25.12564,
+    "category": "tov",
+    "leader_average": 8.40108,
+    "leader_name": "Deltas",
+    "leader_team_id": 4,
+    "league_average": 15.38089,
+    "rank": 4,
+    "win_rate": 0.008926666666666666
+   }
+  ]
+ },
+ "header": {
+  "manager": "Ann",
+  "matchup_win_probability": null,
+  "record": {
+   "losses": 0,
+   "ties": 0,
+   "unit": "matchups",
+   "wins": 3
+  },
+  "team_id": 1,
+  "team_name": "Alphas"
+ },
+ "players": [
+  [
+   13,
+   -0.21745132577475346
+  ],
+  [
+   14,
+   -0.22882691597161298
+  ],
+  [
+   15,
+   -1.646910063927887
+  ],
+  [
+   16,
+   -2.258650517983593
+  ],
+  [
+   8,
+   -0.12709104147016248
+  ],
+  [
+   6,
+   -0.13296223360157455
+  ],
+  [
+   4,
+   -0.1708639366383089
+  ],
+  [
+   7,
+   -0.18845526658492773
+  ],
+  [
+   5,
+   -0.22528092846149406
+  ],
+  [
+   11,
+   -0.5675442112140061
+  ],
+  [
+   12,
+   -0.5726634101329431
+  ],
+  [
+   10,
+   -0.5835022626242683
+  ],
+  [
+   9,
+   -0.7435242417928585
+  ]
+ ],
+ "rosters": [
+  {
+   "manager": "Ann",
+   "open_active_slots": 0,
+   "players": [
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Alpha One",
+     "nba_team": "BOS",
+     "player_id": 1,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 0.0
+    },
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Alpha Three",
+     "nba_team": "CHI",
+     "player_id": 3,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 0.062471594115436346
+    },
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Alpha Two",
+     "nba_team": "NYK",
+     "player_id": 2,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 0.006566353314699569
+    }
+   ],
+   "team_id": 1,
+   "team_name": "Alphas"
+  },
+  {
+   "manager": "Bo",
+   "open_active_slots": 0,
+   "players": [
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Beta One",
+     "nba_team": "MIA",
+     "player_id": 4,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 0.07236329003486652
+    },
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Beta Three",
+     "nba_team": "NYK",
+     "player_id": 6,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 0.12214583312606742
+    },
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Beta Two",
+     "nba_team": "BOS",
+     "player_id": 5,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 0.0
+    }
+   ],
+   "team_id": 2,
+   "team_name": "Betas"
+  },
+  {
+   "manager": "Cy",
+   "open_active_slots": 1,
+   "players": [
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Gamma One",
+     "nba_team": "CHI",
+     "player_id": 7,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 2.596250724666061
+    },
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Gamma Two",
+     "nba_team": "MIA",
+     "player_id": 8,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 2.844109764291673
+    },
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Gamma Hurt",
+     "nba_team": "NYK",
+     "player_id": 9,
+     "positions": [
+      "G"
+     ],
+     "slot": "reserve",
+     "status": "IL",
+     "xlift": 2.4065389626671614
+    }
+   ],
+   "team_id": 3,
+   "team_name": "Gammas"
+  },
+  {
+   "manager": "Di",
+   "open_active_slots": 0,
+   "players": [
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Delta One",
+     "nba_team": "BOS",
+     "player_id": 10,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": -0.03196261136509371
+    },
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Delta Three",
+     "nba_team": "CHI",
+     "player_id": 12,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": -0.01049673898697101
+    },
+    {
+     "footnote_marker": "*",
+     "games_found": 29,
+     "games_remaining": null,
+     "games_requested": 82,
+     "moved": false,
+     "name": "Delta Two",
+     "nba_team": "MIA",
+     "player_id": 11,
+     "positions": [
+      "G"
+     ],
+     "slot": "active",
+     "status": "healthy",
+     "xlift": 0.0
+    }
+   ],
+   "team_id": 4,
+   "team_name": "Deltas"
+  }
+ ]
+}

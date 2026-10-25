@@ -494,3 +494,58 @@ class MoveErrorDetail(BaseModel):
     move_index: int
     code: str
     message: str
+
+
+# --- Player Analysis: the xLift leaderboard (009 contracts/api.md) -------------------------
+
+
+class LeaderboardRequest(BaseModel):
+    league_id: int
+    team_id: int
+    window: int = Field(82, ge=1, le=82)
+    as_of: date | None = None
+    fragility: Fragility = "dab_tag"
+    evaluate_for: Literal["team", "league"] = "team"
+    pool: Literal["free_agents", "all"] = "free_agents"
+    top: int = Field(25, ge=10, le=50, multiple_of=5)
+    min_games: int = Field(5, ge=1, le=15)
+
+
+class LeaderboardSettings(BaseModel):
+    mode: Literal["strategic"]
+    window: int
+    as_of: date
+    fragility: Fragility
+
+
+class LeaderboardCategory(BaseModel):
+    key: str
+    label: str
+    higher_is_better: bool
+
+
+class LeaderboardEntry(BaseModel):
+    player_id: int
+    name: str
+    nba_team: str | None
+    owner_team_id: int | None  # None = free agent
+    owner_label: str
+    status: str
+    games_found: int
+    games_requested: int
+    footnote: str | None
+    # Net expected weekly category wins added: the sum of `by_category`.
+    xlift: float
+    # Per category, in the response's `categories` order.
+    by_category: list[float]
+
+
+class Leaderboard(BaseModel):
+    settings: LeaderboardSettings
+    evaluate_for: Literal["team", "league"]
+    team_id: int
+    team_name: str
+    categories: list[LeaderboardCategory]
+    total: int  # eligible players before `top`
+    entries: list[LeaderboardEntry]
+    warnings: list[WarningModel]

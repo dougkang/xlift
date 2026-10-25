@@ -4,11 +4,11 @@ from dataclasses import dataclass, replace
 from datetime import date, timedelta
 
 from ffmodel.core.data import MatchupState
+from ffmodel.core.sim import GAMES_PER_PERIOD
 
 DEFAULT_WINDOW = 82  # most games a fit looks back; recent games weigh more
 DEFAULT_ITERATIONS = 25_000
 DEFAULT_SEED = 20261023
-GAMES_PER_PERIOD = 3
 # Fragility Penalty (007): how availability is estimated for the whole analysis.
 FRAGILITY_OPTIONS = ("none", "last15", "dab", "dab_tag")
 DEFAULT_FRAGILITY = "dab_tag"

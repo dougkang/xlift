@@ -89,6 +89,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/player-analysis/leaderboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Player Analysis Leaderboard */
+        post: operations["player_analysis_leaderboard_api_player_analysis_leaderboard_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -363,6 +380,123 @@ export interface components {
             losses: components["schemas"]["Change"] | null;
             ties: components["schemas"]["Change"] | null;
             chance_to_win: components["schemas"]["Change"] | null;
+        };
+        /** Leaderboard */
+        Leaderboard: {
+            settings: components["schemas"]["LeaderboardSettings"];
+            /**
+             * Evaluate For
+             * @enum {string}
+             */
+            evaluate_for: "team" | "league";
+            /** Team Id */
+            team_id: number;
+            /** Team Name */
+            team_name: string;
+            /** Categories */
+            categories: components["schemas"]["LeaderboardCategory"][];
+            /** Total */
+            total: number;
+            /** Entries */
+            entries: components["schemas"]["LeaderboardEntry"][];
+            /** Warnings */
+            warnings: components["schemas"]["WarningModel"][];
+        };
+        /** LeaderboardCategory */
+        LeaderboardCategory: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Higher Is Better */
+            higher_is_better: boolean;
+        };
+        /** LeaderboardEntry */
+        LeaderboardEntry: {
+            /** Player Id */
+            player_id: number;
+            /** Name */
+            name: string;
+            /** Nba Team */
+            nba_team: string | null;
+            /** Owner Team Id */
+            owner_team_id: number | null;
+            /** Owner Label */
+            owner_label: string;
+            /** Status */
+            status: string;
+            /** Games Found */
+            games_found: number;
+            /** Games Requested */
+            games_requested: number;
+            /** Footnote */
+            footnote: string | null;
+            /** Xlift */
+            xlift: number;
+            /** By Category */
+            by_category: number[];
+        };
+        /** LeaderboardRequest */
+        LeaderboardRequest: {
+            /** League Id */
+            league_id: number;
+            /** Team Id */
+            team_id: number;
+            /**
+             * Window
+             * @default 82
+             */
+            window: number;
+            /** As Of */
+            as_of?: string | null;
+            /**
+             * Fragility
+             * @default dab_tag
+             * @enum {string}
+             */
+            fragility: "none" | "last15" | "dab" | "dab_tag";
+            /**
+             * Evaluate For
+             * @default team
+             * @enum {string}
+             */
+            evaluate_for: "team" | "league";
+            /**
+             * Pool
+             * @default free_agents
+             * @enum {string}
+             */
+            pool: "free_agents" | "all";
+            /**
+             * Top
+             * @default 25
+             */
+            top: number;
+            /**
+             * Min Games
+             * @default 5
+             */
+            min_games: number;
+        };
+        /** LeaderboardSettings */
+        LeaderboardSettings: {
+            /**
+             * Mode
+             * @constant
+             */
+            mode: "strategic";
+            /** Window */
+            window: number;
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /**
+             * Fragility
+             * @enum {string}
+             */
+            fragility: "none" | "last15" | "dab" | "dab_tag";
         };
         /** LeagueDetail */
         LeagueDetail: {
@@ -1056,6 +1190,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    player_analysis_leaderboard_api_player_analysis_leaderboard_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeaderboardRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Leaderboard"];
                 };
             };
             /** @description Validation Error */

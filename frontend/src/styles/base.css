@@ -906,3 +906,108 @@ button.help-button {
   height: 0;
   vertical-align: 0.2rem;
 }
+
+/* --- Tool nav (009, docs/style.md "Layout") ---------------------------------------------- */
+.tool-nav {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 0.25rem;
+  font-size: var(--header-size);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.tool-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.tool-nav a:hover {
+  color: var(--ink);
+}
+
+.tool-nav a.current {
+  color: var(--ink);
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- Player Analysis: the xLift leaderboard (009, docs/style.md "Leaderboard") -------------- */
+.leaderboard-controls {
+  margin-top: 0.35rem;
+}
+
+.moves-note,
+.scope-line {
+  color: var(--muted);
+  font-size: var(--data-size);
+  margin: 0.35rem 0;
+}
+
+.leaderboard-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+  font-size: var(--data-size);
+}
+
+.leaderboard-legend .swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.3rem;
+  vertical-align: -0.05rem;
+}
+
+.leaderboard-grid {
+  display: grid;
+  grid-template-columns: minmax(14rem, 22rem) 1fr;
+  align-items: start;
+}
+
+.leaderboard-labels {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+  font-size: var(--data-size);
+}
+
+.leaderboard-labels li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.leaderboard-labels .name-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.leaderboard-labels .owner {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.leaderboard-labels .net {
+  margin-left: auto;
+  padding-right: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-bars {
+  min-width: 0;
+}
+
+.leaderboard-empty {
+  font-size: var(--data-size);
+  font-style: italic;
+  color: var(--muted);
+}

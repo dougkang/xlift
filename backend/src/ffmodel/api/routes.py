@@ -10,6 +10,8 @@ from ffmodel.core.scenario import Add, Drop, MoveError, Swap
 from ffmodel.tools.impact_analysis.analysis import NotFound, analyze
 from ffmodel.tools.impact_analysis.picker import list_players
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings
+from ffmodel.tools.player_analysis import leaderboard as player_analysis
+from ffmodel.tools.player_analysis.settings import LeaderboardQuery, PlayerAnalysisSettings
 
 router = APIRouter(prefix="/api")
 
@@ -104,7 +106,7 @@ def _run(request: Request, fn):
     with _engine(request).connect() as conn:
         try:
             return fn(conn)
-        except NotFound as exc:
+        except (NotFound, player_analysis.NotFound) as exc:
             raise HTTPException(404, str(exc)) from exc
         except MoveError as exc:
             detail = schemas.MoveErrorDetail(
@@ -138,3 +140,18 @@ def impact_players(req: schemas.PlayersRequest, request: Request):
             free_agents_only=req.free_agents_only,
         ),
     )
+
+
+@router.post("/player-analysis/leaderboard", response_model=schemas.Leaderboard)
+def player_analysis_leaderboard(req: schemas.LeaderboardRequest, request: Request):
+    settings = PlayerAnalysisSettings(
+        league_id=req.league_id,
+        team_id=req.team_id,
+        window=req.window,
+        as_of=req.as_of,
+        fragility=req.fragility,
+    )
+    query = LeaderboardQuery(
+        evaluate_for=req.evaluate_for, pool=req.pool, top=req.top, min_games=req.min_games
+    )
+    return _run(request, lambda conn: player_analysis.leaderboard(conn, settings, query))

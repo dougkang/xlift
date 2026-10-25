@@ -1,0 +1,131 @@
+{
+ "settings": {
+  "mode": "strategic",
+  "window": 82,
+  "as_of": "2026-11-18",
+  "fragility": "dab_tag"
+ },
+ "evaluate_for": "team",
+ "team_id": 4,
+ "team_name": "Deltas",
+ "categories": [
+  {
+   "key": "pts",
+   "label": "PTS",
+   "higher_is_better": true
+  },
+  {
+   "key": "reb",
+   "label": "REB",
+   "higher_is_better": true
+  },
+  {
+   "key": "ast",
+   "label": "AST",
+   "higher_is_better": true
+  },
+  {
+   "key": "stl",
+   "label": "STL",
+   "higher_is_better": true
+  },
+  {
+   "key": "blk",
+   "label": "BLK",
+   "higher_is_better": true
+  },
+  {
+   "key": "fg3m",
+   "label": "3PM",
+   "higher_is_better": true
+  },
+  {
+   "key": "fg_pct",
+   "label": "FG%",
+   "higher_is_better": true
+  },
+  {
+   "key": "ft_pct",
+   "label": "FT%",
+   "higher_is_better": true
+  },
+  {
+   "key": "tov",
+   "label": "TO",
+   "higher_is_better": false
+  }
+ ],
+ "total": 4,
+ "entries": [
+  {
+   "player_id": 13,
+   "name": "Steady Streamer",
+   "nba_team": "BOS",
+   "owner_team_id": null,
+   "owner_label": "Free agent",
+   "status": "healthy",
+   "games_found": 82,
+   "games_requested": 82,
+   "footnote": null,
+   "xlift": 1.8,
+   "by_category": [
+    0.4,
+    0.3,
+    0.2,
+    0.1,
+    0.1,
+    0.3,
+    0.2,
+    0.1,
+    0.1
+   ]
+  },
+  {
+   "player_id": 15,
+   "name": "Rookie Ray",
+   "nba_team": "BOS",
+   "owner_team_id": null,
+   "owner_label": "Free agent",
+   "status": "Q",
+   "games_found": 12,
+   "games_requested": 82,
+   "footnote": "* 12 of 82 games",
+   "xlift": 1.2,
+   "by_category": [
+    0.5,
+    0.6,
+    0.1,
+    0.05,
+    0.4,
+    0.0,
+    -0.35,
+    -0.2,
+    0.1
+   ]
+  },
+  {
+   "player_id": 16,
+   "name": "Bench Ben",
+   "nba_team": "BOS",
+   "owner_team_id": null,
+   "owner_label": "Free agent",
+   "status": "healthy",
+   "games_found": 82,
+   "games_requested": 82,
+   "footnote": null,
+   "xlift": -0.23,
+   "by_category": [
+    -0.1,
+    0.05,
+    -0.05,
+    0.0,
+    0.0,
+    -0.05,
+    0.02,
+    0.0,
+    -0.1
+   ]
+  }
+ ],
+ "warnings": []
+}

@@ -129,6 +129,9 @@ interactive element has exactly two states beyond default:
 - Side-by-side columns when space allows (e.g. roster | radar; main | player picker sidebar),
   without boxes around them.
 - Nav is plain text: no borders, pills, or backgrounds; active item marked by weight or underline.
+- **Tool nav:** plain-text ALL CAPS links above the masthead, one per tool; the current tool is
+  bold and underlined, the others muted `#555` (black on hover). Player Analysis uses the same
+  1100px page as Impact Analysis.
 
 ### What this is not
 
@@ -185,15 +188,15 @@ Tertiary Colors:
 
 These colors should be used for any qualitative coloring with higher dimensionality where there is absolutely
 no relationship between categories.
-- #101F2E;
-- #36274E;
-- #642E4A;
-- #7F4430;
-- #7D6831;
-- #5C8E4E;
-- #44A59F;
-- #61B2E7;
-- #BCB5F6;
+- #a6cee3;
+- #1f78b4;
+- #b2df8a;
+- #33a02c;
+- #fb9a99;
+- #e31a1c;
+- #fdbf6f;
+- #ff7f00;
+- #cab2d6;
 
 ## Distributions and Radar
 
@@ -230,6 +233,25 @@ captions (the help names them). No gridlines; the x axis shows only the first an
 - **Tooltips:** each point and bar has a title with the team (or place), rank and formatted
   value.
 
+## Leaderboard (stacked bars)
+
+Player Analysis ranks players with one horizontal bar each, split into the categories the value
+comes from.
+
+- **Rows:** one per player in the server's order (best first), about 18px each. To the left, in
+  data size: the name in bold, the owner muted ("Free agent" or the team), the status in red, and
+  the signed net right-aligned (`+1.84`, `−0.12`, real minus sign), then `*` for a short history.
+- **Segments:** one per category, filled from the qualitative palette above in the format's
+  category order, with no borders. Gains stack right of zero, losses left of it. A legend of
+  swatches above the chart names the categories.
+- **Zero:** a 1px `#ccc` rule.
+- **Net:** a 2px `#111` tick over a 4px white one, so it reads on every segment, light or dark
+  (`#1f78b4`).
+- **Axis:** x only, at the top, a few ticks, labeled with the unit; no gridlines.
+- **Tooltips:** each segment's title is "Player · Category · value"; the tick's is "Player ·
+  xLift value", both signed to two decimals.
+- **Empty:** "No players match these filters." in italic muted text replaces the chart.
+
 ## Current matchup (tactical)
 
 - **Score so far:** "Week N · Mon D–Mon D · Now W–L–T" is a muted line at data size above the
@@ -250,7 +272,7 @@ captions (the help names them). No gridlines; the x axis shows only the first an
 After a hypothetical roster move, every projected value is compared with the original roster
 (no moves).
 
-- **Better:** green `#5C8E4E`, from the qualitative palette.
+- **Better:** green `#5C8E4E`.
 - **Worse:** red `#c00`.
 - **Neutral:** muted `#555`, for changes that are neither good nor bad for the selected team
   (ties, league averages).

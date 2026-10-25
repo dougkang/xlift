@@ -1,5 +1,6 @@
 from ffmodel.core.sim.curves import density_curves
 from ffmodel.core.sim.engine import (
+    GAMES_PER_PERIOD,
     STRATEGIC,
     TACTICAL,
     MatchupOdds,
@@ -19,6 +20,7 @@ from ffmodel.core.sim.matchup import MissingStats, actual_values, base_vector, c
 from ffmodel.core.sim.shape import league_shape
 
 __all__ = [
+    "GAMES_PER_PERIOD",
     "STRATEGIC",
     "TACTICAL",
     "MatchupOdds",

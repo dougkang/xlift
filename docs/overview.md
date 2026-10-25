@@ -34,5 +34,5 @@ See [Style Guide](style.md) for more information about style.
 ## Tools
 
 1. [Impact Analysis](tool1-impact-analysis.md) - Visualize tactical and strategic impacts of adding/dropping players
-2. Player Potential - Identify potential players with the unique ability to subvert correlated stats
+2. [Player Analysis](tool2-player-comparison.md) - Identify potential players with the unique ability to subvert correlated stats
 3. And more

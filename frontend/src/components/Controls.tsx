@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { LeagueDetail, LeagueSummary } from "../api/client";
 import type { Action, Fragility, Settings } from "../state/scenario";
+import type { TopicId } from "../help/content";
 import { HelpButton } from "../help/HelpButton";
 
 interface Props {
@@ -9,6 +10,14 @@ interface Props {
   settings: Settings;
   dispatch: (a: Action) => void;
   moveCount?: number;
+  /** Player Analysis makes no moves, so it has no Reset (009). */
+  showReset?: boolean;
+  /** One control per line (Player Analysis). */
+  stacked?: boolean;
+  /** Player Analysis picks the team in its Evaluate for dropdown instead. */
+  showTeam?: boolean;
+  /** The settings help: Player Analysis has its own, covering every control on its page. */
+  helpTopic?: TopicId;
 }
 
 const FRAGILITY: [Fragility, string][] = [
@@ -20,30 +29,56 @@ const FRAGILITY: [Fragility, string][] = [
 
 /** Last X games, Fragility Penalty, League, Team and Reset. Tactical's opponent and week come from the imported
  * matchup (005), so there are no vs or Week controls. */
-export function Controls({ leagues, league, settings, dispatch, moveCount = 0 }: Props) {
+export function Controls({
+  leagues,
+  league,
+  settings,
+  dispatch,
+  moveCount = 0,
+  showReset = true,
+  stacked = false,
+  showTeam = true,
+  helpTopic = "settings",
+}: Props) {
+  const lastGames = (
+    <label>
+      <span className="col-header">Last</span>
+      <WindowInput value={settings.window} onCommit={(n) => dispatch({ type: "setWindow", window: n })} />
+      <span className="col-header">games</span>
+    </label>
+  );
+  const fragility = (
+    <label>
+      <span className="col-header">Fragility Penalty</span>
+      <select
+        value={settings.fragility}
+        onChange={(e) => dispatch({ type: "setFragility", fragility: e.target.value as Fragility })}
+      >
+        {FRAGILITY.map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
   return (
     <div className="controls" role="group" aria-label="Analysis settings">
-      <div className="controls-row">
-        <label>
-          <span className="col-header">Last</span>
-          <WindowInput value={settings.window} onCommit={(n) => dispatch({ type: "setWindow", window: n })} />
-          <span className="col-header">games</span>
-        </label>
-        <label>
-          <span className="col-header">Fragility Penalty</span>
-          <select
-            value={settings.fragility}
-            onChange={(e) => dispatch({ type: "setFragility", fragility: e.target.value as Fragility })}
-          >
-            {FRAGILITY.map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <HelpButton topic="settings" />
-      </div>
+      {stacked ? (
+        <>
+          <div className="controls-row">
+            {lastGames}
+            <HelpButton topic={helpTopic} />
+          </div>
+          <div className="controls-row">{fragility}</div>
+        </>
+      ) : (
+        <div className="controls-row">
+          {lastGames}
+          {fragility}
+          <HelpButton topic={helpTopic} />
+        </div>
+      )}
       <div className="controls-row">
         <label>
           <span className="col-header">League</span>
@@ -62,30 +97,34 @@ export function Controls({ leagues, league, settings, dispatch, moveCount = 0 }:
           </select>
         </label>
       </div>
-      <div className="controls-row">
-        <label>
-          <span className="col-header">Team</span>
-          <select
-            value={settings.teamId ?? ""}
-            disabled={!league}
-            onChange={(e) => dispatch({ type: "setTeam", teamId: Number(e.target.value) })}
-          >
-            <option value="" disabled>
-              Choose…
-            </option>
-            {league?.teams.map((t) => (
-              <option key={t.team_id} value={t.team_id}>
-                {t.name} — {t.manager}
+      {showTeam && (
+        <div className="controls-row">
+          <label>
+            <span className="col-header">Team</span>
+            <select
+              value={settings.teamId ?? ""}
+              disabled={!league}
+              onChange={(e) => dispatch({ type: "setTeam", teamId: Number(e.target.value) })}
+            >
+              <option value="" disabled>
+                Choose…
               </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <div className="controls-row">
-        <button onClick={() => dispatch({ type: "reset" })} disabled={moveCount === 0}>
-          Reset{moveCount ? ` (${moveCount} move${moveCount === 1 ? "" : "s"})` : ""}
-        </button>
-      </div>
+              {league?.teams.map((t) => (
+                <option key={t.team_id} value={t.team_id}>
+                  {t.name} — {t.manager}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+      {showReset && (
+        <div className="controls-row">
+          <button onClick={() => dispatch({ type: "reset" })} disabled={moveCount === 0}>
+            Reset{moveCount ? ` (${moveCount} move${moveCount === 1 ? "" : "s"})` : ""}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

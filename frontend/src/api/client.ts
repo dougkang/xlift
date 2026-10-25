@@ -62,3 +62,18 @@ export const players = (req: PlayersRequest, signal?: AbortSignal) =>
     body: JSON.stringify(req),
     signal,
   });
+
+/** Player Analysis (009): the xLift leaderboard. The league as imported: no moves, strategic. */
+type LeaderboardDefaulted = "window" | "fragility" | "evaluate_for" | "pool" | "top" | "min_games";
+export type LeaderboardRequest = Omit<Schemas["LeaderboardRequest"], LeaderboardDefaulted> &
+  Partial<Pick<Schemas["LeaderboardRequest"], LeaderboardDefaulted>>;
+export type Leaderboard = Schemas["Leaderboard"];
+export type LeaderboardEntry = Schemas["LeaderboardEntry"];
+export type LeaderboardCategory = Schemas["LeaderboardCategory"];
+
+export const leaderboard = (req: LeaderboardRequest, signal?: AbortSignal) =>
+  request<Leaderboard>("/api/player-analysis/leaderboard", {
+    method: "POST",
+    body: JSON.stringify(req),
+    signal,
+  });

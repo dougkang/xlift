@@ -17,7 +17,15 @@ import numpy as np
 
 from ffmodel.core.scoring import ScoringFormat
 
-__all__ = ["expected_wins", "phi", "score_candidates", "score_own", "team_keys", "weakest"]
+__all__ = [
+    "expected_wins",
+    "phi",
+    "score_candidates",
+    "score_candidates_by_category",
+    "score_own",
+    "team_keys",
+    "weakest",
+]
 
 # A zero spread makes win odds a step function rather than dividing by zero.
 _MIN_SPREAD = 1e-12
@@ -47,12 +55,22 @@ def team_keys(T: np.ndarray, fmt: ScoringFormat) -> np.ndarray:
     return fmt.rank_key(fmt.category_values(totals))
 
 
-def _wins(keys: np.ndarray, others: np.ndarray, spread: np.ndarray) -> np.ndarray:
-    """Expected category wins of keys (..., cats) against each row of others (opponents, cats)."""
+def _odds(keys: np.ndarray, others: np.ndarray, spread: np.ndarray) -> np.ndarray:
+    """Win probability of keys (..., cats) against each row of others: (..., opponents, cats)."""
     s = np.maximum(np.asarray(spread, dtype=float), _MIN_SPREAD)
     z = (keys[..., None, :] - others) / s
     # A missing value (no attempts) is a coin flip rather than a NaN.
-    return phi(np.nan_to_num(z, nan=0.0)).sum(axis=(-2, -1))
+    return phi(np.nan_to_num(z, nan=0.0))
+
+
+def _wins(keys: np.ndarray, others: np.ndarray, spread: np.ndarray) -> np.ndarray:
+    """Expected category wins of keys (..., cats) against each row of others (opponents, cats)."""
+    return _odds(keys, others, spread).sum(axis=(-2, -1))
+
+
+def _wins_by_category(keys: np.ndarray, others: np.ndarray, spread: np.ndarray) -> np.ndarray:
+    """Expected wins per category of keys (..., cats), summed over the opponents in others."""
+    return _odds(keys, others, spread).sum(axis=-2)
 
 
 def expected_wins(team_idx: int, K: np.ndarray, spread: np.ndarray) -> float:
@@ -89,6 +107,18 @@ def score_candidates(
     cands = np.asarray(candidate_lines, dtype=float).reshape(-1, T.shape[-1])
     now = _wins_with(team_idx, T, T[team_idx], fmt, spread)
     return _wins_with(team_idx, T, T[team_idx] - out_line + cands, fmt, spread) - now
+
+
+def score_candidates_by_category(
+    team_idx: int, T: np.ndarray, out_line, candidate_lines, fmt: ScoringFormat, spread
+) -> np.ndarray:
+    """`score_candidates` per category, (candidates, categories) in `fmt.categories` order: the
+    change in expected wins in each category, summed over opponents (009 FR-007). Rows sum to
+    `score_candidates`."""
+    cands = np.asarray(candidate_lines, dtype=float).reshape(-1, T.shape[-1])
+    others = team_keys(np.delete(np.asarray(T, dtype=float), team_idx, axis=0), fmt)
+    now = _wins_by_category(team_keys(T[team_idx], fmt), others, spread)
+    return _wins_by_category(team_keys(T[team_idx] - out_line + cands, fmt), others, spread) - now
 
 
 def score_own(

@@ -54,3 +54,10 @@ source_modules =
 forbidden_modules =
     ffmodel.tools
     ffmodel.api
+
+[importlinter:contract:tools-independent]
+name = Tools must not import each other (Constitution VII)
+type = independence
+modules =
+    ffmodel.tools.impact_analysis
+    ffmodel.tools.player_analysis

@@ -38,8 +38,9 @@ pythonpath = ["."]
 markers = [
     "live: hits the real NBA stats source (manual)",
     "slow: real-database timing and stability checks (manual)",
+    "snapshot: records pre-feature results to a fixture file (manual, once)",
 ]
-addopts = "-m 'not live and not slow'"
+addopts = "-m 'not live and not slow and not snapshot'"
 
 [tool.ruff]
 line-length = 100

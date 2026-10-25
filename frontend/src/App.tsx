@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   analyze,
   ApiError,
@@ -21,7 +21,7 @@ import { DataLine, RecordHeadline } from "./components/RecordHeadline";
 import { RecordTable } from "./components/RecordTable";
 import { Roster } from "./components/Roster";
 import { SwapDialog } from "./components/SwapDialog";
-import { useScenario, type ScenarioState } from "./state/scenario";
+import { useScenario, type Action, type ScenarioState } from "./state/scenario";
 import type { HelpContext } from "./help/content";
 import { HelpButton } from "./help/HelpButton";
 import { HelpProvider } from "./help/HelpProvider";
@@ -41,8 +41,22 @@ export function toRequest(state: ScenarioState): ScenarioRequest | null {
   };
 }
 
+/** Impact Analysis as a standalone page, with its own session state. */
 export default function App() {
   const [state, dispatch] = useScenario();
+  return <ImpactAnalysis state={state} dispatch={dispatch} />;
+}
+
+/** Impact Analysis (Tool 1). The Shell owns the state, so settings carry over between tools. */
+export function ImpactAnalysis({
+  state,
+  dispatch,
+  nav,
+}: {
+  state: ScenarioState;
+  dispatch: (a: Action) => void;
+  nav?: ReactNode;
+}) {
   const [leagues, setLeagues] = useState<LeagueSummary[]>([]);
   const [league, setLeague] = useState<LeagueDetail | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -137,6 +151,7 @@ export default function App() {
   return (
     <HelpProvider ctx={helpCtx}>
       <div className="page">
+        {nav}
         <div className="masthead-row">
           <h1 className="masthead">Impact Analysis</h1>
           <ModeToggle
@@ -152,7 +167,7 @@ export default function App() {
           See how adding, dropping, or swapping players changes your team — this week or for the long run.
           {result &&
             ` Every projection is a Monte Carlo simulation of ${result.settings.iterations.toLocaleString("en-US")} matchup weeks per team.`}
-          {result && <DataLine result={result} />}
+          {result && <DataLine freshness={result.freshness} />}
         </p>
         <hr className="section-rule" />
         <Controls

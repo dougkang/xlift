@@ -44,7 +44,11 @@ class Record:
     ties: int
 
 
-def strategic_k(games_per_period: int = 3) -> KSampler:
+# A typical strategic week: games per player per scoring period, before availability.
+GAMES_PER_PERIOD = 3
+
+
+def strategic_k(games_per_period: int = GAMES_PER_PERIOD) -> KSampler:
     def sample(proj: PlayerProjection, rng: np.random.Generator, iterations: int) -> np.ndarray:
         p = proj.availability or 0.0
         return rng.binomial(games_per_period, p, size=iterations).astype(float)

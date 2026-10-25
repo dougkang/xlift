@@ -13,7 +13,10 @@ export type TopicId =
   | "opponentRoster"
   | "h2h"
   | "breakdown"
-  | "players";
+  | "players"
+  // Player Analysis (009)
+  | "leaderboard"
+  | "playerAnalysisSettings";
 
 export interface HelpContext {
   mode: "strategic" | "tactical";
@@ -204,6 +207,28 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
       ...(ctx.mode === "tactical" ? ["G: games left this week."] : []),
     ],
     terms: [XLIFT],
+  }),
+
+  leaderboard: () => ({
+    title: "xLift Leaderboard",
+    reading: [
+      "Each bar is one player's xLift, split into the categories it comes from: right of zero adds wins, left of zero costs them.",
+      "The black tick is the net, the number on the left. Red text is status; * means a short history.",
+    ],
+    terms: [XLIFT],
+  }),
+
+  playerAnalysisSettings: (ctx) => ({
+    title: "Leaderboard settings",
+    controls: [
+      ["Last X games / Fragility Penalty", `as in Impact Analysis (now ${ctx.window} games).`],
+      ["League", "whose league to rank players in."],
+      ["Evaluate for", "a team scores each player for that team, replacing its weakest active player; it's also the team Impact Analysis opens. League averages that over every team but the player's own."],
+      ["Pool", "All players adds players on other teams."],
+      ["Show top", "how many players are shown."],
+      ["Min games", "hides projections built on fewer games."],
+    ],
+    reading: ["Rosters are as they are: moves made in Impact Analysis don't apply here."],
   }),
 };
 

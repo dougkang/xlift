@@ -1,4 +1,4 @@
-import type { AnalysisResult } from "../api/client";
+import type { AnalysisResult, Schemas } from "../api/client";
 import { Delta, Wins, WLTDelta } from "./Delta";
 import { HelpButton } from "../help/HelpButton";
 
@@ -58,15 +58,21 @@ export function RecordHeadline({ result, pending = false }: { result: AnalysisRe
   );
 }
 
-export function DataLine({ result }: { result: AnalysisResult }) {
-  const f = result.freshness;
+/** When the data was last loaded. Player Analysis doesn't use the matchup, so it can leave it out. */
+export function DataLine({
+  freshness: f,
+  matchup = true,
+}: {
+  freshness: Schemas["Freshness"];
+  matchup?: boolean;
+}) {
   // Local calendar date (YYYY-MM-DD), like the roster and matchup dates; the stored time is UTC.
   const loaded = f.nba_data_loaded_at ? new Date(f.nba_data_loaded_at).toLocaleDateString("en-CA") : "never";
   return (
     <span className="data-line col-header">
       <span>Statistics last updated: {loaded}</span>
       <span>Rosters last updated: {f.roster_as_of ?? "–"}</span>
-      {f.matchup_as_of && <span>Matchup last updated: {f.matchup_as_of}</span>}
+      {matchup && f.matchup_as_of && <span>Matchup last updated: {f.matchup_as_of}</span>}
     </span>
   );
 }

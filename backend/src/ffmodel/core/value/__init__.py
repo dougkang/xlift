@@ -1,10 +1,41 @@
+from ffmodel.core.value.scenario import (
+    SPREAD_ITERATIONS,
+    SPREAD_SEED,
+    lines,
+    out_line,
+    score_league_by_category,
+    score_pool,
+    score_pool_by_category,
+    score_rows,
+    team_totals,
+    weekly_spread,
+)
 from ffmodel.core.value.xlift import (
     expected_wins,
     phi,
     score_candidates,
+    score_candidates_by_category,
     score_own,
     team_keys,
     weakest,
 )
 
-__all__ = ["expected_wins", "phi", "score_candidates", "score_own", "team_keys", "weakest"]
+__all__ = [
+    "SPREAD_ITERATIONS",
+    "SPREAD_SEED",
+    "expected_wins",
+    "lines",
+    "out_line",
+    "phi",
+    "score_league_by_category",
+    "score_candidates",
+    "score_candidates_by_category",
+    "score_own",
+    "score_pool",
+    "score_pool_by_category",
+    "score_rows",
+    "team_keys",
+    "team_totals",
+    "weakest",
+    "weekly_spread",
+]
