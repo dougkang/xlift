@@ -9,6 +9,9 @@ DEFAULT_WINDOW = 82  # most games a fit looks back; recent games weigh more
 DEFAULT_ITERATIONS = 25_000
 DEFAULT_SEED = 20261023
 GAMES_PER_PERIOD = 3
+# Fragility Penalty (007): how availability is estimated for the whole analysis.
+FRAGILITY_OPTIONS = ("none", "last15", "dab", "dab_tag")
+DEFAULT_FRAGILITY = "dab_tag"
 
 
 @dataclass(frozen=True)
@@ -21,6 +24,7 @@ class AnalysisSettings:
     iterations: int = DEFAULT_ITERATIONS
     seed: int = DEFAULT_SEED
     games_per_period: int = GAMES_PER_PERIOD
+    fragility: str = DEFAULT_FRAGILITY  # one of FRAGILITY_OPTIONS
     # Tactical: derived from the league's current matchup state (005), never chosen by the user.
     opponent_id: int | None = None
     period_start: date | None = None
@@ -40,6 +44,8 @@ def normalize(
     s: AnalysisSettings, state: MatchupState | None = None, today: date | None = None
 ) -> AnalysisSettings:
     """Fill defaults; in tactical mode, take the opponent and period from the matchup state."""
+    if s.fragility not in FRAGILITY_OPTIONS:
+        raise ValueError(f"unknown fragility option {s.fragility!r}")
     s = replace(s, as_of=s.as_of or today or date.today())
     if s.mode != "tactical":
         return s

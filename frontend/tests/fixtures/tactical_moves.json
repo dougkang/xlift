@@ -7,7 +7,8 @@
   "seed": 20261023,
   "opponent_id": 4,
   "period_start": "2026-11-16",
-  "period_end": "2026-11-22"
+  "period_end": "2026-11-22",
+  "fragility": "dab_tag"
  },
  "header": {
   "team_id": 3,
@@ -4059,7 +4060,8 @@
      "games_requested": 15,
      "games_remaining": 3,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 0.0
     },
     {
      "player_id": 3,
@@ -4074,7 +4076,8 @@
      "games_requested": 15,
      "games_remaining": 2,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 0.06220984878185831
     },
     {
      "player_id": 2,
@@ -4089,7 +4092,8 @@
      "games_requested": 15,
      "games_remaining": 2,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 0.006653557455432946
     }
    ]
   },
@@ -4112,7 +4116,8 @@
      "games_requested": 15,
      "games_remaining": 1,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 0.07233853622858177
     },
     {
      "player_id": 6,
@@ -4127,7 +4132,8 @@
      "games_requested": 15,
      "games_remaining": 2,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 0.12186268570780001
     },
     {
      "player_id": 5,
@@ -4142,7 +4148,8 @@
      "games_requested": 15,
      "games_remaining": 3,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 0.0
     }
    ]
   },
@@ -4165,7 +4172,8 @@
      "games_requested": 15,
      "games_remaining": 2,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 1.4824234817679303
     },
     {
      "player_id": 9,
@@ -4180,7 +4188,8 @@
      "games_requested": 15,
      "games_remaining": 2,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 2.354690195839238
     },
     {
      "player_id": 10,
@@ -4195,7 +4204,8 @@
      "games_requested": 15,
      "games_remaining": 3,
      "footnote_marker": null,
-     "moved": true
+     "moved": true,
+     "xlift": 1.3953120139456
     }
    ]
   },
@@ -4218,7 +4228,8 @@
      "games_requested": 15,
      "games_remaining": 1,
      "footnote_marker": null,
-     "moved": false
+     "moved": false,
+     "xlift": 1.2203545448708937
     },
     {
      "player_id": 15,
@@ -4233,7 +4244,8 @@
      "games_requested": 15,
      "games_remaining": 2,
      "footnote_marker": "*",
-     "moved": false
+     "moved": false,
+     "xlift": 0.0
     },
     {
      "player_id": 8,
@@ -4248,7 +4260,8 @@
      "games_requested": 15,
      "games_remaining": 1,
      "footnote_marker": null,
-     "moved": true
+     "moved": true,
+     "xlift": 2.3475084090622493
     }
    ]
   }

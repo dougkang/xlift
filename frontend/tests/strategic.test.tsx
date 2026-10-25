@@ -20,7 +20,7 @@ describe("strategic view (US1)", () => {
   beforeEach(() => {
     sessionStorage.clear();
     sessionStorage.setItem(
-      "ffm.impact.v2",
+      "ffm.impact.v3",
       JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }),
     );
   });
@@ -65,12 +65,18 @@ describe("strategic view (US1)", () => {
     expect(within(firstCurve).getByText(/^League /)).toBeInTheDocument();
     const rookieRow = screen.getAllByText("Rookie Ray")[0].closest("tr")!;
     expect(within(rookieRow).getByText("*")).toBeInTheDocument();
+    // xLift (007): one column, the weakest active player at 0.00, every value signed.
+    const roster = document.querySelector("table.roster") as HTMLElement;
+    expect(within(roster).getByRole("columnheader", { name: "xLift" })).toBeInTheDocument();
+    const xw = Array.from(roster.querySelectorAll("tbody tr td:last-child")).map((td) => td.textContent);
+    expect(xw).toContain("0.00");
+    expect(xw.every((v) => /^(0\.00|[+−]\d+\.\d\d|–)$/.test(v ?? ""))).toBe(true);
   });
 });
 
 describe("explainer", () => {
   it("states the simulation count from the result", async () => {
-    sessionStorage.setItem("ffm.impact.v2", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
+    sessionStorage.setItem("ffm.impact.v3", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
     render(<App />);
     await screen.findByRole("heading", { level: 2 }, { timeout: 2000 });
     const n = (strategic as { settings: { iterations: number } }).settings.iterations.toLocaleString("en-US");
@@ -82,7 +88,7 @@ describe("radar scale", () => {
   it("switches between rank and normalized average", async () => {
     const { default: userEvent } = await import("@testing-library/user-event");
     const user = userEvent.setup();
-    sessionStorage.setItem("ffm.impact.v2", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
+    sessionStorage.setItem("ffm.impact.v3", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
     render(<App />);
     await screen.findByRole("heading", { level: 2 }, { timeout: 2000 });
     // Compare every series: the fixture's selected team (Deltas) is last everywhere, so its own

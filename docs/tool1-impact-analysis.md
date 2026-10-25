@@ -23,8 +23,42 @@ player's own sampling error. FG% and FT% are pulled toward the league rate accor
 player's attempts, so a hot streak on few free throws counts for little. Blocks are not pulled:
 a center's block rate is skill, not noise.
 
-How often a player is available is still measured over their most recent 15 games, whatever X
-is.
+How often a player is expected to play is set by the **Fragility Penalty**, and it applies to
+the whole analysis: the strategic simulation's games and every xLift value.
+
+- **dAB × tag** (the default): dAB, scaled down for a current injury tag (IL 0.3, O 0.6,
+  Q/GTD/DTD 0.9, SUSP 0.7, NA 0).
+- **dAB** (Decay-weighted Availability Blend): games played over games available, blending the
+  last 15 games with the last three seasons. Older seasons count far less (a twentieth per
+  season of age), so an old injury is mostly forgiven, and a whole missed season counts as
+  missed games once the player is back. Both rates are pulled toward the league's typical rate
+  when there is little evidence. Its parameters are fixed from a backtest and not shown.
+- **Last 15**: games played over the most recent 15 games, whatever X is.
+- **None**: no penalty. Every player plays every game, except players in an IL slot, who play
+  none, on any team.
+
+In tactical mode the matchup uses each player's games remaining, so the Fragility Penalty only
+changes xLift there.
+
+## xLift
+
+Every player shows **xLift** (expected lift): how many more category wins
+per week, summed over every opponent in the league, the player is worth to a team. A team's
+expected wins in a category against an opponent is the chance its weekly total beats theirs,
+given how much weekly totals vary; FG% and FT% are recomputed from makes and attempts.
+
+The baseline is the team's **weakest active player**: the one whose removal costs the fewest
+expected wins (an empty active slot, or a player with no games, counts as weakest).
+
+- A **free agent** or another team's player is scored as replacing that weakest player (or
+  filling an open slot), for the selected team.
+- A **roster player** is scored against a second copy of the weakest player, so the weakest
+  shows 0. Because FG% and FT% don't add up player by player, a high-volume, low-percentage
+  player can come out below the weakest player (negative). With an open active slot, the
+  baseline is the empty slot, so every player shows their full contribution.
+- In tactical mode the opponent's roster is scored for the opponent.
+
+Swapping a roster player for a free agent gains about the difference in their xLift.
 
 ## The Comparison
 
@@ -80,7 +114,8 @@ with other distributions overlaid with muted transparency/colors.
 
 ### Player Picker 
 
-On the right sidebar, we should list out all players not on selected team.
+On the right sidebar, we should list out all players not on selected team: free agents first,
+then rostered players, each ordered by xLift for the selected team, highest first.
 A search bar should be present at the top enable name-based filtering.
 A '+' button to the left of each player should add the player to the selected team iff the roster has an empty slot.
 

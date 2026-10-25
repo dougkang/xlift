@@ -36,6 +36,7 @@ export function toRequest(state: ScenarioState): ScenarioRequest | null {
     team_id: s.teamId,
     mode: s.mode,
     window: s.window,
+    fragility: s.fragility,
     moves: state.moves,
   };
 }

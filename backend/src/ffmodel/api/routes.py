@@ -84,6 +84,7 @@ def _settings(req: schemas.ScenarioRequest) -> AnalysisSettings:
         as_of=req.as_of,
         iterations=req.iterations,
         seed=req.seed,
+        fragility=req.fragility,
     )
 
 

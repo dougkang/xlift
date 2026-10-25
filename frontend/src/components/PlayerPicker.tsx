@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { players, type PlayerPage, type PlayerRow, type ScenarioRequest } from "../api/client";
+import { formatXlift } from "../format";
 
 const PAGE = 50;
 const DEBOUNCE_MS = 250;
@@ -10,7 +11,8 @@ interface Props {
   onSwap: (player: PlayerRow) => void;
 }
 
-/** Everyone not on the selected team. Eligibility comes from the API, never computed here. */
+/** Everyone not on the selected team, in the server's order (xLift for the selected team).
+ * Eligibility comes from the API, never computed here. */
 export function PlayerPicker({ request, onAdd, onSwap }: Props) {
   const [query, setQuery] = useState("");
   const [offset, setOffset] = useState(0);
@@ -59,6 +61,9 @@ export function PlayerPicker({ request, onAdd, onSwap }: Props) {
             <th className="col-header">Pos</th>
             <th className="col-header">Team</th>
             {tactical && <th className="col-header num">G</th>}
+            <th className="col-header num" title="Expected weekly category wins added for your team">
+              xLift
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -88,6 +93,7 @@ export function PlayerPicker({ request, onAdd, onSwap }: Props) {
                 <td>{p.positions.join(",") || "–"}</td>
                 <td className={p.owner_team_id === null ? "fa" : "sub"}>{p.owner_label}</td>
                 {tactical && <td className="num">{p.games_remaining ?? "–"}</td>}
+                <td className="num">{formatXlift(p.xlift)}</td>
               </tr>
             );
           })}

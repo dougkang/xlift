@@ -29,7 +29,7 @@ from ffmodel.core.sim import (
     strategic_k,
     tactical_k,
 )
-from ffmodel.tools.impact_analysis import cache
+from ffmodel.tools.impact_analysis import cache, fragility, value
 from ffmodel.tools.impact_analysis.changes import build_changes
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings, normalize
 from ffmodel.tools.impact_analysis.state import NotFound, load_state
@@ -114,13 +114,18 @@ def _settings_echo(s: AnalysisSettings) -> dict:
         "as_of": s.as_of,
         "iterations": s.iterations,
         "seed": s.seed,
+        "fragility": s.fragility,
         "opponent_id": s.opponent_id,
         "period_start": s.period_start,
         "period_end": s.period_end,
     }
 
 
-def _roster_rows(scenario: Scenario, snapshot, info, projections, games_remaining: bool) -> list:
+def _roster_rows(
+    scenario: Scenario, snapshot, info, projections, games_remaining: bool, xlift=None
+) -> list:
+    """`xlift`: {team: {player: value for that team}} (007 FR-009, FR-011)."""
+    xlift = xlift or {}
     base_owner = {r.player.player_id: t.fantasy_team_id for t in snapshot.teams for r in t.roster}
     rows = []
     for team in snapshot.teams:
@@ -144,6 +149,7 @@ def _roster_rows(scenario: Scenario, snapshot, info, projections, games_remainin
                     "games_remaining": proj.games_remaining if (proj and games_remaining) else None,
                     "footnote_marker": FOOTNOTE_MARKER if proj and proj.is_short else None,
                     "moved": base_owner.get(p.player_id) != tid,
+                    "xlift": xlift.get(tid, {}).get(p.player_id),
                 }
             )
         rows.append(
@@ -347,9 +353,17 @@ def _analyze(
         for c in fmt.categories
     ]
     rostered = [spot.player_id for spots in scenario.rosters.values() for spot in spots]
-    projections = cache.projections(conn, rostered, fmt, s)
+    statuses = {pid: status for pid, (_, status) in info.items()}
+
+    def penalize(proj, sc):  # the Fragility Penalty, before every result (007 FR-013)
+        return fragility.apply(s.fragility, proj, sc, statuses, conn, s.as_of)
+
+    projections = penalize(cache.projections(conn, rostered, fmt, s), scenario)
     tactical = s.mode == "tactical"
-    result["rosters"] = _roster_rows(scenario, snapshot, info, projections, tactical)
+    # xLift uses the league-level weekly definition in both modes (007 FR-018, research R2).
+    spread = value.league_spread(conn, fmt, s, snapshot, penalize)
+    xlift = value.score_rows(scenario, projections, fmt, s.games_per_period, spread)
+    result["rosters"] = _roster_rows(scenario, snapshot, info, projections, tactical, xlift)
     shown = [s.team_id] + ([s.opponent_id] if tactical and s.opponent_id else [])
     result["footnotes"] = _footnotes(result["rosters"], shown)
 

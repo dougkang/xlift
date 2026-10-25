@@ -9,6 +9,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, Field
 
 Mode = Literal["strategic", "tactical"]
+Fragility = Literal["none", "last15", "dab", "dab_tag"]
 
 
 class DropMove(BaseModel):
@@ -43,6 +44,8 @@ class ScenarioRequest(BaseModel):
     # older clients that still send opponent_id / period_* have them ignored.
     iterations: int = Field(25_000, ge=1_000, le=50_000)
     seed: int = 20261023
+    # Fragility Penalty (007): how availability is estimated for the whole analysis.
+    fragility: Fragility = "dab_tag"
     moves: list[Move] = Field(default_factory=list)
 
 
@@ -104,6 +107,7 @@ class SettingsEcho(BaseModel):
     as_of: date
     iterations: int
     seed: int
+    fragility: Fragility
     opponent_id: int | None
     period_start: date | None
     period_end: date | None
@@ -281,6 +285,10 @@ class RosterPlayer(BaseModel):
     games_remaining: int | None
     footnote_marker: str | None
     moved: bool
+    # Expected weekly category wins added for this row's own team, against a copy of its
+    # weakest active player (007). Reserve players are scored as if active. None without a
+    # projection.
+    xlift: float | None
 
 
 class TeamRoster(BaseModel):
@@ -435,6 +443,9 @@ class PlayerRow(BaseModel):
     games_requested: int
     games_remaining: int | None
     footnote: str | None
+    # Expected weekly category wins added for the selected team, swapped in for its weakest
+    # active player (007). None without a projection.
+    xlift: float | None
     eligibility: Eligibility
 
 

@@ -20,3 +20,11 @@ export function formatActual(value: number | null | undefined, cat: Category): s
   if (value === null || value === undefined || Number.isNaN(value)) return "–";
   return cat.decimals > 0 ? formatValue(value, cat) : String(Math.round(value));
 }
+
+/** Display an xLift value: signed, two decimals (+1.27, 0.00, −0.40); "–" when missing (007). */
+export function formatXlift(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return "–";
+  const fixed = Math.abs(value).toFixed(2);
+  if (fixed === "0.00") return "0.00";
+  return `${value < 0 ? "−" : "+"}${fixed}`;
+}

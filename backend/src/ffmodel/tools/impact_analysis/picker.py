@@ -1,6 +1,7 @@
 """Player picker: everyone not on the selected team, with move eligibility (FR-020, FR-026).
 
 Eligibility is computed here from the scenario so the frontend never applies roster rules.
+Rows are ranked by xLift for the selected team, then paged (007 research R7).
 """
 
 from collections.abc import Sequence
@@ -12,6 +13,8 @@ from ffmodel.core.data import (
     get_matchup_state,
     get_player_details,
 )
+from ffmodel.core.scoring import UnsupportedFormat, get_format
+from ffmodel.tools.impact_analysis import cache, fragility, value
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings, normalize
 from ffmodel.tools.impact_analysis.state import load_state
 
@@ -70,21 +73,35 @@ def list_players(
         search = " ".join(name_words(summary.full_name))
         if words and not all(w in search for w in words):
             continue
-        candidates.append((team is not None, summary.full_name, pid, summary, status, team))
-    candidates.sort(key=lambda c: (c[0], c[1], c[2]))
+        candidates.append((pid, summary, status, team))
+
+    statuses = {pid: status for pid, (_, status) in pool.items()}
+    xlift, projections = _score(conn, s, state, [c[0] for c in candidates], statuses)
+    # Free agents first; within each group, xLift highest first, then name; unscored last.
+    candidates.sort(
+        key=lambda c: (
+            c[3] is not None,
+            xlift.get(c[0]) is None,
+            -(xlift.get(c[0]) or 0.0),
+            c[1].full_name,
+            c[0],
+        )
+    )
     page = candidates[offset : offset + limit]
 
-    ids = [c[2] for c in page]
-    windows = get_last_n_games_bulk(conn, ids, s.window, as_of=s.as_of)
+    ids = [c[0] for c in page]
     remaining = (
         count_team_games_bulk(conn, ids, *s.remaining, statuses=("scheduled", "final"))
         if s.remaining
         else {}
     )
+    if not projections:  # unsupported format: nothing projected, so read the windows directly
+        windows = get_last_n_games_bulk(conn, ids, s.window, as_of=s.as_of)
+        projections = {pid: (w.found, w.requested) for pid, w in windows.items()}
     rows = []
-    for _, _, pid, summary, status, team in page:
-        w = windows[pid]
-        short = w.found < w.requested
+    for pid, summary, status, team in page:
+        found, requested = _games(pid, projections)
+        short = found < requested
         rows.append(
             {
                 "player_id": pid,
@@ -94,13 +111,38 @@ def list_players(
                 "owner_team_id": team,
                 "owner_label": names[team] if team is not None else "FA",
                 "status": status,
-                "games_found": w.found,
-                "games_requested": w.requested,
+                "games_found": found,
+                "games_requested": requested,
                 "games_remaining": remaining.get(pid, 0) if s.mode == "tactical" else None,
-                "footnote": f"{FOOTNOTE_MARKER} {w.found} of {w.requested} games"
-                if short
-                else None,
+                "footnote": f"{FOOTNOTE_MARKER} {found} of {requested} games" if short else None,
+                "xlift": xlift.get(pid),
                 "eligibility": _eligibility(scenario, s.team_id, team, names.get(team)),
             }
         )
     return {"total": len(candidates), "players": rows}
+
+
+def _score(conn, s, state, ids: list[int], statuses: dict) -> tuple[dict, dict]:
+    """({player: xLift for the selected team}, their projections); empty for an unsupported
+    format."""
+    try:
+        fmt = get_format(state.scenario.league.scoring_format_id)
+    except UnsupportedFormat:
+        return {}, {}
+    scenario = state.scenario
+    rostered = [spot.player_id for spots in scenario.rosters.values() for spot in spots]
+
+    def penalize(proj, sc):  # the Fragility Penalty (007 FR-013)
+        return fragility.apply(s.fragility, proj, sc, statuses, conn, s.as_of)
+
+    projections = penalize(cache.projections(conn, set(ids) | set(rostered), fmt, s), scenario)
+    spread = value.league_spread(conn, fmt, s, state.snapshot, penalize)
+    pool = {pid: projections[pid] for pid in ids}
+    roster = {pid: projections[pid] for pid in rostered}
+    scores = value.score_pool(scenario, s.team_id, pool, fmt, s.games_per_period, spread, roster)
+    return scores, projections
+
+
+def _games(pid: int, projections: dict) -> tuple[int, int]:
+    p = projections[pid]
+    return p if isinstance(p, tuple) else (p.games_found, p.games_requested)

@@ -1,4 +1,5 @@
 import type { AnalysisResult } from "../api/client";
+import { formatXlift } from "../format";
 import type { TopicId } from "../help/content";
 import { HelpButton } from "../help/HelpButton";
 
@@ -27,6 +28,9 @@ export function Roster({ result, teamId, onDrop, title = "Roster", helpTopic = "
             <th className="col-header">Player</th>
             <th className="col-header">Pos</th>
             {tactical && <th className="col-header num" title="Games left in the period">G</th>}
+            <th className="col-header num" title="Expected weekly category wins added for this team">
+              xLift
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -52,6 +56,7 @@ export function Roster({ result, teamId, onDrop, title = "Roster", helpTopic = "
               </td>
               <td>{p.positions.join(",") || "–"}</td>
               {tactical && <td className="num">{p.games_remaining ?? "–"}</td>}
+              <td className="num">{formatXlift(p.xlift)}</td>
             </tr>
           ))}
         </tbody>

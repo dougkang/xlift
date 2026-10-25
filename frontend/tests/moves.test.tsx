@@ -12,19 +12,19 @@ const page = {
     {
       player_id: 13, name: "Steady Streamer", nba_team: "MIA", positions: ["G"], owner_team_id: null,
       owner_label: "FA", status: "healthy", games_found: 15, games_requested: 15, games_remaining: null,
-      footnote: null,
+      footnote: null, xlift: 1.27,
       eligibility: { can_add: false, add_blocked_reason: "No open active slot — drop a player first", swap_give_options: [] },
     },
     {
       player_id: 15, name: "Rookie Ray", nba_team: "CHI", positions: ["G"], owner_team_id: null,
       owner_label: "FA", status: "Q", games_found: 2, games_requested: 15, games_remaining: null,
-      footnote: "* 2 of 15 games",
+      footnote: "* 2 of 15 games", xlift: -0.4,
       eligibility: { can_add: false, add_blocked_reason: "No open active slot — drop a player first", swap_give_options: [] },
     },
     {
       player_id: 1, name: "Alpha One", nba_team: "BOS", positions: ["G"], owner_team_id: 1,
       owner_label: "Alphas", status: "healthy", games_found: 15, games_requested: 15, games_remaining: null,
-      footnote: null,
+      footnote: null, xlift: null,
       eligibility: { can_add: false, add_blocked_reason: "On Alphas: swap required", swap_give_options: ["roster"] },
     },
   ],
@@ -50,7 +50,7 @@ const lastMoves = () => (analyze.mock.calls.at(-1)?.[0] as Req).moves;
 describe("roster moves (US2)", () => {
   beforeEach(() => {
     sessionStorage.clear();
-    sessionStorage.setItem("ffm.impact.v2", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
+    sessionStorage.setItem("ffm.impact.v3", JSON.stringify({ settings: { leagueId: 1, teamId: 4 }, moves: [] }));
     analyze.mockReset();
     analyze.mockImplementation(async () => strategic);
   });
@@ -116,5 +116,31 @@ describe("roster moves (US2)", () => {
     expect(row).toHaveTextContent("CHI Q");
     expect(within(row).getByText("Q", { exact: false, selector: ".status" })).toBeInTheDocument();
     expect(row.querySelectorAll("td")[2]).toHaveTextContent("G");
+  });
+
+  it("defaults the Fragility Penalty to dAB × tag and sends a change (007)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const select = (await screen.findByLabelText("Fragility Penalty", {}, { timeout: 2000 })) as HTMLSelectElement;
+    expect(select.selectedOptions[0].textContent).toBe("dAB × tag");
+    expect(Array.from(select.options).map((o) => o.textContent)).toEqual(["None", "Last 15", "dAB", "dAB × tag"]);
+    await waitFor(() => expect(analyze).toHaveBeenCalled());
+    expect((analyze.mock.calls.at(-1)?.[0] as { fragility: string }).fragility).toBe("dab_tag");
+    await user.selectOptions(select, "Last 15");
+    await waitFor(() => expect((analyze.mock.calls.at(-1)?.[0] as { fragility: string }).fragility).toBe("last15"));
+  });
+
+  it("shows xLift in the server's order (007)", async () => {
+    render(<App />);
+    await screen.findByRole("button", { name: "Add Rookie Ray" }, { timeout: 2000 });
+    const picker = document.querySelector("table.picker-table") as HTMLElement;
+    expect(within(picker).getByRole("columnheader", { name: "xLift" })).toBeInTheDocument();
+    const rows = Array.from(picker.querySelectorAll("tbody tr"));
+    expect(rows.map((r) => r.querySelector(".name-col")?.firstChild?.textContent)).toEqual([
+      "Steady Streamer",
+      "Rookie Ray",
+      "Alpha One",
+    ]);
+    expect(rows.map((r) => r.querySelector("td:last-child")?.textContent)).toEqual(["+1.27", "−0.40", "–"]);
   });
 });

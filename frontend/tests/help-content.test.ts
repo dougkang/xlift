@@ -54,7 +54,7 @@ describe("help content", () => {
 
   it("names controls exactly as they appear on screen", () => {
     const s = HELP.settings(ctx("tactical")).controls!.map(([n]) => n);
-    expect(s).toEqual(["Last X games", "League / Team", "Reset"]);
+    expect(s).toEqual(["Last X games", "Fragility Penalty", "League / Team", "Reset"]);
   });
 });
 

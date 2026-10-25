@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { LeagueDetail, LeagueSummary } from "../api/client";
-import type { Action, Settings } from "../state/scenario";
+import type { Action, Fragility, Settings } from "../state/scenario";
 import { HelpButton } from "../help/HelpButton";
 
 interface Props {
@@ -11,7 +11,14 @@ interface Props {
   moveCount?: number;
 }
 
-/** Last X games, League, Team and Reset. Tactical's opponent and week come from the imported
+const FRAGILITY: [Fragility, string][] = [
+  ["none", "None"],
+  ["last15", "Last 15"],
+  ["dab", "dAB"],
+  ["dab_tag", "dAB × tag"],
+];
+
+/** Last X games, Fragility Penalty, League, Team and Reset. Tactical's opponent and week come from the imported
  * matchup (005), so there are no vs or Week controls. */
 export function Controls({ leagues, league, settings, dispatch, moveCount = 0 }: Props) {
   return (
@@ -21,6 +28,19 @@ export function Controls({ leagues, league, settings, dispatch, moveCount = 0 }:
           <span className="col-header">Last</span>
           <WindowInput value={settings.window} onCommit={(n) => dispatch({ type: "setWindow", window: n })} />
           <span className="col-header">games</span>
+        </label>
+        <label>
+          <span className="col-header">Fragility Penalty</span>
+          <select
+            value={settings.fragility}
+            onChange={(e) => dispatch({ type: "setFragility", fragility: e.target.value as Fragility })}
+          >
+            {FRAGILITY.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
         </label>
         <HelpButton topic="settings" />
       </div>

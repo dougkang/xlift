@@ -8,6 +8,7 @@ from ffmodel.core.data.bulk import (
     get_players_with_games,
 )
 from ffmodel.core.data.games import get_last_n_games, get_player_history
+from ffmodel.core.data.history import AvailabilityHistory, get_availability_history
 from ffmodel.core.data.league import get_free_agents, get_league, list_leagues
 from ffmodel.core.data.matchup import get_matchup_state
 from ffmodel.core.data.models import (
@@ -27,6 +28,7 @@ from ffmodel.core.data.players import get_player, get_player_details, search_pla
 
 __all__ = [
     "Availability",
+    "AvailabilityHistory",
     "DataFreshness",
     "FantasyTeamView",
     "GameWindow",
@@ -40,6 +42,7 @@ __all__ = [
     "count_team_games",
     "count_team_games_bulk",
     "get_availability",
+    "get_availability_history",
     "get_data_freshness",
     "get_free_agents",
     "get_league",

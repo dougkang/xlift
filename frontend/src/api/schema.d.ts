@@ -494,6 +494,8 @@ export interface components {
             games_remaining: number | null;
             /** Footnote */
             footnote: string | null;
+            /** Xlift */
+            xlift: number | null;
             eligibility: components["schemas"]["Eligibility"];
         };
         /** PlayersRequest */
@@ -510,7 +512,7 @@ export interface components {
             mode: "strategic" | "tactical";
             /**
              * Window
-             * @default 15
+             * @default 82
              */
             window: number;
             /** As Of */
@@ -525,6 +527,12 @@ export interface components {
              * @default 20261023
              */
             seed: number;
+            /**
+             * Fragility
+             * @default dab_tag
+             * @enum {string}
+             */
+            fragility: "none" | "last15" | "dab" | "dab_tag";
             /** Moves */
             moves?: (components["schemas"]["DropMove"] | components["schemas"]["AddMove"] | components["schemas"]["SwapMove"])[];
             /**
@@ -716,6 +724,8 @@ export interface components {
             footnote_marker: string | null;
             /** Moved */
             moved: boolean;
+            /** Xlift */
+            xlift: number | null;
         };
         /** ScenarioRequest */
         ScenarioRequest: {
@@ -731,7 +741,7 @@ export interface components {
             mode: "strategic" | "tactical";
             /**
              * Window
-             * @default 15
+             * @default 82
              */
             window: number;
             /** As Of */
@@ -746,6 +756,12 @@ export interface components {
              * @default 20261023
              */
             seed: number;
+            /**
+             * Fragility
+             * @default dab_tag
+             * @enum {string}
+             */
+            fragility: "none" | "last15" | "dab" | "dab_tag";
             /** Moves */
             moves?: (components["schemas"]["DropMove"] | components["schemas"]["AddMove"] | components["schemas"]["SwapMove"])[];
         };
@@ -767,6 +783,11 @@ export interface components {
             iterations: number;
             /** Seed */
             seed: number;
+            /**
+             * Fragility
+             * @enum {string}
+             */
+            fragility: "none" | "last15" | "dab" | "dab_tag";
             /** Opponent Id */
             opponent_id: number | null;
             /** Period Start */

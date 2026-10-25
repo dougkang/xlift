@@ -158,6 +158,10 @@ date. It sets:
 
 Making it a parameter is what makes SC-002 and the tactical tests reproducible.
 
+**Addendum (007)**: this rate is now the *Last 15* option of the Fragility Penalty. The default is
+dAB × tag, and *None* removes the penalty outside IL slots; see
+`specs/007-xwcwa-fragility-penalty/research.md` (R3, R4).
+
 ## R5. Tactical mode
 
 **Decision**:

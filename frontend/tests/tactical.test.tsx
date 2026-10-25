@@ -26,7 +26,7 @@ const matchup = tactical.header.matchup!;
 
 function seed(mode: string, extra: Record<string, unknown> = {}) {
   sessionStorage.setItem(
-    "ffm.impact.v2",
+    "ffm.impact.v3",
     JSON.stringify({ settings: { leagueId: 1, teamId: 3, mode, ...extra }, moves: [] }),
   );
 }
@@ -65,7 +65,7 @@ describe("tactical mode: the current matchup (005)", () => {
     seed("tactical", { opponentId: 2, periodStart: "2026-11-01", periodEnd: "2026-11-07" });
     render(<App />);
     await screen.findByRole("heading", { level: 2 }, { timeout: 2000 });
-    const saved = JSON.parse(sessionStorage.getItem("ffm.impact.v2")!).settings;
+    const saved = JSON.parse(sessionStorage.getItem("ffm.impact.v3")!).settings;
     expect(saved).not.toHaveProperty("opponentId");
     expect(saved).not.toHaveProperty("periodStart");
   });

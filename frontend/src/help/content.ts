@@ -37,6 +37,10 @@ export interface HelpTopic {
 
 const fmt = (n: number | null) => (n === null ? "thousands of" : n.toLocaleString("en-US"));
 const BEFORE = "Green is better, red is worse; the change sits on the line below.";
+const XLIFT: [string, string] = [
+  "xLift",
+  "expected weekly category wins this player adds to the team shown, across every opponent, compared with the team's weakest active player (who shows 0), or an empty slot, if one is open or an active player has no games. Swapping a roster player for a free agent gains about the difference.",
+];
 
 export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
   mode: () => ({
@@ -58,6 +62,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     title: "Analysis settings",
     controls: [
       ["Last X games", `the most games each projection draws on (now ${ctx.window}); recent games count more, and last season's count less. Small samples are pulled toward a typical player.`],
+      ["Fragility Penalty", "how often each player is expected to play. None: everyone outside an IL slot plays every game. Last 15: games played over the last 15. dAB: a multi-season estimate that forgives old absences. dAB × tag: dAB adjusted for current injury tags."],
       ["League / Team", "whose team you're analyzing; in tactical, its current opponent comes with it."],
       ["Reset", "undo every roster move."],
     ],
@@ -143,11 +148,11 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     controls: [["−", "drops a player to free agency (hypothetical)."]],
     reading: [
       ...(ctx.capacity ? [`${ctx.capacity} active slots play in the simulation.`] : []),
-      "Muted rows are IL/NA reserve slots; they don't play.",
+      "Muted rows are IL/NA reserve slots; they don't play or count in the team's totals.",
       "Red text is the player's status. Yellow rows were changed by your moves.",
       ...(ctx.mode === "tactical" ? ["G: games left this week."] : []),
     ],
-    terms: [["*", "fewer games in the window than requested."]],
+    terms: [["*", "fewer games in the window than requested."], XLIFT],
   }),
 
   opponentRoster: (ctx) => ({
@@ -157,6 +162,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
       "Muted rows are IL/NA reserve slots; red text is status.",
       "G: games left this week.",
     ],
+    terms: [XLIFT],
   }),
 
   h2h: () => ({
@@ -188,9 +194,10 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
       ["+", "adds a free agent to an open slot. On another team's player, it opens a swap: give a roster player (a trade) or a free agent."],
     ],
     reading: [
-      "Free agents are listed first. Red text is status; * means a short history.",
+      "Free agents are listed first, highest xLift first. Red text is status; * means a short history.",
       ...(ctx.mode === "tactical" ? ["G: games left this week."] : []),
     ],
+    terms: [XLIFT],
   }),
 };
 

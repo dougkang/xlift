@@ -22,6 +22,7 @@ def test_every_public_read_works_offline(fixture_engine):
         "count_team_games",
         "count_team_games_bulk",
         "get_availability",
+        "get_availability_history",
         "get_data_freshness",
         "get_free_agents",
         "get_last_n_games",
@@ -68,6 +69,8 @@ def test_every_public_read_works_offline(fixture_engine):
         assert scheduled == {fx.IGGY: 3}
         pool = data.get_players_with_games(conn, date(2025, 10, 30), fx.FIXTURE_TODAY)
         assert fx.DONCIC in pool and pool == sorted(pool)  # the projection prior's pool
+        hist = data.get_availability_history(conn, [fx.DONCIC, fx.IGGY], fx.FIXTURE_TODAY)
+        assert len(hist.played[fx.DONCIC]) and len(hist.team_games[fx.DONCIC])  # dAB's input
         details = data.get_player_details(conn, league_id=league.league_id)
         assert details[fx.IGGY][1] == "IL" and fx.OLD_VET not in details
         assert data.get_player_details(conn, player_ids=[fx.OLD_VET])[fx.OLD_VET][1] == "healthy"

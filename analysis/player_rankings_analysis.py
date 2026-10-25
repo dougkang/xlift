@@ -60,7 +60,7 @@ def _():
 @app.cell
 def _(mo):
     mo.md(r"""
-    # Expected Weekly Category Wins Added (xWCWA)
+    # xLift (expected lift): the weekly category wins a player adds
 
     Standings Gain Points (SGP) asks: *how many units of a stat does it take to move up one
     place in the standings?* A player is worth their stats divided by those per-place costs.
@@ -69,9 +69,9 @@ def _(mo):
     report tests a hypothesis about our league: **the cost of a rank depends on where you are in
     the table.** Some places sit in a tight cluster (cheap to pass), others behind a big gap
     (expensive). If that's true, a player's value should be measured by what they actually gain
-    from your team's position. That's the score at the end: **Expected Weekly Category Wins
-    Added (xWCWA)**, the extra category wins per week a player adds across the league when they
-    replace an average rostered player.
+    from your team's position. That's the score at the end: **xLift**
+    (expected lift), the extra category wins per week a player adds across the league when they
+    replace the team's weakest player (or an average rostered player, under *Swap out*).
 
     All values are per scoring period, the same expected totals the Impact Analysis
     simulation is built on.
@@ -505,6 +505,10 @@ def _(mo):
     lower. *Weekly SD* $\sigma_c$ is the median, over teams, of the standard deviation of the
     team's simulated per-period value (each player plays $\text{Binomial}(G, a_i)$ games), and
     *Gap ÷ weekly SD* is $\operatorname{median}_r g_{c,r} / \sigma_c$.
+
+    The weekly SD always uses each player's window availability (games played in the last 15),
+    whatever the *Availability* setting. With *Shrink* on, it simulates the shrunk projections,
+    as Impact Analysis does.
     """)
     return
 
@@ -540,17 +544,24 @@ def _(
     np,
     projections,
     scenario,
+    shrink,
+    shrink_projection,
     simulate_team,
+    stat_prior,
     strategic_k,
     team_ids,
 ):
     # Weekly noise: each team's simulated per-period spread, median over teams. A gap well under
-    # this is inside the noise of a single H2H week.
+    # this is inside the noise of a single H2H week. With Shrink on, it simulates the shrunk
+    # projections, as Impact Analysis does.
+    def _proj(p):
+        return shrink_projection(projections[p], stat_prior) if shrink.value else projections[p]
+
     _sds = []
     for _t in team_ids:
         _samples = simulate_team(
             _t,
-            [projections[p] for p in scenario.active_players(_t) if p in projections],
+            [_proj(p) for p in scenario.active_players(_t) if p in projections],
             strategic_k(games_per_period.value),
             fmt,
             iterations=4000,
@@ -721,7 +732,7 @@ def _(LABELS, alt, supply):
 @app.cell
 def _(mo):
     mo.md(r"""
-    ## 4. xWCWA: category wins added, from your position
+    ## 4. xLift: category wins added, from your position
 
     For an evaluating team, each category becomes a **rank curve**, and a player's value is how
     far they move the team along it. *Rank curve* picks one of two:
@@ -731,17 +742,17 @@ def _(mo):
       noise. Gaining one rank means winning that category against one more opponent per week,
       on average. Noisy categories pay less per unit, because an edge there flips less often.
       Edges keep paying past first place, at a falling rate.
-      Summed over categories, the gain is **xWCWA**: expected extra category wins per week
+      Summed over categories, the gain is **xLift**: expected extra category wins per week
       across all 17 opponents. Divide by 17 for the gain in a single matchup.
     - **Season ranks**. The other 17 teams' values are knots, and passing one gains a full
       rank. A unit in a tight cluster buys several ranks, a unit behind a cliff buys a fraction,
       and a unit past first place buys nothing. With this curve the same score counts
       standings places gained rather than weekly wins.
 
-    A player's xWCWA for a team is the gain across all nine categories when they come in
+    A player's xLift for a team is the gain across all nine categories when they come in
     for someone (ratio categories are recomputed from the new makes and attempts). *Swap out*
     picks who leaves: an **average rostered player**, or the team's own **weakest player**, the
-    one whose removal costs the fewest ranks. **League xWCWA** averages that over every team
+    one whose removal costs the fewest ranks. **League xLift** averages that over every team
     except their own, a position-neutral value. **Flat SGP** is the classic version, using one
     per-rank cost per category (the slope of value against rank), for comparison.
 
@@ -773,15 +784,15 @@ def _(mo):
 
     **Scores.**
 
-    $$\text{xWCWA}_{ti} = \sum_c \Big[R_{tc}(k_{tc}) - R_{tc}(k'_{tic})\Big] \qquad
-    \text{xWCWA}_i = \operatorname{mean}_{t \,\ne\, \text{owner}(i)} \text{xWCWA}_{ti}$$
+    $$\text{xLift}_{ti} = \sum_c \Big[R_{tc}(k_{tc}) - R_{tc}(k'_{tic})\Big] \qquad
+    \text{xLift}_i = \operatorname{mean}_{t \,\ne\, \text{owner}(i)} \text{xLift}_{ti}$$
 
     For flat SGP, fit $k_{(r)} \approx \alpha_c + \beta_c\, r$ by least squares over all $N$
     teams. The cost of one rank is $D_c = -\beta_c$, and
 
     $$\text{Flat}_{ti} = \sum_c \frac{k'_{tic} - k_{tc}}{D_c},$$
 
-    averaged over teams the same way. *Moved* = flat rank − xWCWA rank.
+    averaged over teams the same way. *Moved* = flat rank − xLift rank.
     """)
     return
 
@@ -892,7 +903,7 @@ def _(mo):
     )
     baseline = mo.ui.radio(
         options=["Average rostered player", "Team's weakest player"],
-        value="Average rostered player",
+        value="Team's weakest player",  # as Impact Analysis swaps
         label="Swap out",
         inline=True,
     )
@@ -949,7 +960,7 @@ def _(
             "player_id": _p,
             "Player": player_names.get(_p, str(_p)),
             "Team": team_names[_owner[_p]] if _p in _owner else "Free agent",
-            "xWCWA": float(np.sum(_by_cat[_pi])),
+            "xLift": float(np.sum(_by_cat[_pi])),
             "Flat SGP": float(_flat[_pi]),
             "Games": f"{_proj.games_found}/{_proj.games_requested}",
         }
@@ -958,13 +969,13 @@ def _(
     board = (
         pl.DataFrame(_rows)
         .with_columns(
-            pl.col("xWCWA").rank("ordinal", descending=True).alias("xWCWA rank"),
+            pl.col("xLift").rank("ordinal", descending=True).alias("xLift rank"),
             pl.col("Flat SGP").rank("ordinal", descending=True).alias("Flat rank"),
         )
         .with_columns(
-            (pl.col("Flat rank").cast(pl.Int64) - pl.col("xWCWA rank").cast(pl.Int64)).alias("Moved")
+            (pl.col("Flat rank").cast(pl.Int64) - pl.col("xLift rank").cast(pl.Int64)).alias("Moved")
         )
-        .sort("xWCWA", descending=True)
+        .sort("xLift", descending=True)
     )
     return (board,)
 
@@ -980,11 +991,11 @@ def _(LABELS, alt, board, top_n):
         color=alt.Color("category:N", sort=LABELS, scale=alt.Scale(scheme="tableau10")),
         tooltip=["Player", "category", alt.Tooltip("ranks:Q", format=".2f")],
     )
-    _totals = alt.Chart(_top.select("Player", "xWCWA")).mark_tick(
+    _totals = alt.Chart(_top.select("Player", "xLift")).mark_tick(
         color="black", thickness=2, size=14
-    ).encode(y=alt.Y("Player:N", sort=_order), x="xWCWA:Q")
+    ).encode(y=alt.Y("Player:N", sort=_order), x="xLift:Q")
     (_bars + _totals).properties(
-        width=620, height=max(240, 18 * len(_order)), title="xWCWA leaderboard (tick = net xWCWA)"
+        width=620, height=max(240, 18 * len(_order)), title="xLift leaderboard (tick = net xLift)"
     )
     return
 
@@ -993,11 +1004,11 @@ def _(LABELS, alt, board, top_n):
 def _(LABELS, board, mo, top_n):
     mo.ui.table(
         board.head(top_n.value).select(
-            "xWCWA rank", "Player", "Team", "xWCWA", "Flat SGP", "Flat rank", "Moved", "Games",
+            "xLift rank", "Player", "Team", "xLift", "Flat SGP", "Flat rank", "Moved", "Games",
             *LABELS,
         ),
         selection=None,
-        format_mapping={c: "{:.2f}" for c in ["xWCWA", "Flat SGP", *LABELS]},
+        format_mapping={c: "{:.2f}" for c in ["xLift", "Flat SGP", *LABELS]},
         show_column_summaries=False,
     )
     return
@@ -1007,7 +1018,7 @@ def _(LABELS, board, mo, top_n):
 def _(mo):
     mo.md(r"""
     **Does the weighting matter?** Each dot is a player, placed by their rank under flat SGP and
-    under xWCWA. Dots on the diagonal rank the same either way; distance from it is how much the
+    under xLift. Dots on the diagonal rank the same either way; distance from it is how much the
     league's shape reorders them.
     """)
     return
@@ -1015,14 +1026,14 @@ def _(mo):
 
 @app.cell
 def _(alt, board, pl):
-    _top = board.filter((pl.col("xWCWA rank") <= 100) | (pl.col("Flat rank") <= 100))
+    _top = board.filter((pl.col("xLift rank") <= 100) | (pl.col("Flat rank") <= 100))
     _pts = alt.Chart(_top).mark_circle(size=40, opacity=0.7).encode(
         x=alt.X("Flat rank:Q", title="Flat SGP rank", scale=alt.Scale(domain=[0, 100])),
-        y=alt.Y("xWCWA rank:Q", title="xWCWA rank", scale=alt.Scale(domain=[0, 100])),
+        y=alt.Y("xLift rank:Q", title="xLift rank", scale=alt.Scale(domain=[0, 100])),
         color=alt.Color(
             "Moved:Q", scale=alt.Scale(scheme="redblue", domainMid=0), title="Places gained"
         ),
-        tooltip=["Player", "Team", "xWCWA rank", "Flat rank", alt.Tooltip("xWCWA:Q", format=".2f")],
+        tooltip=["Player", "Team", "xLift rank", "Flat rank", alt.Tooltip("xLift:Q", format=".2f")],
     )
     _diag = alt.Chart(pl.DataFrame({"x": [0, 100], "y": [0, 100]})).mark_line(
         color="#9aa4b2", strokeDash=[4, 4]
@@ -1043,7 +1054,7 @@ def _(
     team_names,
     team_picker,
 ):
-    # How far the league's shape reorders free agents, for every team (Spearman of xWCWA vs flat).
+    # How far the league's shape reorders free agents, for every team (Spearman of xLift vs flat).
     _fa = [i for i, p in enumerate(player_ids) if p not in scenario.owner]
 
     def _spearman(a, b):
@@ -1061,7 +1072,7 @@ def _(
     if _league >= 0.95 and min(_by_team) < 0.8:
         _read = (
             "Positions average out across the league, but from a single team's position the "
-            "weighting reorders free agents a lot. xWCWA is most useful as a team-specific score: "
+            "weighting reorders free agents a lot. xLift is most useful as a team-specific score: "
             "switch *Evaluate for* to *Your team* above."
         )
     elif min(_by_team) >= 0.9:
@@ -1070,7 +1081,7 @@ def _(
         _read = "The weighting reorders free agents both league-wide and from single positions."
     mo.callout(
         mo.md(f"""
-    **Where the weighting matters.** Rank correlation between xWCWA and flat SGP orders of free
+    **Where the weighting matters.** Rank correlation between xLift and flat SGP orders of free
     agents: **{_league:.2f}** averaged over the league, **{_mine:.2f}** for
     {team_names[team_picker.value]}, and lowest at **{_by_team[_low]:.2f}** for
     {team_names[team_ids[_low]]}. **{len(_top10)} of {len(team_ids)}** teams get a different
@@ -1115,7 +1126,7 @@ def _(
     team_rank,
 ):
     _ti = team_ids.index(team_picker.value)
-    # This team's own xWCWA for free agents, whatever the leaderboard toggles say.
+    # This team's own xLift for free agents, whatever the leaderboard toggles say.
     _fa = [i for i, p in enumerate(player_ids) if p not in scenario.owner]
     _rows = []
     for _c, _label in enumerate(LABELS):
@@ -1152,10 +1163,10 @@ def _(mo, snapshot):
       the window, which early in the season is mostly last season. "Rank" here is a team's place
       by projected per-period value, not its record.
     - **Who makes room matters.** Flat SGP is linear, so the *Swap out* choice shifts every
-      player equally and never reorders them. xWCWA is a curve: a different starting point lands
+      player equally and never reorders them. xLift is a curve: a different starting point lands
       candidates on different stretches of it, and the order can change a lot. The weakest-player
       swap is closer to a real waiver move.
-    - **Supply is shown, not scored.** Section 3's waiver-wire scarcity isn't part of xWCWA. xWCWA
+    - **Supply is shown, not scored.** Section 3's waiver-wire scarcity isn't part of xLift. xLift
       weights by the competition only.
     - **Short windows.** With shrinkage on, a one- or two-game player is pulled most of the way
       to the typical player. *Min games* still hides them from the leaderboard.

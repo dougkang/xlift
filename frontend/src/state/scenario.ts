@@ -3,12 +3,15 @@ import type { Move } from "../api/client";
 
 export type Mode = "strategic" | "tactical";
 export type RadarScale = "rank" | "average" | "winrate";
+/** Fragility Penalty (007): how availability is estimated for the whole analysis. */
+export type Fragility = "none" | "last15" | "dab" | "dab_tag";
 
 export interface Settings {
   leagueId: number | null;
   teamId: number | null;
   mode: Mode;
   window: number;
+  fragility: Fragility;
   /** Radar scale: category rank, or each category's average min-max scaled across the league. */
   radarScale: RadarScale;
 }
@@ -23,13 +26,15 @@ export type Action =
   | { type: "setTeam"; teamId: number }
   | { type: "setMode"; mode: Mode }
   | { type: "setWindow"; window: number }
+  | { type: "setFragility"; fragility: Fragility }
   | { type: "setRadarScale"; scale: RadarScale }
   | { type: "addMove"; move: Move }
   | { type: "popMove" }
   | { type: "reset" };
 
-// v2: 006 changed the default window to 82; sessions saved with the old default start fresh.
-export const STORAGE_KEY = "ffm.impact.v2";
+// v2: 006 changed the default window to 82; v3: 007 added the Fragility Penalty. Sessions saved
+// under an older key start fresh.
+export const STORAGE_KEY = "ffm.impact.v3";
 
 export const initialState: ScenarioState = {
   settings: {
@@ -37,6 +42,7 @@ export const initialState: ScenarioState = {
     teamId: null,
     mode: "strategic",
     window: 82,
+    fragility: "dab_tag",
     radarScale: "winrate",
   },
   moves: [],
@@ -53,6 +59,8 @@ export function reducer(state: ScenarioState, action: Action): ScenarioState {
       return { ...state, settings: { ...s, mode: action.mode } };
     case "setWindow":
       return { ...state, settings: { ...s, window: action.window } };
+    case "setFragility":
+      return { ...state, settings: { ...s, fragility: action.fragility } };
     case "setRadarScale":
       return { ...state, settings: { ...s, radarScale: action.scale } };
     case "addMove":
