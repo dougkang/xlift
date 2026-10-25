@@ -852,7 +852,7 @@ def _(mo):
       can keep their minutes while their shots drop (a new star arrives); a usage trend would be
       the natural next factor.
     - **Not yet in the rankings.** Feeding it in means scaling counting stats by $m_i$ in the
-      RGP notebook's projections, a separate step kept apart on purpose.
+      rankings notebook's (xWCWA) projections, a separate step kept apart on purpose.
     """)
     return
 

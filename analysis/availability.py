@@ -3,7 +3,7 @@
 dAB (Decay-weighted Availability Blend) predicts the share of upcoming games a player plays: a
 blend of the recent window and a three-season rate, each shrunk toward the league rate.
 
-Shared by the availability report (availability_analysis.py) and the RGP notebook
+Shared by the availability report (availability_analysis.py) and the rankings notebook (xWCWA)
 (player_rankings_analysis.py), so both use the same fitted model.
 
 Every game, played or missed, is weighted δ^age, where age is how many seasons before the

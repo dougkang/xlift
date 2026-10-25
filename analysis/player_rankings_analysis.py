@@ -3,7 +3,7 @@ import marimo
 __generated_with = "0.25.2"
 app = marimo.App(
     width="medium",
-    app_title="Rank Gain Points",
+    app_title="Category Wins Added",
     auto_download=["html"],
 )
 
@@ -60,7 +60,7 @@ def _():
 @app.cell
 def _(mo):
     mo.md(r"""
-    # League Rank Gain Points (nLRGP)
+    # Expected Weekly Category Wins Added (xWCWA)
 
     Standings Gain Points (SGP) asks: *how many units of a stat does it take to move up one
     place in the standings?* A player is worth their stats divided by those per-place costs.
@@ -68,8 +68,10 @@ def _(mo):
     Classic SGP uses **one** cost per category, a straight line through the standings. This
     report tests a hypothesis about our league: **the cost of a rank depends on where you are in
     the table.** Some places sit in a tight cluster (cheap to pass), others behind a big gap
-    (expensive). If that's true, a player's value should be measured in ranks actually gained
-    from your team's position, which is the **RGP** score at the end.
+    (expensive). If that's true, a player's value should be measured by what they actually gain
+    from your team's position. That's the score at the end: **Expected Weekly Category Wins
+    Added (xWCWA)**, the extra category wins per week a player adds across the league when they
+    replace an average rostered player.
 
     All values are per scoring period, the same expected totals the Impact Analysis
     simulation is built on.
@@ -719,7 +721,7 @@ def _(LABELS, alt, supply):
 @app.cell
 def _(mo):
     mo.md(r"""
-    ## 4. RGP: ranks gained, from your position
+    ## 4. xWCWA: category wins added, from your position
 
     For an evaluating team, each category becomes a **rank curve**, and a player's value is how
     far they move the team along it. *Rank curve* picks one of two:
@@ -729,16 +731,17 @@ def _(mo):
       noise. Gaining one rank means winning that category against one more opponent per week,
       on average. Noisy categories pay less per unit, because an edge there flips less often.
       Edges keep paying past first place, at a falling rate.
-      Summed over categories, RGP is extra category wins per week across all 17 opponents.
-      Divide by 17 for the gain in a single matchup.
+      Summed over categories, the gain is **xWCWA**: expected extra category wins per week
+      across all 17 opponents. Divide by 17 for the gain in a single matchup.
     - **Season ranks**. The other 17 teams' values are knots, and passing one gains a full
       rank. A unit in a tight cluster buys several ranks, a unit behind a cliff buys a fraction,
-      and a unit past first place buys nothing.
+      and a unit past first place buys nothing. With this curve the same score counts
+      standings places gained rather than weekly wins.
 
-    A player's RGP for a team is the ranks gained across all nine categories when they come in
+    A player's xWCWA for a team is the gain across all nine categories when they come in
     for someone (ratio categories are recomputed from the new makes and attempts). *Swap out*
     picks who leaves: an **average rostered player**, or the team's own **weakest player**, the
-    one whose removal costs the fewest ranks. **League RGP** averages that over every team
+    one whose removal costs the fewest ranks. **League xWCWA** averages that over every team
     except their own, a position-neutral value. **Flat SGP** is the classic version, using one
     per-rank cost per category (the slope of value against rank), for comparison.
 
@@ -770,15 +773,15 @@ def _(mo):
 
     **Scores.**
 
-    $$\text{RGP}_{ti} = \sum_c \Big[R_{tc}(k_{tc}) - R_{tc}(k'_{tic})\Big] \qquad
-    \text{RGP}_i = \operatorname{mean}_{t \,\ne\, \text{owner}(i)} \text{RGP}_{ti}$$
+    $$\text{xWCWA}_{ti} = \sum_c \Big[R_{tc}(k_{tc}) - R_{tc}(k'_{tic})\Big] \qquad
+    \text{xWCWA}_i = \operatorname{mean}_{t \,\ne\, \text{owner}(i)} \text{xWCWA}_{ti}$$
 
     For flat SGP, fit $k_{(r)} \approx \alpha_c + \beta_c\, r$ by least squares over all $N$
     teams. The cost of one rank is $D_c = -\beta_c$, and
 
     $$\text{Flat}_{ti} = \sum_c \frac{k'_{tic} - k_{tc}}{D_c},$$
 
-    averaged over teams the same way. *Moved* = flat rank − RGP rank.
+    averaged over teams the same way. *Moved* = flat rank − xWCWA rank.
     """)
     return
 
@@ -946,7 +949,7 @@ def _(
             "player_id": _p,
             "Player": player_names.get(_p, str(_p)),
             "Team": team_names[_owner[_p]] if _p in _owner else "Free agent",
-            "RGP": float(np.sum(_by_cat[_pi])),
+            "xWCWA": float(np.sum(_by_cat[_pi])),
             "Flat SGP": float(_flat[_pi]),
             "Games": f"{_proj.games_found}/{_proj.games_requested}",
         }
@@ -955,13 +958,13 @@ def _(
     board = (
         pl.DataFrame(_rows)
         .with_columns(
-            pl.col("RGP").rank("ordinal", descending=True).alias("RGP rank"),
+            pl.col("xWCWA").rank("ordinal", descending=True).alias("xWCWA rank"),
             pl.col("Flat SGP").rank("ordinal", descending=True).alias("Flat rank"),
         )
         .with_columns(
-            (pl.col("Flat rank").cast(pl.Int64) - pl.col("RGP rank").cast(pl.Int64)).alias("Moved")
+            (pl.col("Flat rank").cast(pl.Int64) - pl.col("xWCWA rank").cast(pl.Int64)).alias("Moved")
         )
-        .sort("RGP", descending=True)
+        .sort("xWCWA", descending=True)
     )
     return (board,)
 
@@ -977,11 +980,11 @@ def _(LABELS, alt, board, top_n):
         color=alt.Color("category:N", sort=LABELS, scale=alt.Scale(scheme="tableau10")),
         tooltip=["Player", "category", alt.Tooltip("ranks:Q", format=".2f")],
     )
-    _totals = alt.Chart(_top.select("Player", "RGP")).mark_tick(
+    _totals = alt.Chart(_top.select("Player", "xWCWA")).mark_tick(
         color="black", thickness=2, size=14
-    ).encode(y=alt.Y("Player:N", sort=_order), x="RGP:Q")
+    ).encode(y=alt.Y("Player:N", sort=_order), x="xWCWA:Q")
     (_bars + _totals).properties(
-        width=620, height=max(240, 18 * len(_order)), title="RGP leaderboard (tick = net RGP)"
+        width=620, height=max(240, 18 * len(_order)), title="xWCWA leaderboard (tick = net xWCWA)"
     )
     return
 
@@ -990,11 +993,11 @@ def _(LABELS, alt, board, top_n):
 def _(LABELS, board, mo, top_n):
     mo.ui.table(
         board.head(top_n.value).select(
-            "RGP rank", "Player", "Team", "RGP", "Flat SGP", "Flat rank", "Moved", "Games",
+            "xWCWA rank", "Player", "Team", "xWCWA", "Flat SGP", "Flat rank", "Moved", "Games",
             *LABELS,
         ),
         selection=None,
-        format_mapping={c: "{:.2f}" for c in ["RGP", "Flat SGP", *LABELS]},
+        format_mapping={c: "{:.2f}" for c in ["xWCWA", "Flat SGP", *LABELS]},
         show_column_summaries=False,
     )
     return
@@ -1004,7 +1007,7 @@ def _(LABELS, board, mo, top_n):
 def _(mo):
     mo.md(r"""
     **Does the weighting matter?** Each dot is a player, placed by their rank under flat SGP and
-    under RGP. Dots on the diagonal rank the same either way; distance from it is how much the
+    under xWCWA. Dots on the diagonal rank the same either way; distance from it is how much the
     league's shape reorders them.
     """)
     return
@@ -1012,14 +1015,14 @@ def _(mo):
 
 @app.cell
 def _(alt, board, pl):
-    _top = board.filter((pl.col("RGP rank") <= 100) | (pl.col("Flat rank") <= 100))
+    _top = board.filter((pl.col("xWCWA rank") <= 100) | (pl.col("Flat rank") <= 100))
     _pts = alt.Chart(_top).mark_circle(size=40, opacity=0.7).encode(
         x=alt.X("Flat rank:Q", title="Flat SGP rank", scale=alt.Scale(domain=[0, 100])),
-        y=alt.Y("RGP rank:Q", title="RGP rank", scale=alt.Scale(domain=[0, 100])),
+        y=alt.Y("xWCWA rank:Q", title="xWCWA rank", scale=alt.Scale(domain=[0, 100])),
         color=alt.Color(
             "Moved:Q", scale=alt.Scale(scheme="redblue", domainMid=0), title="Places gained"
         ),
-        tooltip=["Player", "Team", "RGP rank", "Flat rank", alt.Tooltip("RGP:Q", format=".2f")],
+        tooltip=["Player", "Team", "xWCWA rank", "Flat rank", alt.Tooltip("xWCWA:Q", format=".2f")],
     )
     _diag = alt.Chart(pl.DataFrame({"x": [0, 100], "y": [0, 100]})).mark_line(
         color="#9aa4b2", strokeDash=[4, 4]
@@ -1040,7 +1043,7 @@ def _(
     team_names,
     team_picker,
 ):
-    # How far the league's shape reorders free agents, for every team (Spearman of RGP vs flat).
+    # How far the league's shape reorders free agents, for every team (Spearman of xWCWA vs flat).
     _fa = [i for i, p in enumerate(player_ids) if p not in scenario.owner]
 
     def _spearman(a, b):
@@ -1058,7 +1061,7 @@ def _(
     if _league >= 0.95 and min(_by_team) < 0.8:
         _read = (
             "Positions average out across the league, but from a single team's position the "
-            "weighting reorders free agents a lot. RGP is most useful as a team-specific score: "
+            "weighting reorders free agents a lot. xWCWA is most useful as a team-specific score: "
             "switch *Evaluate for* to *Your team* above."
         )
     elif min(_by_team) >= 0.9:
@@ -1067,7 +1070,7 @@ def _(
         _read = "The weighting reorders free agents both league-wide and from single positions."
     mo.callout(
         mo.md(f"""
-    **Where the weighting matters.** Rank correlation between RGP and flat SGP orders of free
+    **Where the weighting matters.** Rank correlation between xWCWA and flat SGP orders of free
     agents: **{_league:.2f}** averaged over the league, **{_mine:.2f}** for
     {team_names[team_picker.value]}, and lowest at **{_by_team[_low]:.2f}** for
     {team_names[team_ids[_low]]}. **{len(_top10)} of {len(team_ids)}** teams get a different
@@ -1112,7 +1115,7 @@ def _(
     team_rank,
 ):
     _ti = team_ids.index(team_picker.value)
-    # This team's own RGP for free agents, whatever the leaderboard toggles say.
+    # This team's own xWCWA for free agents, whatever the leaderboard toggles say.
     _fa = [i for i, p in enumerate(player_ids) if p not in scenario.owner]
     _rows = []
     for _c, _label in enumerate(LABELS):
@@ -1149,10 +1152,10 @@ def _(mo, snapshot):
       the window, which early in the season is mostly last season. "Rank" here is a team's place
       by projected per-period value, not its record.
     - **Who makes room matters.** Flat SGP is linear, so the *Swap out* choice shifts every
-      player equally and never reorders them. RGP is a curve: a different starting point lands
+      player equally and never reorders them. xWCWA is a curve: a different starting point lands
       candidates on different stretches of it, and the order can change a lot. The weakest-player
       swap is closer to a real waiver move.
-    - **Supply is shown, not scored.** Section 3's waiver-wire scarcity isn't part of RGP. RGP
+    - **Supply is shown, not scored.** Section 3's waiver-wire scarcity isn't part of xWCWA. xWCWA
       weights by the competition only.
     - **Short windows.** With shrinkage on, a one- or two-game player is pulled most of the way
       to the typical player. *Min games* still hides them from the leaderboard.
