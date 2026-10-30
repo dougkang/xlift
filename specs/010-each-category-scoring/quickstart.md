@@ -16,15 +16,15 @@ Key checks:
 
 ## Switch the real league
 
-```bash
-cd backend && uv run ffm load roster <rosters.csv> --league-key ccsv-2026 --format 9cat_h2h_each
-```
-
-Later loads (the daily refresh) keep it. Check:
+Once, from the repo root (the same roster load the daily refresh runs, plus `--format`):
 
 ```bash
+(cd backend && uv run ffm load roster ~/dev/ccsv-rumble-page/data/rosters.csv \
+  --league-key ccsv-2026 --format 9cat_h2h_each)
 sqlite3 data/ffmodel.sqlite "select league_key, scoring_format_id from fantasy_league"
 ```
+
+Later loads, including `scripts/daily_update.sh`, name no format and keep it.
 
 ## See it
 
