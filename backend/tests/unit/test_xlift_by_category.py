@@ -72,3 +72,19 @@ def test_deterministic():
     a = score_candidates_by_category(0, T, out, cands, FMT, SPREAD)
     b = score_candidates_by_category(0, T, out, cands, FMT, SPREAD)
     assert np.array_equal(a, b)
+
+
+def test_own_by_category_sums_to_score_own():
+    from ffmodel.core.value import score_own, score_own_by_category
+
+    rng = np.random.default_rng(11)
+    T = rng.uniform(20, 60, (4, len(FMT.base_stats)))
+    for small, big in FMT.subset_constraints:
+        i, j = FMT.base_stats.index(small), FMT.base_stats.index(big)
+        T[:, i] = np.minimum(T[:, i], T[:, j])
+    own = T[0] / 5 * rng.uniform(0.5, 1.5, (3, len(FMT.base_stats)))
+    weak = own[1]
+    spread = np.full(len(FMT.categories), 3.0)
+    by_cat = score_own_by_category(0, T, own, weak, FMT, spread)
+    np.testing.assert_allclose(by_cat.sum(axis=1), score_own(0, T, own, weak, FMT, spread))
+    assert np.all(by_cat[1] == 0)  # the weakest

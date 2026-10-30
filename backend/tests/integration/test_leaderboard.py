@@ -125,12 +125,34 @@ def test_one_teams_players(impact_engine):
     assert_ordered(r["entries"])
 
 
-def test_own_team_as_the_pool(impact_engine):
-    """Under Your team, your own players are the team being scored, so none are listed; under
-    League they're scored for every other team."""
-    assert board(impact_engine, pool=ALPHAS)["entries"] == []
+@pytest.mark.parametrize("fragility", ["dab_tag", "none"])
+def test_own_team_as_the_pool(impact_engine, fragility):
+    """Your own roster as the pool: each player valued as Impact Analysis values your roster
+    (against your weakest active player, who shows 0); under League they're scored for every
+    other team instead."""
+    from ffmodel.tools.impact_analysis.analysis import analyze
+
+    r = board(impact_engine, pool=ALPHAS, fragility=fragility)
+    assert r["entries"] and {e["owner_team_id"] for e in r["entries"]} == {ALPHAS}
+    s = AnalysisSettings(league_id=1, team_id=ALPHAS, as_of=fx.IMPACT_TODAY, fragility=fragility)
+    with impact_engine.connect() as conn:
+        roster = next(t for t in analyze(conn, s)["rosters"] if t["team_id"] == ALPHAS)
+    want = {p["player_id"]: p["xlift"] for p in roster["players"] if p["xlift"] is not None}
+    got = {e["player_id"]: e["xlift"] for e in r["entries"]}
+    assert got.keys() == want.keys()
+    for pid, v in got.items():
+        assert v == pytest.approx(want[pid], abs=1e-9), pid
+    assert 0.0 in got.values()  # the weakest active player
+    for e in r["entries"]:
+        assert sum(e["by_category"]) == pytest.approx(e["xlift"])
+    assert_ordered(r["entries"])
     league = board(impact_engine, pool=ALPHAS, evaluate_for="league")
     assert league["entries"] and {e["owner_team_id"] for e in league["entries"]} == {ALPHAS}
+
+
+def test_all_players_still_leaves_out_your_own(impact_engine):
+    owners = {e["owner_team_id"] for e in board(impact_engine, pool="all")["entries"]}
+    assert ALPHAS not in owners
 
 
 def test_unknown_pool_team_is_not_found(impact_engine):

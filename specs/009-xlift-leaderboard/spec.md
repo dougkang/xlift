@@ -193,8 +193,9 @@ league, team, window and Fragility Penalty are kept.
 - **FR-016**: A **Pool** control MUST offer **Free agents** (default) and **All players** (free
   agents plus rostered players). Under **Your team**, the selected team's players are never
   listed. Under **League**, every rostered player is eligible. *(Amended 2026-10-29: Pool is a
-  dropdown that also offers each fantasy team, listing only that team's players; under **Your
-  team** the selected team isn't offered.)*
+  dropdown that also offers each fantasy team, listing only that team's players. Under **Your
+  team**, picking the selected team itself lists its roster, valued as Impact Analysis values
+  it: each player against the team's weakest active player.)*
 - **FR-017**: A **Show top** control MUST set how many players are shown: 10 to 50 in steps of 5,
   default 25.
 - **FR-018**: A **Min games** control MUST hide players whose projection is based on fewer games:

@@ -147,23 +147,27 @@ describe("the Player Analysis page", () => {
     });
   });
 
-  it("Pool is a dropdown of free agents, all players and each team but the one being scored", async () => {
+  it("Pool is a dropdown of free agents, all players and every team, the evaluated one included", async () => {
     renderPage();
     await screen.findAllByTestId("leaderboard-row", undefined, { timeout: 2000 });
     const pool = screen.getByLabelText("Pool") as HTMLSelectElement;
-    const options = () => [...pool.options].map((o) => o.textContent);
-    // Deltas (4) are being scored, so their players can't be the pool.
-    expect(options()).toEqual(["Free agents", "All players", "Alphas", "Betas", "Gammas"]);
+    expect([...pool.options].map((o) => o.textContent)).toEqual([
+      "Free agents",
+      "All players",
+      "Alphas",
+      "Betas",
+      "Gammas",
+      "Deltas",
+    ]);
     fireEvent.change(pool, { target: { value: "3" } });
     await waitFor(() => expect(lastRequest()).toMatchObject({ pool: 3 }));
     expect(JSON.parse(sessionStorage.getItem("ffm.player-analysis.v1")!).pool).toBe(3);
-    // Under League no team is being scored, so every team is offered.
-    fireEvent.change(screen.getByLabelText("Evaluate for"), { target: { value: "league" } });
-    expect(options()).toEqual(["Free agents", "All players", "Alphas", "Betas", "Gammas", "Deltas"]);
+    fireEvent.change(pool, { target: { value: "4" } }); // Deltas: your own roster
+    await waitFor(() => expect(lastRequest()).toMatchObject({ pool: 4, evaluate_for: "team", team_id: 4 }));
   });
 
-  it("a team pool that is the team being scored falls back to free agents", async () => {
-    sessionStorage.setItem("ffm.player-analysis.v1", JSON.stringify({ pool: 4 }));
+  it("a stored team pool from another league falls back to free agents", async () => {
+    sessionStorage.setItem("ffm.player-analysis.v1", JSON.stringify({ pool: 99 }));
     renderPage();
     await screen.findAllByTestId("leaderboard-row", undefined, { timeout: 2000 });
     await waitFor(() => expect(lastRequest()).toMatchObject({ pool: "free_agents" }));

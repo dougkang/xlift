@@ -286,7 +286,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
       ["Last X games / Fragility Penalty", `as in Impact Analysis (now ${ctx.window} games).`],
       ["League", "whose league to rank players in."],
       ["Evaluate for", "a team scores each player for that team, replacing its weakest active player; it's also the team Impact Analysis opens. League averages that over every team but the player's own."],
-      ["Pool", "free agents, all players, or one team's players (trade targets)."],
+      ["Pool", "free agents, all players, or one team's players. Your own team shows each of your players against your weakest starter."],
       ["Show top", "how many players are shown."],
       ["Min games", "hides projections built on fewer games."],
     ],

@@ -33,12 +33,10 @@ const POOLS: [Pool, string][] = [
   ["all", "All players"],
 ];
 
-/** The pool to ask for: a team that isn't in this league, or is the team being scored (whose
- * players are never listed under a team), falls back to free agents. */
-function effectivePool(pool: Pool, league: LeagueDetail | null, teamId: number | null, evaluateFor: string): Pool {
+/** The pool to ask for: a team that isn't in this league falls back to free agents. */
+function effectivePool(pool: Pool, league: LeagueDetail | null): Pool {
   if (typeof pool !== "number") return pool;
-  if (!league?.teams.some((t) => t.team_id === pool)) return "free_agents";
-  return evaluateFor === "team" && pool === teamId ? "free_agents" : pool;
+  return league?.teams.some((t) => t.team_id === pool) ? pool : "free_agents";
 }
 
 /** Player Analysis (Tool 2), 009: the xLift leaderboard (contracts/ui.md "Page"). */
@@ -83,7 +81,7 @@ export function PlayerAnalysis({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leagueId]);
 
-  const pool = effectivePool(board.pool, league, teamId, board.evaluateFor);
+  const pool = effectivePool(board.pool, league);
   const req = useMemo<LeaderboardRequest | null>(
     () =>
       leagueId === null || teamId === null || (typeof board.pool === "number" && !league)
@@ -197,8 +195,8 @@ export function PlayerAnalysis({
           <div className="controls-row">
             <label>
               <span className="col-header">Pool</span>
-              {/* Free agents, everyone, or one team's players. Under a team, that team's own
-                  players are the ones being scored, so it isn't offered. */}
+              {/* Free agents, everyone, or one team's players. The team being evaluated for lists
+                  its own roster, each player valued against its weakest, as in Impact Analysis. */}
               <select
                 value={String(pool)}
                 onChange={(e) => {
@@ -211,13 +209,11 @@ export function PlayerAnalysis({
                     {label}
                   </option>
                 ))}
-                {league?.teams
-                  .filter((t) => board.evaluateFor === "league" || t.team_id !== teamId)
-                  .map((t) => (
-                    <option key={t.team_id} value={t.team_id}>
-                      {t.name}
-                    </option>
-                  ))}
+                {league?.teams.map((t) => (
+                  <option key={t.team_id} value={t.team_id}>
+                    {t.name}
+                  </option>
+                ))}
               </select>
             </label>
           </div>
