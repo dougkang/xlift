@@ -1,7 +1,7 @@
 import type { AnalysisResult, Schemas } from "../api/client";
 import { Delta, WithDelta, Wins, WLTWithDelta } from "./Delta";
 import { HelpButton } from "../help/HelpButton";
-import { formatPct, formatRecord } from "../format";
+import { formatRecord } from "../format";
 
 type Counts = Schemas["RecordCounts"];
 
@@ -55,8 +55,8 @@ function ExpectedWLT({ record, change }: { record: Expected; change?: Schemas["C
   );
 }
 
-/** Each-category standings (010): the expected category record and its win % per opponent;
- * there is no matchup result. */
+/** Each-category standings (010): the expected category record per opponent; there is no
+ * matchup result. */
 function CategoryRecordTable({ result }: { result: AnalysisResult }) {
   const changes = result.changes;
   const total = result.matchup_totals?.expected;
@@ -71,7 +71,6 @@ function CategoryRecordTable({ result }: { result: AnalysisResult }) {
           <tr>
             <th className="col-header">Opponent</th>
             <th className="col-header num nowrap">Record</th>
-            <th className="col-header num">Win %</th>
           </tr>
         </thead>
         <tbody>
@@ -90,7 +89,6 @@ function CategoryRecordTable({ result }: { result: AnalysisResult }) {
                     change={changes?.matchups[String(m.opponent_id)]?.expected_wins}
                   />
                 </td>
-                <td className="num">{formatPct(m.expected_record.win_pct)}</td>
               </tr>
             ) : null,
           )}
@@ -101,7 +99,6 @@ function CategoryRecordTable({ result }: { result: AnalysisResult }) {
             <td className="num nowrap total-record">
               <ExpectedWLT record={total} change={changes?.matchup_totals?.expected_wins} />
             </td>
-            <td className="num">{formatPct(total.win_pct)}</td>
           </tr>
         </tfoot>
       </table>

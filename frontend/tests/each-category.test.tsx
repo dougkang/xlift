@@ -57,16 +57,16 @@ describe("each-category standings (010)", () => {
     );
   });
 
-  it("H2H shows Record and Win % per opponent, no Result column, Total = headline", async () => {
+  it("H2H shows the Record per opponent, no Win % or Result column, Total = headline", async () => {
     await show(strategicEach);
     const table = document.querySelector("table.record-table") as HTMLElement;
     const heads = [...table.querySelectorAll("thead th")].map((th) => th.textContent);
-    expect(heads).toEqual(["Opponent", "Record", "Win %"]);
+    expect(heads).toEqual(["Opponent", "Record"]);
     const rows = table.querySelectorAll("tbody tr");
     expect(rows).toHaveLength(strategicEach.matchups.length);
     const first = strategicEach.matchups[0].expected_record!;
     expect(rows[0]).toHaveTextContent(rec(first));
-    expect(rows[0]).toHaveTextContent(pct(first.win_pct));
+    expect(table).not.toHaveTextContent("%");
     const total = table.querySelector("tfoot tr")!;
     expect(total).toHaveTextContent(rec(strategicEach.header.expected_record!));
   });
@@ -103,6 +103,6 @@ describe("each-category standings (010)", () => {
     expect(strategic).toMatch(/every category of a matchup is a W, L or T/);
     expect(strategic).toMatch(/a tie counts half/);
     expect(helpText(HELP.headline(ctx("tactical")))).toMatch(/Projected Record/);
-    expect(helpText(HELP.h2h(ctx("strategic")))).toMatch(/Win %: \(W \+ ½T\)/);
+    expect(helpText(HELP.h2h(ctx("strategic")))).not.toMatch(/Win %/);
   });
 });

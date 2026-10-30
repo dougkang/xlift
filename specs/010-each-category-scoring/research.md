@@ -102,7 +102,8 @@ fixtures (`pre007`, `pre009`) aren't regenerated.
   win % ("56%") on the line under it with the expected-wins change; the wins number colored by its
   change as today.
 - Headline (category, tactical): label "Projected Record", value in whole numbers, change below.
-- H2H table (category): columns Opponent | Record | Win %; Total row: summed record and win %.
+- H2H table (category): columns Opponent | Record; Total row: the summed record. (A Win % column
+  was first built and removed at the user's request; the headline keeps the win %.)
   No Result column.
 - A small `formatRecord` helper in `format.ts` formats one-decimal records (display only, no
   arithmetic).

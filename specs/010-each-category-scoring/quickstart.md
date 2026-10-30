@@ -29,4 +29,4 @@ Later loads, including `scripts/daily_update.sh`, name no format and keep it.
 ## See it
 
 `ffm serve`, open Impact Analysis: Strategic shows **Aggregated Record** (the combined H2H score) with a win %, the H2H table
-shows Record and Win % per opponent; Tactical shows **Projected Record**.
+shows the Record per opponent; Tactical shows **Projected Record**.

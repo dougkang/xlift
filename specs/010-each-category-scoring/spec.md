@@ -112,7 +112,7 @@ its change in expected wins.
 ### User Story 4 - Read the H2H table as category records (Priority: P2)
 
 In Strategic mode, the H2H table lists each opponent with the expected category record against
-them and the win % it earns. The Total row sums them, and it matches the headline.
+them. The Total row sums them, and it matches the headline.
 
 **Why this priority**: the table explains the headline opponent by opponent. Its Win and Result
 columns describe a matchup winner that this league doesn't have.
@@ -123,9 +123,9 @@ equals the headline record.
 **Acceptance Scenarios**:
 
 1. **Given** an each-category league, **Then** each H2H row shows the opponent, the expected
-   category W–L–T against them in whole numbers, and the win % from that record.
+   category W–L–T against them in whole numbers, with no win % column.
 2. **Given** the H2H table, **Then** it has no matchup Win or Result column.
-3. **Given** the Total row, **Then** it shows the summed expected record and win %, equal to the
+3. **Given** the Total row, **Then** it shows the summed expected record, equal to the
    headline.
 4. **Given** a most-categories league, **Then** the table is unchanged.
 
@@ -203,8 +203,8 @@ naming a format, and check the league still uses each-category scoring.
 **H2H table (Strategic)**
 
 - **FR-012**: Under each-category, each H2H row MUST show the expected category W–L–T against that
-  opponent in whole numbers, and its win %; the matchup Win and Result columns MUST NOT appear.
-- **FR-013**: Under each-category, the Total row MUST show the summed expected record and win %,
+  opponent in whole numbers; the matchup Win and Result columns and a win % column MUST NOT appear.
+- **FR-013**: Under each-category, the Total row MUST show the summed expected record,
   equal to the headline.
 - **FR-014**: Under most categories, the H2H table MUST be unchanged.
 
@@ -245,7 +245,7 @@ naming a format, and check the league still uses each-category scoring.
 
 - **Standings rule**: declared by a scoring format: most categories or each category.
 - **Expected record**: W, L, T as fractional expected counts of categories; with its win %.
-- **Opponent row**: one opponent's expected category record and win % (each-category), or today's
+- **Opponent row**: one opponent's expected category record (each-category), or today's
   matchup row (most categories).
 
 ## Success Criteria *(mandatory)*

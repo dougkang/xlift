@@ -47,11 +47,11 @@ format conformance) and by SC-004 (most-categories unchanged).
 
 ## Phase 6: User Story 4 — H2H table (P2)
 
-**Independent test**: each-category H2H shows Record and Win % per opponent; Total = headline.
+**Independent test**: each-category H2H shows the Record per opponent; Total = headline.
 
 - [x] T018 [US4] Under the category rule: rows' `expected_record`, `result = None`; `matchup_totals.expected` (sum), `matchups = None` in `backend/src/ffmodel/tools/impact_analysis/analysis.py`
 - [x] T019 [US4] Integration test: Total equals the headline (SC-005), rows have no result, in `backend/tests/integration/test_impact_each_category.py`
-- [x] T020 [US4] H2H table under the category rule: Opponent | Record | Win %, Total row, row changes, no Result column in `frontend/src/components/RecordTable.tsx`
+- [x] T020 [US4] H2H table under the category rule: Opponent | Record (no Win %), Total row, row changes, no Result column in `frontend/src/components/RecordTable.tsx`
 
 ## Phase 7: User Story 5 — set the league's rule (P2)
 

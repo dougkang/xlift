@@ -210,7 +210,6 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
           reading: [
             "One row per opponent; Total sums every row and matches the headline.",
             "Record: your expected categories won–lost–tied against them in the simulations.",
-            "Win %: (W + ½T) ÷ all categories, what the matchup adds to your standings.",
             "The number below a record is the change in expected wins from your moves.",
           ],
         }
