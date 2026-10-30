@@ -85,13 +85,11 @@ function OpponentName({ m, focus }: { m: Schemas["MatchupModel"]; focus: FocusPr
 
 /** An expected category record with its change in expected wins below (010). */
 function ExpectedWLT({ record, change }: { record: Expected; change?: Schemas["Change"] | null }) {
-  // A winning record is green and a losing one red, as shown (whole categories); the change from
-  // moves keeps its own color on the line below.
+  // A winning record (more W than L, as shown) is bold, like a W in the Result column.
   const { wins, losses } = record.record;
-  const outcome = wins > losses ? " record-winning" : wins < losses ? " record-losing" : "";
   return (
     <span className="with-delta">
-      <span className={`nowrap${outcome}`}>{formatRecord(record)}</span>
+      <span className={`nowrap${wins > losses ? " record-winning" : ""}`}>{formatRecord(record)}</span>
       <span className="delta-line">
         <Delta change={change} />
       </span>

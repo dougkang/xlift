@@ -20,16 +20,14 @@ Three colors only for UI chrome (text, structure, controls):
 - **Yellow `#f5c518`**: the single accent. It means "yours" or "selected" (the selected team,
   selected rows, active mode toggle). It is never decorative, and never a primary-button color.
 
-Red `#c00` is a warning, not a design color. It appears only in these places:
+Red `#c00` is a warning, not a design color. It appears only in three places:
 - destructive actions on hover, e.g. the drop `−` button;
 - a player's availability status (Q, O, DTD, IL, NA, …), shown as small bold red text after the
   player's NBA team;
-- a change for the worse after a roster move (see "Change (before/after)");
-- a losing record in the each-category H2H table (its winning records are green).
+- a change for the worse after a roster move (see "Change (before/after)").
 
-Green `#5C8E4E` means "good for you" everywhere: a change for the better, the tactical
-Diff column when the difference favors you, and a winning record in the each-category H2H
-table. Red marks the opposite.
+Green `#5C8E4E` means "good for you" everywhere: a change for the better, and the tactical
+Diff column when the difference favors you. Red marks the opposite.
 
 Grays (`#555`, `#888`, `#aaa`, `#ccc`, `#eee`) mean muted state only: bench rows, inactive
 links, placeholders, disabled controls. Gray means secondary or unavailable.

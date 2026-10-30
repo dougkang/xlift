@@ -630,13 +630,9 @@ input[type="search"] {
   background: var(--yours);
 }
 
-/* Each-category H2H (010): a winning record is green, a losing one red (style guide). */
+/* Each-category H2H (010): a winning record is bold, like a W in the Result column. */
 .record-table .record-winning {
-  color: var(--better);
-}
-
-.record-table .record-losing {
-  color: var(--worse);
+  font-weight: 700;
 }
 
 /* H2H rows focus the page on that opponent (011): the whole row is clickable, and the name is a
