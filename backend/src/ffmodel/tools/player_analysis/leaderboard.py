@@ -92,9 +92,6 @@ def leaderboard(conn, settings: PlayerAnalysisSettings, query: LeaderboardQuery)
             continue
         if one_team is not None and team != one_team:
             continue
-        own_roster = one_team == s.team_id and query.evaluate_for == "team"
-        if team == s.team_id and query.evaluate_for == "team" and not own_roster:
-            continue  # the team being scored, unless its own roster is the pool
         candidates.append(pid)
 
     statuses = {pid: status for pid, (_, status) in pool.items()}
@@ -113,16 +110,17 @@ def leaderboard(conn, settings: PlayerAnalysisSettings, query: LeaderboardQuery)
         scores = score_league_by_category(
             scenario, pool_proj, fmt, s.games_per_period, spread, roster_proj
         )
-    elif one_team == s.team_id:
-        # The team's own roster: each player against the team's weakest, as Impact Analysis
-        # scores the roster.
-        scores = score_team_by_category(
-            scenario, s.team_id, fmt, s.games_per_period, spread, roster_proj
-        )
     else:
+        # Other players replace the team's weakest active player; the team's own roster is
+        # valued against that weakest player, as Impact Analysis values it (one scale).
+        others = {p: v for p, v in pool_proj.items() if owner.get(p) != s.team_id}
         scores = score_pool_by_category(
-            scenario, s.team_id, pool_proj, fmt, s.games_per_period, spread, roster_proj
+            scenario, s.team_id, others, fmt, s.games_per_period, spread, roster_proj
         )
+        if any(owner.get(p) == s.team_id for p in candidates):
+            scores |= score_team_by_category(
+                scenario, s.team_id, fmt, s.games_per_period, spread, roster_proj
+            )
 
     rows = []
     for pid in candidates:

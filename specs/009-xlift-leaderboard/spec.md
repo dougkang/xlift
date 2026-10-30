@@ -134,6 +134,8 @@ league, team, window and Fragility Penalty are kept.
 - **The selected team's own players**: under **Your team** they are the team being scored, so they
   never appear, even with **All players**. Under **League** no single team is being scored, so with
   **All players** they appear like any other rostered player, scored for the other teams.
+  *(Superseded 2026-10-29, see FR-016: under **Your team** they now appear in **All players** and
+  as their own team's pool, valued against the team's weakest active player.)*
 - **An empty active slot on the selected team**: as in Impact Analysis, the baseline is the empty
   slot, so each player's xLift is the full gain from filling it.
 - **Fewer eligible players than Show top**: all of them are shown, and the list is shorter.
@@ -194,8 +196,9 @@ league, team, window and Fragility Penalty are kept.
   agents plus rostered players). Under **Your team**, the selected team's players are never
   listed. Under **League**, every rostered player is eligible. *(Amended 2026-10-29: Pool is a
   dropdown that also offers each fantasy team, listing only that team's players. Under **Your
-  team**, picking the selected team itself lists its roster, valued as Impact Analysis values
-  it: each player against the team's weakest active player.)*
+  team**, the selected team's own players are now listed too, in **All players** and by picking
+  that team, valued as Impact Analysis values a roster: each against the team's weakest active
+  player.)*
 - **FR-017**: A **Show top** control MUST set how many players are shown: 10 to 50 in steps of 5,
   default 25.
 - **FR-018**: A **Min games** control MUST hide players whose projection is based on fewer games:

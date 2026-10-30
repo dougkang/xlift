@@ -21,9 +21,9 @@ shooter often costs FG%). The black tick marks the net, which is also the number
   **League** scores each player for every team but their own, each with its own weakest player,
   and averages: a value that doesn't depend on any one team's position.
 - **Pool**: a dropdown of free agents, all players (adding players on other teams, as trade
-  targets), or one team's players. All players leaves out the evaluated team's own players; picking
-  that team itself lists its roster, each player valued against its weakest active player, as
-  Impact Analysis values a roster (the weakest shows 0).
+  targets), or one team's players. The evaluated team's own players (in All players, or by picking
+  that team) are valued against its weakest active player, as Impact Analysis values a roster
+  (the weakest shows 0); everyone else as if they replaced that weakest player.
 - **Show top**: 10 to 50 players. **Min games**: hides projections built on fewer games.
 - The window and the Fragility Penalty are shared with Impact Analysis, as are the league and
   team: switching tools keeps them.
