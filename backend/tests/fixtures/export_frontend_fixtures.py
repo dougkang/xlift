@@ -88,6 +88,10 @@ def main() -> None:
         (OUT / "tactical_moves.json").write_text(json.dumps(tactical_moves.json(), indent=1))
         (OUT / "league.json").write_text(json.dumps(client.get("/api/leagues/1").json(), indent=1))
         (OUT / "leagues.json").write_text(json.dumps(client.get("/api/leagues").json(), indent=1))
+        # Deltas focused on Alphas in H2H (011).
+        focused = client.post("/api/impact/analyze", json={**body, "focus_opponent_id": 1})
+        focused.raise_for_status()
+        (OUT / "strategic_focus.json").write_text(json.dumps(focused.json(), indent=1))
         # The same league scored H2H Each Category (010): the strategic view, with the Deltas'
         # trade, and the tactical view.
         with engine.begin() as conn:

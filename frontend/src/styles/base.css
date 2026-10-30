@@ -630,6 +630,36 @@ input[type="search"] {
   background: var(--yours);
 }
 
+/* Each-category H2H (010): a winning record is green, a losing one red (style guide). */
+.record-table .record-winning {
+  color: var(--better);
+}
+
+.record-table .record-losing {
+  color: var(--worse);
+}
+
+/* H2H rows focus the page on that opponent (011): the whole row is clickable, and the name is a
+   plain button for the keyboard, styled as text. */
+.record-table tr.focusable-row {
+  cursor: pointer;
+}
+
+.record-table tr.focusable-row:not(.opponent-row):hover td {
+  background: var(--hover);
+}
+
+.record-table button.row-focus {
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.record-table button.row-focus:hover:not(:disabled) {
+  background: transparent;
+}
+
 /* Separates the tool's description from the tool itself. */
 .section-rule {
   border: none;

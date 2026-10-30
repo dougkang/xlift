@@ -82,3 +82,10 @@ Focus lives in the scenario state (`focusOpponentId`), cleared by `setLeague`, `
 saved to session storage (spec: not kept across reloads). The H2H rows become focusable
 (`tabIndex=0`, Enter/Space, `aria-pressed`), the focused row marked with the style guide's
 selected treatment.
+
+## R7. Measured (T026)
+
+On the real league (18 teams, 25,000 iterations), warm: the unfocused analysis took 1.03 s on the
+first call after a server reload, then each focus change (`focus_opponent_id` 2, 2, 5, then
+cleared) took 0.05–0.06 s on the server. With the page's 250 ms request debounce, a click
+updates in about 0.3 s (SC-003: ≤ 0.5 s).

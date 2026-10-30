@@ -35,6 +35,15 @@ describe("help content", () => {
     },
   );
 
+  it.each(modes.flatMap((m) => topics.map((t) => [t, m] as const)))(
+    "%s (%s, focused on an opponent) is at most 120 words",
+    (t, m) => {
+      const long = "Peter Piper Picked a Pick&Roll";
+      expect(wordCount(text(t, m, { focusName: long, standings: "category" }))).toBeLessThanOrEqual(120);
+      expect(wordCount(text(t, m, { focusName: long }))).toBeLessThanOrEqual(120);
+    },
+  );
+
   it("defines every FR-010 term somewhere", () => {
     const all = modes.flatMap((m) => topics.map((t) => text(t, m))).join("\n");
     for (const re of [

@@ -151,6 +151,7 @@ export interface components {
             warnings: components["schemas"]["WarningModel"][];
             freshness: components["schemas"]["Freshness"];
             changes?: components["schemas"]["Changes"] | null;
+            focus?: components["schemas"]["Focus"] | null;
         };
         /** AreaChange */
         AreaChange: {
@@ -358,6 +359,16 @@ export interface components {
             /** Win Pct */
             win_pct: number;
             record: components["schemas"]["RecordCounts"];
+        };
+        /**
+         * Focus
+         * @description The H2H opponent the page is focused on (011).
+         */
+        Focus: {
+            /** Opponent Id */
+            opponent_id: number;
+            /** Opponent Name */
+            opponent_name: string;
         };
         /** Footnote */
         Footnote: {
@@ -705,6 +716,8 @@ export interface components {
             fragility: "none" | "last15" | "dab" | "dab_tag";
             /** Moves */
             moves?: (components["schemas"]["DropMove"] | components["schemas"]["AddMove"] | components["schemas"]["SwapMove"])[];
+            /** Focus Opponent Id */
+            focus_opponent_id?: number | null;
             /**
              * Query
              * @default
@@ -934,6 +947,8 @@ export interface components {
             fragility: "none" | "last15" | "dab" | "dab_tag";
             /** Moves */
             moves?: (components["schemas"]["DropMove"] | components["schemas"]["AddMove"] | components["schemas"]["SwapMove"])[];
+            /** Focus Opponent Id */
+            focus_opponent_id?: number | null;
         };
         /** SettingsEcho */
         SettingsEcho: {
@@ -964,6 +979,8 @@ export interface components {
             period_start: string | null;
             /** Period End */
             period_end: string | null;
+            /** Focus Opponent Id */
+            focus_opponent_id?: number | null;
         };
         /**
          * ShapeGap
