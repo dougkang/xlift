@@ -10,7 +10,7 @@ DEFAULT_WINDOW = 82
 FRAGILITY_OPTIONS = ("none", "last15", "dab", "dab_tag")
 DEFAULT_FRAGILITY = "dab_tag"
 EVALUATE_FOR = ("team", "league")
-POOLS = ("free_agents", "all")
+POOLS = ("free_agents", "all")  # or a fantasy team id: that team's players
 
 
 @dataclass(frozen=True)
@@ -34,7 +34,7 @@ class PlayerAnalysisSettings:
 @dataclass(frozen=True)
 class LeaderboardQuery:
     evaluate_for: str = "team"  # one of EVALUATE_FOR
-    pool: str = "free_agents"  # one of POOLS
+    pool: str | int = "free_agents"  # one of POOLS, or a team id in the league
     top: int | None = 25  # 10–50 in steps of 5 from the API; None = no limit, for Python callers
     min_games: int = 5  # 1–15
 

@@ -133,7 +133,7 @@ describe("the Player Analysis page", () => {
     renderPage();
     await screen.findAllByTestId("leaderboard-row", undefined, { timeout: 2000 });
     fireEvent.change(screen.getByLabelText("Evaluate for"), { target: { value: "league" } });
-    fireEvent.click(screen.getByRole("radio", { name: "All players" }));
+    fireEvent.change(screen.getByLabelText("Pool"), { target: { value: "all" } });
     fireEvent.change(screen.getByLabelText("Show top"), { target: { value: "50" } });
     fireEvent.change(screen.getByLabelText("Min games"), { target: { value: "10" } });
     await waitFor(() =>
@@ -145,6 +145,29 @@ describe("the Player Analysis page", () => {
       top: 50,
       minGames: 10,
     });
+  });
+
+  it("Pool is a dropdown of free agents, all players and each team but the one being scored", async () => {
+    renderPage();
+    await screen.findAllByTestId("leaderboard-row", undefined, { timeout: 2000 });
+    const pool = screen.getByLabelText("Pool") as HTMLSelectElement;
+    const options = () => [...pool.options].map((o) => o.textContent);
+    // Deltas (4) are being scored, so their players can't be the pool.
+    expect(options()).toEqual(["Free agents", "All players", "Alphas", "Betas", "Gammas"]);
+    fireEvent.change(pool, { target: { value: "3" } });
+    await waitFor(() => expect(lastRequest()).toMatchObject({ pool: 3 }));
+    expect(JSON.parse(sessionStorage.getItem("ffm.player-analysis.v1")!).pool).toBe(3);
+    // Under League no team is being scored, so every team is offered.
+    fireEvent.change(screen.getByLabelText("Evaluate for"), { target: { value: "league" } });
+    expect(options()).toEqual(["Free agents", "All players", "Alphas", "Betas", "Gammas", "Deltas"]);
+  });
+
+  it("a team pool that is the team being scored falls back to free agents", async () => {
+    sessionStorage.setItem("ffm.player-analysis.v1", JSON.stringify({ pool: 4 }));
+    renderPage();
+    await screen.findAllByTestId("leaderboard-row", undefined, { timeout: 2000 });
+    await waitFor(() => expect(lastRequest()).toMatchObject({ pool: "free_agents" }));
+    expect((screen.getByLabelText("Pool") as HTMLSelectElement).value).toBe("free_agents");
   });
 
   it("picks the team in Evaluate for, with League as an option and no separate Team control", async () => {

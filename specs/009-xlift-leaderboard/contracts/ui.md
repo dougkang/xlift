@@ -18,7 +18,8 @@ is muted `#555` and turns black on hover. The links are hash links (`#/`, `#/pla
    - **Evaluate for**: one dropdown with **League** first, then every team ("Team — Manager").
      Picking a team scores for that team and sets the team shared with Impact Analysis; League
      switches to the league average and keeps the last team.
-   - **Pool** (Free agents | All players) as pill radios; **Show top** (10–50 by 5); **Min games**
+   - **Pool** (Free agents | All players | each team) as a dropdown (amended 2026-10-29; under a
+     team, that team isn't offered); **Show top** (10–50 by 5); **Min games**
      (1–15).
    - Under the intro, when the data was loaded (statistics and rosters), as in Impact Analysis.
 5. **Moves note** (only when the session has Impact Analysis moves), muted and at data size: "The
@@ -65,7 +66,7 @@ opacity). An error shows in the app's error style.
     - **Evaluate for**: a team scores each player for that team, replacing its weakest active
       player; it's also the team Impact Analysis opens. **League** averages that over every team
       but the player's own.
-    - **Pool**: **All players** adds players on other teams.
+    - **Pool**: free agents, all players, or one team's players.
     - **Show top**: how many players are shown.
     - **Min games**: hides projections built on fewer games.
 

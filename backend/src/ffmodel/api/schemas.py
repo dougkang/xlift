@@ -542,7 +542,8 @@ class LeaderboardRequest(BaseModel):
     as_of: date | None = None
     fragility: Fragility = "dab_tag"
     evaluate_for: Literal["team", "league"] = "team"
-    pool: Literal["free_agents", "all"] = "free_agents"
+    # Free agents, everyone, or one fantasy team's players (a team id).
+    pool: Literal["free_agents", "all"] | int = "free_agents"
     top: int = Field(25, ge=10, le=50, multiple_of=5)
     min_games: int = Field(5, ge=1, le=15)
 

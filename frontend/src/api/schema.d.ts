@@ -499,9 +499,8 @@ export interface components {
             /**
              * Pool
              * @default free_agents
-             * @enum {string}
              */
-            pool: "free_agents" | "all";
+            pool: ("free_agents" | "all") | number;
             /**
              * Top
              * @default 25

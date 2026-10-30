@@ -115,6 +115,31 @@ def test_all_players_adds_other_teams_but_never_your_own(impact_engine):
     assert_ordered(r["entries"])
 
 
+def test_one_teams_players(impact_engine):
+    """A team as the pool lists only that team's players, scored the same as under All players."""
+    every = {e["player_id"]: e for e in board(impact_engine, pool="all")["entries"]}
+    r = board(impact_engine, pool=GAMMAS)
+    assert r["entries"] and {e["owner_team_id"] for e in r["entries"]} == {GAMMAS}
+    for e in r["entries"]:
+        assert e["xlift"] == every[e["player_id"]]["xlift"]
+    assert_ordered(r["entries"])
+
+
+def test_own_team_as_the_pool(impact_engine):
+    """Under Your team, your own players are the team being scored, so none are listed; under
+    League they're scored for every other team."""
+    assert board(impact_engine, pool=ALPHAS)["entries"] == []
+    league = board(impact_engine, pool=ALPHAS, evaluate_for="league")
+    assert league["entries"] and {e["owner_team_id"] for e in league["entries"]} == {ALPHAS}
+
+
+def test_unknown_pool_team_is_not_found(impact_engine):
+    from ffmodel.tools.player_analysis.leaderboard import NotFound
+
+    with pytest.raises(NotFound):
+        board(impact_engine, pool=99)
+
+
 def test_top_keeps_the_head_of_the_order(impact_engine):
     full = board(impact_engine, pool="all", top=None)
     head = board(impact_engine, pool="all", top=3)

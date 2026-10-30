@@ -192,7 +192,9 @@ league, team, window and Fragility Penalty are kept.
 - **FR-015**: Hovering a segment MUST show the player, the category and the value to two decimals.
 - **FR-016**: A **Pool** control MUST offer **Free agents** (default) and **All players** (free
   agents plus rostered players). Under **Your team**, the selected team's players are never
-  listed. Under **League**, every rostered player is eligible.
+  listed. Under **League**, every rostered player is eligible. *(Amended 2026-10-29: Pool is a
+  dropdown that also offers each fantasy team, listing only that team's players; under **Your
+  team** the selected team isn't offered.)*
 - **FR-017**: A **Show top** control MUST set how many players are shown: 10 to 50 in steps of 5,
   default 25.
 - **FR-018**: A **Min games** control MUST hide players whose projection is based on fewer games:

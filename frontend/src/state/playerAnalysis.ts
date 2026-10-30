@@ -3,7 +3,8 @@ import { useEffect, useReducer } from "react";
 /** Player Analysis's own settings (009 data-model.md "Frontend state"). League, team, window and
  * Fragility Penalty are shared with Impact Analysis (state/scenario.ts). */
 export type EvaluateFor = "team" | "league";
-export type Pool = "free_agents" | "all";
+/** Free agents, everyone, or one fantasy team's players (its team id). */
+export type Pool = "free_agents" | "all" | number;
 
 export interface LeaderboardSettings {
   evaluateFor: EvaluateFor;
@@ -48,7 +49,10 @@ export function sanitize(raw: unknown): LeaderboardSettings {
   const d = defaultLeaderboard;
   return {
     evaluateFor: r.evaluateFor === "team" || r.evaluateFor === "league" ? r.evaluateFor : d.evaluateFor,
-    pool: r.pool === "free_agents" || r.pool === "all" ? r.pool : d.pool,
+    pool:
+      r.pool === "free_agents" || r.pool === "all" || (Number.isInteger(r.pool) && (r.pool as number) > 0)
+        ? (r.pool as Pool)
+        : d.pool,
     top: TOP_OPTIONS.includes(r.top as number) ? (r.top as number) : d.top,
     minGames: MIN_GAMES_OPTIONS.includes(r.minGames as number) ? (r.minGames as number) : d.minGames,
   };

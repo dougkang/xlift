@@ -37,6 +37,9 @@ def leaderboard(conn, settings: PlayerAnalysisSettings, query: LeaderboardQuery)
     names = {t.fantasy_team_id: t.name for t in snapshot.teams}
     if s.team_id not in names:
         raise NotFound(f"no team {s.team_id} in league {s.league_id}")
+    one_team = query.pool if isinstance(query.pool, int) else None  # a team's players only
+    if one_team is not None and one_team not in names:
+        raise NotFound(f"no team {one_team} in league {s.league_id}")
     scenario = from_snapshot(snapshot)
     out = {
         "settings": {
@@ -82,6 +85,8 @@ def leaderboard(conn, settings: PlayerAnalysisSettings, query: LeaderboardQuery)
         if team is None and not summary.is_active:
             continue
         if team is not None and query.pool == "free_agents":
+            continue
+        if one_team is not None and team != one_team:
             continue
         if team == s.team_id and query.evaluate_for == "team":
             continue  # the team being scored
