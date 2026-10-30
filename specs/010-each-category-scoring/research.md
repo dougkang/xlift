@@ -95,7 +95,7 @@ fixtures (`pre007`, `pre009`) aren't regenerated.
 
 **Decision**: `RecordHeadline` and `RecordTable` branch on `result.standings`.
 
-- Headline (category, strategic): label "Category Record", value `W–L–T` to one decimal, then the
+- Headline (category, strategic): label "Aggregated Record" (the combined H2H score, equal to the H2H Total), value `W–L–T` to one decimal, then the
   win % ("56%") on the line under it with the expected-wins change; the wins number colored by its
   change as today.
 - Headline (category, tactical): label "Projected Record", value to one decimal, change below.

@@ -46,7 +46,8 @@ is an expected category record summed over all opponents, with a win % of (W + �
 **Acceptance Scenarios**:
 
 1. **Given** an each-category league in Strategic mode, **Then** the headline shows the expected
-   category W–L–T summed over every other team, to one decimal, labeled as a category record.
+   category W–L–T summed over every other team, to one decimal, labeled **Aggregated Record**:
+   the combined H2H score, equal to the H2H Total row.
 2. **Given** that headline, **Then** it also shows the standings win %, (W + ½T) ÷ (W + L + T),
    as a whole percentage.
 3. **Given** a most-categories league, **Then** the headline is unchanged: the matchup W–L–T
@@ -185,8 +186,9 @@ naming a format, and check the league still uses each-category scoring.
 
 **Strategic headline**
 
-- **FR-007**: Under each-category, the strategic headline MUST show the expected category W–L–T
-  summed over every other team, to one decimal, and the standings win %.
+- **FR-007**: Under each-category, the strategic headline, **Aggregated Record**, MUST be the
+  combined H2H score: the expected category W–L–T summed over every other team (the H2H Total),
+  to one decimal, and the standings win %.
 - **FR-008**: Under most categories, the strategic headline MUST be unchanged.
 
 **Tactical headline**

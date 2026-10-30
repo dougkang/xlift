@@ -82,15 +82,15 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     ctx.standings === "category"
       ? ctx.mode === "strategic"
         ? {
-            title: "Category Record",
+            title: "Aggregated Record",
             reading: [
               "Your league scores each category: every category of a matchup is a W, L or T in the standings.",
-              "This is your expected category W–L–T if you played every other team once, and its win %.",
+              "Your combined H2H score: the expected category W–L–T if you played every other team once (the H2H Total), and its win %.",
               "The number below is the change in expected wins from your moves.",
             ],
             terms: [
               [
-                "Category Record",
+                "Aggregated Record",
                 `each category's chance of a win, loss or tie across ${fmt(ctx.iterations)} simulations, added up.`,
               ],
               ["Win %", "(W + ½T) ÷ all categories: a tie counts half."],

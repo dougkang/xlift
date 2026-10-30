@@ -46,7 +46,7 @@ export function RecordHeadline({ result, pending = false }: { result: AnalysisRe
       {expected && (
         <div className="score">
           <div className="units" title={tactical ? "Categories won–lost–tied this week" : `Categories won–lost–tied vs ${opponents} teams`}>
-            {tactical ? "Projected Record" : "Category Record"}
+            {tactical ? "Projected Record" : "Aggregated Record"}
             {!tactical && <> · <span aria-label="Standings win %">{formatPct(expected.win_pct)}</span></>}{" "}
             <HelpButton topic="headline" />
           </div>

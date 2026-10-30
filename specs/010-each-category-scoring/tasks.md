@@ -27,7 +27,7 @@ format conformance) and by SC-004 (most-categories unchanged).
 
 - [x] T009 [US1] Under `fmt.standings == "category"`, set `header.expected_record` (summed over opponents, unrounded) and `header.record = None` in the strategic path of `backend/src/ffmodel/tools/impact_analysis/analysis.py`
 - [x] T010 [US1] Integration tests in `backend/tests/integration/test_impact_each_category.py`: headline win % equals the mean radar Win % of the selected team within 0.005 (SC-001); W+L+T = 9 × opponents; `standings == "category"`; API validates
-- [x] T011 [US1] Strategic headline under `standings === "category"`: "Category Record", W–L–T to one decimal, win % in `frontend/src/components/RecordHeadline.tsx`, with a `formatRecord` helper in `frontend/src/format.ts`
+- [x] T011 [US1] Strategic headline under `standings === "category"`: "Aggregated Record" (the combined H2H score), W–L–T to one decimal, win % in `frontend/src/components/RecordHeadline.tsx`, with a `formatRecord` helper in `frontend/src/format.ts`
 
 ## Phase 4: User Story 2 — changes from moves (P1)
 

@@ -48,10 +48,13 @@ describe("each-category standings (010)", () => {
   it("strategic headline is the expected category record with its win %", async () => {
     const header = await show(strategicEach);
     const e = strategicEach.header.expected_record!;
-    expect(within(header).getByText(/Category Record/)).toBeInTheDocument();
+    expect(within(header).getByText(/Aggregated Record/)).toBeInTheDocument();
     expect(within(header).getByLabelText("Projected record")).toHaveTextContent(rec(e));
     expect(within(header).getByLabelText("Standings win %")).toHaveTextContent(pct(e.win_pct));
-    expect(within(header).queryByText("Aggregated Record")).toBeNull();
+    // The combined H2H score: the Total row of the H2H table.
+    expect(within(header).getByLabelText("Projected record")).toHaveTextContent(
+      rec(strategicEach.matchup_totals!.expected!),
+    );
   });
 
   it("H2H shows Record and Win % per opponent, no Result column, Total = headline", async () => {
