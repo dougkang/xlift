@@ -88,6 +88,19 @@ def main() -> None:
         (OUT / "tactical_moves.json").write_text(json.dumps(tactical_moves.json(), indent=1))
         (OUT / "league.json").write_text(json.dumps(client.get("/api/leagues/1").json(), indent=1))
         (OUT / "leagues.json").write_text(json.dumps(client.get("/api/leagues").json(), indent=1))
+        # The same league scored H2H Each Category (010): the strategic view, with the Deltas'
+        # trade, and the tactical view.
+        with engine.begin() as conn:
+            conn.execute(text("UPDATE fantasy_league SET scoring_format_id = '9cat_h2h_each'"))
+        for name, req in (
+            ("strategic_each", body),
+            ("strategic_each_moves", moves.request),
+            ("tactical_each", tactical.request),
+        ):
+            payload = req if isinstance(req, dict) else json.loads(req.content)
+            res = client.post("/api/impact/analyze", json=payload)
+            res.raise_for_status()
+            (OUT / f"{name}.json").write_text(json.dumps(res.json(), indent=1))
         engine.dispose()
 
 

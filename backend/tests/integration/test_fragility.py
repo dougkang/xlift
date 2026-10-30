@@ -14,6 +14,7 @@ from ffmodel.tools.impact_analysis.analysis import analyze
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings
 from ffmodel.tools.impact_analysis.state import load_state
 from tests.fixtures import impact_dataset as fx
+from tests.pre010 import strip_010
 
 PRE007 = Path(__file__).resolve().parents[1] / "fixtures" / "pre007_strategic.json"
 FMT = get_format("9cat_h2h")
@@ -39,7 +40,7 @@ def test_last15_reproduces_pre_feature_results(impact_engine):
         for team in (1, 4):
             r = analyze(conn, settings(team, fragility="last15"))
             got = {k: r[k] for k in ("header", "matchups", "category_table", "radar", "curves")}
-            assert normalized(got) == want[str(team)]
+            assert strip_010(normalized(got)) == want[str(team)]
 
 
 def applied(engine, option):

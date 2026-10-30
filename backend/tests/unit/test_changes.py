@@ -66,3 +66,11 @@ def test_missing_inputs(bad):
 )
 def test_transitions(orig, cur, expected):
     assert transition(orig, cur) == expected
+
+
+def test_expected_wins_change_has_one_decimal():  # 010 R4, SC-003
+    from ffmodel.tools.impact_analysis.changes import _expected_wins
+
+    assert _expected_wins({"wins": 5.04}, {"wins": 5.0}) is None
+    assert _expected_wins({"wins": 5.06}, {"wins": 5.0}) == {"delta": 0.1, "tone": "better"}
+    assert _expected_wins({"wins": 4.6}, {"wins": 5.0}) == {"delta": -0.4, "tone": "worse"}

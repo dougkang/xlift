@@ -144,6 +144,7 @@ export function ImpactAnalysis({
       capacity: league?.active_roster_capacity ?? null,
       opponentName: result?.header.matchup?.opponent_name ?? null,
       asOf: league?.current_matchup?.as_of ?? null,
+      standings: result?.standings ?? "matchup",
     }),
     [state.settings.mode, state.settings.window, result, league],
   );

@@ -27,6 +27,9 @@ export interface HelpContext {
   opponentName: string | null;
   /** The imported matchup's as-of date (005); null when none is loaded. */
   asOf: string | null;
+  /** How a matchup enters the standings (010): one W/L/T per matchup, or one per category.
+   * Defaults to per matchup. */
+  standings?: "matchup" | "category";
 }
 
 export interface HelpTopic {
@@ -76,7 +79,39 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
   }),
 
   headline: (ctx) =>
-    ctx.mode === "strategic"
+    ctx.standings === "category"
+      ? ctx.mode === "strategic"
+        ? {
+            title: "Category Record",
+            reading: [
+              "Your league scores each category: every category of a matchup is a W, L or T in the standings.",
+              "This is your expected category W–L–T if you played every other team once, and its win %.",
+              "The number below is the change in expected wins from your moves.",
+            ],
+            terms: [
+              [
+                "Category Record",
+                `each category's chance of a win, loss or tie across ${fmt(ctx.iterations)} simulations, added up.`,
+              ],
+              ["Win %", "(W + ½T) ÷ all categories: a tie counts half."],
+            ],
+          }
+        : {
+            title: "Projected Record",
+            reading: [
+              `The line under your team names this week's opponent${ctx.opponentName ? ` (${ctx.opponentName})` : ""}.`,
+              `Now is the category score so far${ctx.asOf ? `, as of ${ctx.asOf}` : ""}; Final once the week is over.`,
+              "Every category is a W, L or T in the standings, so every close category counts.",
+              "Green or red below shows the change in expected wins from your moves.",
+            ],
+            terms: [
+              [
+                "Projected Record",
+                `this week's expected category W–L–T across ${fmt(ctx.iterations)} simulations: stats so far plus the games left.`,
+              ],
+            ],
+          }
+      : ctx.mode === "strategic"
       ? {
           title: "Aggregated Record",
           reading: [
@@ -168,15 +203,26 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     terms: [XLIFT],
   }),
 
-  h2h: () => ({
-    title: "H2H",
-    reading: [
-      "One row per opponent; Total sums every row.",
-      "H2H: projected categories won–lost–tied against them in the simulations.",
-      "Win: your chance to win the matchup.",
-      "Result: W if you win in more than half the simulations. A bold green W means your moves turned a loss into a win; bold red, the reverse.",
-    ],
-  }),
+  h2h: (ctx) =>
+    ctx.standings === "category"
+      ? {
+          title: "H2H",
+          reading: [
+            "One row per opponent; Total sums every row and matches the headline.",
+            "Record: your expected categories won–lost–tied against them in the simulations.",
+            "Win %: (W + ½T) ÷ all categories, what the matchup adds to your standings.",
+            "The number below a record is the change in expected wins from your moves.",
+          ],
+        }
+      : {
+          title: "H2H",
+          reading: [
+            "One row per opponent; Total sums every row.",
+            "H2H: projected categories won–lost–tied against them in the simulations.",
+            "Win: your chance to win the matchup.",
+            "Result: W if you win in more than half the simulations. A bold green W means your moves turned a loss into a win; bold red, the reverse.",
+          ],
+        },
 
   breakdown: (ctx) => ({
     title: "Category Breakdown",

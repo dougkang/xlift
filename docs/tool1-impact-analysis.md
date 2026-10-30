@@ -75,14 +75,16 @@ the current matchup and aggregate based on number of games.
 
 Users may also be looking long-term.  Swapping players is ultimately a game of tradeoffs: a player that is
 good in certain areas may be poor in others.  As such, it is a common strategy to punt certain stats in favor
-of others.
+of others. Under each-category scoring (see [the overview](overview.md)) punting costs more: every
+category is a W or L in the standings, every week.
 
 When looking strategically, the number of games matters less, since we are looking at a longer time window
 where players' games played average out.  Another factor, however, becomes important, which is injury-proneness.
 A player's tendency to become injured and not play impacts the bottom line.
 
-The final comparison should be done against all teams.  A team that can reliably win against all teams in 5 categories
-is a great team.
+The final comparison should be done against all teams. Under most-categories scoring, a team that can reliably
+win against all teams in 5 categories is a great team. Under each-category scoring, 5–4 is a middling week:
+what matters is the expected number of categories won against the whole league.
 
 ## The UI
 
@@ -96,6 +98,20 @@ It should prominently show the team name, manager and projected W-L score.
 In strategic mode, an overall W-L score is computed by matching the selected team against each other team and
 counts the overall matchup wins and losses. In tactical mode, the W-L score is computed only looking at the current
 matchup for the selected team.
+
+How the record reads depends on the league's standings rule:
+
+- **Each category** (our league): the headline is the **expected category record**. For each category and
+  opponent, the chances of a win, loss and tie across the simulations are added up, e.g. 58.4–45.1–4.5 in
+  strategic mode (every other team once), with the standings win % (W + ½T) ÷ total; in tactical mode it is
+  this week's projected record against the current opponent, the score so far plus the games left. The H2H
+  table lists each opponent's expected category record and win %, and roster moves show the change in
+  expected wins to one decimal. There is no matchup result, so no loss↔win flips.
+- **Most categories**: the strategic headline counts matchup wins and losses (a matchup is a W if won in more
+  than half the simulations), the tactical headline is the chance to win the matchup, and the H2H table shows
+  each matchup's chance to win and result.
+
+In an each-category league, xLift and the radar's Win % measure exactly what the standings count.
 
 Below this, we should have two columns:
 

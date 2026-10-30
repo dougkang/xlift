@@ -26,6 +26,15 @@ describe("help content", () => {
     expect(wordCount(text(t, m))).toBeLessThanOrEqual(120);
   });
 
+  it.each(modes.flatMap((m) => topics.map((t) => [t, m] as const)))(
+    "%s (%s, each category) is at most 120 words and names no files",
+    (t, m) => {
+      const words = text(t, m, { standings: "category" });
+      expect(wordCount(words)).toBeLessThanOrEqual(120);
+      expect(words).not.toMatch(/\.csv|import/i);
+    },
+  );
+
   it("defines every FR-010 term somewhere", () => {
     const all = modes.flatMap((m) => topics.map((t) => text(t, m))).join("\n");
     for (const re of [

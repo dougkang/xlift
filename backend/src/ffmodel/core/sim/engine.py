@@ -44,6 +44,26 @@ class Record:
     ties: int
 
 
+@dataclass(frozen=True)
+class ExpectedRecord:
+    """Expected category W-L-T (010 R2): per category, the odds of each outcome, summed."""
+
+    wins: float
+    losses: float
+    ties: float
+
+    @property
+    def win_pct(self) -> float:
+        """Standings win %: a tie counts half (Constitution I)."""
+        total = self.wins + self.losses + self.ties
+        return (self.wins + 0.5 * self.ties) / total if total > 0 else 0.0
+
+    def __add__(self, other: "ExpectedRecord") -> "ExpectedRecord":
+        return ExpectedRecord(
+            self.wins + other.wins, self.losses + other.losses, self.ties + other.ties
+        )
+
+
 # A typical strategic week: games per player per scoring period, before availability.
 GAMES_PER_PERIOD = 3
 
@@ -150,3 +170,13 @@ def record(odds: Iterable[Odds]) -> Record:
         else:
             ties += 1
     return Record(wins, losses, ties)
+
+
+def expected_record(odds: Iterable[Odds]) -> ExpectedRecord:
+    """The expected record over categories (each-category standings, 010 R2)."""
+    wins = losses = ties = 0.0
+    for o in odds:
+        wins += o.win
+        losses += o.loss
+        ties += o.tie
+    return ExpectedRecord(wins, losses, ties)

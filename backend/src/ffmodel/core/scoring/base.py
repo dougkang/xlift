@@ -47,6 +47,10 @@ class ScoringFormat:
     # Base stats whose per-game means aren't shrunk toward the typical player: their
     # player-to-player differences are mostly skill a pooled prior would erase (006 R4).
     unshrunk_stats: tuple[str, ...] = ()
+    # How a matchup enters the standings (010 R1): "matchup" is one W, L or T for whoever wins
+    # more categories (H2H Most Categories); "category" is a W, L or T per category (H2H Each
+    # Category). `matchup()` is the most-categories result either way.
+    standings: Literal["matchup", "category"] = "matchup"
 
     def category_values(self, totals: Totals) -> np.ndarray:
         cols = []

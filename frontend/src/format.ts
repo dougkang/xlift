@@ -28,3 +28,15 @@ export function formatXlift(value: number | null | undefined): string {
   if (fixed === "0.00") return "0.00";
   return `${value < 0 ? "−" : "+"}${fixed}`;
 }
+
+type Expected = Schemas["ExpectedRecordModel"];
+
+/** An expected category record to one decimal: "58.4–45.1–4.5" (010). */
+export function formatRecord(r: Expected): string {
+  return [r.wins, r.losses, r.ties].map((v) => v.toFixed(1)).join("–");
+}
+
+/** A standings win % (0–1) as a whole percentage: "56%". */
+export function formatPct(p: number): string {
+  return `${Math.round(p * 100)}%`;
+}

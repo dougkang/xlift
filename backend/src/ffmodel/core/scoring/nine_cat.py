@@ -1,4 +1,9 @@
-"""9-category head-to-head: the first scoring format (contracts/scoring-format.md)."""
+"""9-category head-to-head: the first scoring format (contracts/scoring-format.md).
+
+Two registrations share the categories and differ only in the standings rule (010 R1).
+"""
+
+from dataclasses import replace
 
 from ffmodel.core.scoring.base import Category, ScoringFormat, register
 
@@ -21,5 +26,14 @@ NINE_CAT_H2H = register(
         derived_stats={"pts": lambda t: 2 * t["fgm"] + t["fg3m"] + t["ftm"]},
         subset_constraints=(("fgm", "fga"), ("fg3m", "fgm"), ("ftm", "fta")),
         unshrunk_stats=("blk",),
+    )
+)
+
+NINE_CAT_H2H_EACH = register(
+    replace(
+        NINE_CAT_H2H,
+        id="9cat_h2h_each",
+        name="9-category head-to-head, each category",
+        standings="category",
     )
 )

@@ -10,7 +10,17 @@ There are multiple scoring strategies, but for now, we consider 9 category head 
 In this scoring strategy, each player has 9 separate stat categories that they contribute to (9cat).
 Each week they face one team where they accumulate points in these categories.
 A team that scores better in a given category will win that category.
-A matchup's winner is determined by who has more wins across the 9 categories.
+
+How a week's matchup counts in the standings depends on the league:
+
+- **H2H Each Category**: every category is its own W, L or T in the standings, so a week
+  counts as something like 6–3–0. **Our league scores this way.**
+- **H2H Most Categories**: whoever wins more of the 9 categories gets one W for the week.
+
+The scoring format declares which rule applies (`9cat_h2h_each` or `9cat_h2h`), and the tools
+report records accordingly. Under each-category scoring, the record to maximize is the expected
+number of categories won, with a tie counting half: a 5–4 week is middling, not a win. Every
+category counts the same, so punting a category costs a full W every week.
 
 A player's contributions to each category can be fit to a normal distribution.
 Barring any changes, we assume that future contributions in that category will come from this distribution.

@@ -117,6 +117,13 @@ def load_roster_cmd(
 ):
     """Load a roster file into a league (all-or-nothing)."""
     from ffmodel.adapters.roster_csv.loader import load_roster
+    from ffmodel.core.scoring import available_formats
+
+    # The adapter doesn't know the formats (Constitution VI), so the command checks (010 R6).
+    if scoring_format is not None and scoring_format not in available_formats():
+        known = ", ".join(available_formats())
+        typer.echo(f"unknown scoring format '{scoring_format}'; known: {known}", err=True)
+        raise typer.Exit(1)
 
     try:
         summary = load_roster(

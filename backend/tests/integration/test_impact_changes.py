@@ -148,7 +148,8 @@ def test_transitions_match_results(impact_engine):
         flips += ch["transition"] == "flip_better"
     assert flips >= 1  # the fixture trade flips at least one L to W
     totals = after["changes"]["matchup_totals"]
-    assert set(totals) == {"matchups", "categories"}
+    assert set(totals) == {"matchups", "categories", "expected_wins"}
+    assert totals["expected_wins"] is None  # each-category standings only (010)
 
 
 def test_original_cache_hit(impact_engine, monkeypatch):

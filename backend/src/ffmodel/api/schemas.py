@@ -120,6 +120,15 @@ class RecordModel(BaseModel):
     unit: Literal["matchups", "categories"]
 
 
+class ExpectedRecordModel(BaseModel):
+    """Expected category W-L-T, unrounded (each-category standings, 010)."""
+
+    wins: float
+    losses: float
+    ties: float
+    win_pct: float  # (W + T/2) / (W + L + T)
+
+
 class CurrentScore(BaseModel):
     wins: int
     losses: int
@@ -143,7 +152,8 @@ class Header(BaseModel):
     team_id: int
     team_name: str
     manager: str
-    record: RecordModel | None
+    record: RecordModel | None  # null under each-category standings
+    expected_record: ExpectedRecordModel | None = None  # each-category standings (010)
     matchup_win_probability: float | None = None
     matchup: MatchupHeader | None = None
 
@@ -265,12 +275,14 @@ class MatchupModel(BaseModel):
     matchup: OddsModel
     categories: dict[str, OddsModel]
     category_record: RecordCounts
-    result: Literal["win", "loss", "tie"]
+    result: Literal["win", "loss", "tie"] | None  # null under each-category standings
+    expected_record: ExpectedRecordModel | None = None  # each-category standings (010)
 
 
 class MatchupTotals(BaseModel):
-    matchups: RecordCounts
+    matchups: RecordCounts | None  # null under each-category standings
     categories: RecordCounts
+    expected: ExpectedRecordModel | None = None  # each-category standings (010)
 
 
 class RosterPlayer(BaseModel):
@@ -336,6 +348,8 @@ class WLTChange(BaseModel):
 
 class HeaderChange(WLTChange):
     chance_to_win: Change | None
+    expected_wins: Change | None = None  # each-category standings (010)
+    win_pct: Change | None = None  # each-category, strategic
 
 
 class RadarOriginal(BaseModel):
@@ -388,13 +402,15 @@ class CurveChange(BaseModel):
 class MatchupChange(BaseModel):
     category_record: WLTChange
     win: Change | None
-    original_result: Literal["win", "loss", "tie"]
+    original_result: Literal["win", "loss", "tie"] | None  # null under each-category standings
     transition: Literal["flip_better", "flip_worse", "better", "worse"] | None
+    expected_wins: Change | None = None  # each-category standings (010)
 
 
 class TotalsChange(BaseModel):
-    matchups: WLTChange
+    matchups: WLTChange | None  # null under each-category standings
     categories: WLTChange
+    expected_wins: Change | None = None  # each-category standings (010)
 
 
 class Changes(BaseModel):
@@ -443,6 +459,8 @@ class CategoryShape(BaseModel):
 
 class AnalysisResult(BaseModel):
     settings: SettingsEcho
+    # How a matchup enters the standings, from the league's scoring format (010).
+    standings: Literal["matchup", "category"] = "matchup"
     header: Header
     categories: list[CategoryInfo]
     radar: Radar | None

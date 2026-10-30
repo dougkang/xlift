@@ -239,3 +239,28 @@ def test_as_of_defaults_to_file_modified_date(cli, fixture_engine, tmp_path):
             .all()
         )
     assert "2026-10-30" in dates
+
+
+def test_format_is_set_once_and_kept(cli, fixture_engine):  # 010 FR-021
+    def fmt():
+        with fixture_engine.connect() as conn:
+            return conn.execute(
+                text("SELECT scoring_format_id FROM fantasy_league WHERE league_key = 'cats'")
+            ).scalar_one()
+
+    assert load(cli, "valid.csv").exit_code == 0
+    assert fmt() == "9cat_h2h"
+    assert load(cli, "valid.csv", "--format", "9cat_h2h_each").exit_code == 0
+    assert fmt() == "9cat_h2h_each"
+    assert load(cli, "valid.csv").exit_code == 0  # a later load naming no format keeps it
+    assert fmt() == "9cat_h2h_each"
+
+
+def test_unknown_format_is_refused(cli, fixture_engine):  # 010 FR-021
+    result = load(cli, "valid.csv", "--format", "9cat_roto")
+    assert result.exit_code == 1
+    assert "unknown scoring format '9cat_roto'" in result.output
+    assert "9cat_h2h, 9cat_h2h_each" in result.output
+    with fixture_engine.connect() as conn:
+        sql = "SELECT COUNT(*) FROM fantasy_league WHERE league_key = 'cats'"
+        assert conn.execute(text(sql)).scalar_one() == 0
