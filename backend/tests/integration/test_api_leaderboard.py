@@ -80,5 +80,5 @@ def test_validation(client, bad):
 def test_team_pool(client):
     r = client.post(URL, json=ALPHAS | {"pool": 3, "min_games": 1})
     assert r.status_code == 200
-    assert {e["owner_team_id"] for e in r.json()["entries"]} == {3}
+    assert {e["owner_team_id"] for e in r.json()["entries"]} == {3, 1}  # theirs and yours
     assert client.post(URL, json=ALPHAS | {"pool": 99}).status_code == 404

@@ -116,14 +116,18 @@ def test_all_players_adds_every_team(impact_engine):
     assert_ordered(r["entries"])
 
 
-def test_one_teams_players(impact_engine):
-    """A team as the pool lists only that team's players, scored the same as under All players."""
+def test_one_teams_players_beside_yours(impact_engine):
+    """A team as the pool lists that team's players, and under Your team your own players beside
+    them for comparison, each scored as under All players."""
     every = {e["player_id"]: e for e in board(impact_engine, pool="all")["entries"]}
     r = board(impact_engine, pool=GAMMAS)
-    assert r["entries"] and {e["owner_team_id"] for e in r["entries"]} == {GAMMAS}
+    assert {e["owner_team_id"] for e in r["entries"]} == {GAMMAS, ALPHAS}
     for e in r["entries"]:
         assert e["xlift"] == every[e["player_id"]]["xlift"]
     assert_ordered(r["entries"])
+    # Under League no team is being scored: only that team's players.
+    league = board(impact_engine, pool=GAMMAS, evaluate_for="league")
+    assert {e["owner_team_id"] for e in league["entries"]} == {GAMMAS}
 
 
 @pytest.mark.parametrize("fragility", ["dab_tag", "none"])

@@ -18,8 +18,8 @@ is muted `#555` and turns black on hover. The links are hash links (`#/`, `#/pla
    - **Evaluate for**: one dropdown with **League** first, then every team ("Team — Manager").
      Picking a team scores for that team and sets the team shared with Impact Analysis; League
      switches to the league average and keeps the last team.
-   - **Pool** (Free agents | All players | each team) as a dropdown (amended 2026-10-29; the
-     evaluated team lists its own roster, valued against its weakest); **Show top** (10–50 by 5); **Min games**
+   - **Pool** (Free agents | All players | each team) as a dropdown (amended 2026-10-29; under a
+     team, its own players sit beside the picked team's, marked yellow, and it isn't offered); **Show top** (10–50 by 5); **Min games**
      (1–15).
    - Under the intro, when the data was loaded (statistics and rosters), as in Impact Analysis.
 5. **Moves note** (only when the session has Impact Analysis moves), muted and at data size: "The

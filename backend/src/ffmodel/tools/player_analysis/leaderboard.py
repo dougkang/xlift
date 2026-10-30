@@ -90,7 +90,10 @@ def leaderboard(conn, settings: PlayerAnalysisSettings, query: LeaderboardQuery)
             continue
         if team is not None and query.pool == "free_agents":
             continue
-        if one_team is not None and team != one_team:
+        # One team's players; under Your team, with the team's own players beside them for
+        # comparison.
+        yours = query.evaluate_for == "team" and team == s.team_id
+        if one_team is not None and team != one_team and not yours:
             continue
         candidates.append(pid)
 

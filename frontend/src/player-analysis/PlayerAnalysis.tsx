@@ -33,10 +33,12 @@ const POOLS: [Pool, string][] = [
   ["all", "All players"],
 ];
 
-/** The pool to ask for: a team that isn't in this league falls back to free agents. */
-function effectivePool(pool: Pool, league: LeagueDetail | null): Pool {
+/** The pool to ask for: a team that isn't in this league, or is the team being evaluated for
+ * (its players already sit beside any team's), falls back to free agents. */
+function effectivePool(pool: Pool, league: LeagueDetail | null, evaluatedTeam: number | null): Pool {
   if (typeof pool !== "number") return pool;
-  return league?.teams.some((t) => t.team_id === pool) ? pool : "free_agents";
+  if (!league?.teams.some((t) => t.team_id === pool)) return "free_agents";
+  return pool === evaluatedTeam ? "free_agents" : pool;
 }
 
 /** Player Analysis (Tool 2), 009: the xLift leaderboard (contracts/ui.md "Page"). */
@@ -81,7 +83,8 @@ export function PlayerAnalysis({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leagueId]);
 
-  const pool = effectivePool(board.pool, league);
+  const evaluated = board.evaluateFor === "team" ? teamId : null;
+  const pool = effectivePool(board.pool, league, evaluated);
   const req = useMemo<LeaderboardRequest | null>(
     () =>
       leagueId === null || teamId === null || (typeof board.pool === "number" && !league)
@@ -195,8 +198,8 @@ export function PlayerAnalysis({
           <div className="controls-row">
             <label>
               <span className="col-header">Pool</span>
-              {/* Free agents, everyone, or one team's players. The team being evaluated for lists
-                  its own roster, each player valued against its weakest, as in Impact Analysis. */}
+              {/* Free agents, everyone, or one team's players, shown beside your own for
+                  comparison; so the team being evaluated for isn't a choice of its own. */}
               <select
                 value={String(pool)}
                 onChange={(e) => {
@@ -209,11 +212,13 @@ export function PlayerAnalysis({
                     {label}
                   </option>
                 ))}
-                {league?.teams.map((t) => (
-                  <option key={t.team_id} value={t.team_id}>
-                    {t.name}
-                  </option>
-                ))}
+                {league?.teams
+                  .filter((t) => t.team_id !== evaluated)
+                  .map((t) => (
+                    <option key={t.team_id} value={t.team_id}>
+                      {t.name}
+                    </option>
+                  ))}
               </select>
             </label>
           </div>
@@ -268,7 +273,11 @@ export function PlayerAnalysis({
               <p className="scope-line">
                 {scope} · {result.entries.length} of {result.total} players
               </p>
-              <Leaderboard categories={result.categories} entries={result.entries} />
+              <Leaderboard
+                categories={result.categories}
+                entries={result.entries}
+                yours={result.evaluate_for === "team" ? result.team_id : null}
+              />
               {footnotes.length > 0 && (
                 <ul className="footnotes">
                   {footnotes.map((e) => (

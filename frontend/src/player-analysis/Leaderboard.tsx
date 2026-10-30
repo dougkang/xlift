@@ -37,7 +37,10 @@ interface Segment {
 export function Leaderboard({
   categories,
   entries,
+  yours = null,
 }: {
+  /** The team being evaluated for: its players are marked as yours, for comparison. */
+  yours?: number | null;
   categories: LeaderboardCategory[];
   entries: LeaderboardEntry[];
 }) {
@@ -55,7 +58,12 @@ export function Leaderboard({
       <div className="leaderboard-grid">
         <ol className="leaderboard-labels" style={{ paddingTop: AXIS_HEIGHT }}>
           {entries.map((e) => (
-            <li key={e.player_id} style={{ height: ROW_HEIGHT }} data-testid="leaderboard-row">
+            <li
+              key={e.player_id}
+              style={{ height: ROW_HEIGHT }}
+              data-testid="leaderboard-row"
+              className={yours !== null && e.owner_team_id === yours ? "yours" : undefined}
+            >
               <span className="name-col">{e.name}</span>
               <span className="owner">{e.owner_label}</span>
               {e.status !== "healthy" && <span className="status">{e.status}</span>}

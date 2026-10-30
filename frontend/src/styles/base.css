@@ -1011,6 +1011,11 @@ button.help-button {
   overflow: hidden;
 }
 
+/* Your own players, beside another team's or in All players: marked yours (style guide). */
+.leaderboard-labels li.yours .name-col {
+  background: var(--yours);
+}
+
 .leaderboard-labels .name-col {
   overflow: hidden;
   text-overflow: ellipsis;
