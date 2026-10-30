@@ -120,6 +120,12 @@ class RecordModel(BaseModel):
     unit: Literal["matchups", "categories"]
 
 
+class RecordCounts(BaseModel):
+    wins: int
+    losses: int
+    ties: int
+
+
 class ExpectedRecordModel(BaseModel):
     """Expected category W-L-T, unrounded (each-category standings, 010)."""
 
@@ -127,6 +133,7 @@ class ExpectedRecordModel(BaseModel):
     losses: float
     ties: float
     win_pct: float  # (W + T/2) / (W + L + T)
+    record: RecordCounts  # in whole categories, as the page shows it (010 R4)
 
 
 class CurrentScore(BaseModel):
@@ -260,12 +267,6 @@ class OddsModel(BaseModel):
     win: float
     tie: float
     loss: float
-
-
-class RecordCounts(BaseModel):
-    wins: int
-    losses: int
-    ties: int
 
 
 class MatchupModel(BaseModel):

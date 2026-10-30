@@ -86,16 +86,11 @@ def _pct(cur, orig) -> dict | None:
     return change(cur, orig, decimals=PCT_DECIMALS, better_when="higher", scale=100)
 
 
-def whole(x: float) -> int:
-    """Half up, as the page rounds (JavaScript's Math.round), not Python's half-to-even."""
-    return math.floor(x + 0.5)
-
-
 def _expected_wins(cur: dict, orig: dict) -> dict | None:
-    """Change in expected category wins as the page shows them: whole numbers, so the change is
-    the difference of the rounded records (010 R4)."""
+    """Change in category wins as the page shows them: the difference of the whole records
+    (010 R4)."""
     return change(
-        whole(cur["wins"]), whole(orig["wins"]), decimals=COUNT_DECIMALS, better_when="higher"
+        cur["record"]["wins"], orig["record"]["wins"], decimals=COUNT_DECIMALS, better_when="higher"
     )
 
 

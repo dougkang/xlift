@@ -71,7 +71,9 @@ def test_transitions(orig, cur, expected):
 def test_expected_wins_change_is_between_whole_records():  # 010 R4
     from ffmodel.tools.impact_analysis.changes import _expected_wins
 
-    assert _expected_wins({"wins": 5.4}, {"wins": 5.0}) is None  # 5 -> 5
-    assert _expected_wins({"wins": 5.5}, {"wins": 5.4}) == {"delta": 1, "tone": "better"}  # 5 -> 6
-    assert _expected_wins({"wins": 4.4}, {"wins": 5.0}) == {"delta": -1, "tone": "worse"}
-    assert _expected_wins({"wins": 2.5}, {"wins": 1.0}) == {"delta": 2, "tone": "better"}  # half up
+    def rec(w):
+        return {"record": {"wins": w}}
+
+    assert _expected_wins(rec(5), rec(5)) is None
+    assert _expected_wins(rec(6), rec(5)) == {"delta": 1, "tone": "better"}
+    assert _expected_wins(rec(4), rec(5)) == {"delta": -1, "tone": "worse"}

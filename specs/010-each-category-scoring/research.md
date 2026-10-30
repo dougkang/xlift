@@ -62,9 +62,14 @@ the change builder for no user-visible gain.
 
 ## R4. Precision of record changes
 
-**Decision**: records display in **whole numbers** (each part rounded half up), as the style guide
-asks of scores and totals. The expected-wins change is the difference of the rounded wins, so it
-always matches the numbers on screen; the win % change is in whole points (the existing
+**Decision**: records display in **whole categories that add up**, as the style guide asks of
+scores and totals. Each opponent's expected record is split into whole W, L and T summing to the
+category count (`whole_record`: floors, then the leftover categories to the largest fractions,
+ties W, L, T); the strategic Total and headline are the sum of those rows. Rounding each part
+alone was tried first and showed rows like 4–4–0 (eight categories), ties that vanished from
+rows but not the Total, and a Total that wasn't the sum of its rows. The API sends the whole
+record as `record` next to the unrounded values. The expected-wins change is the difference of
+the whole wins, so it always matches the numbers on screen; the win % change is in whole points (the existing
 `PCT_DECIMALS`, scale 100), which still shows moves under one win. (First built at one decimal;
 changed at the user's request: "lets round to whole numbers".)
 

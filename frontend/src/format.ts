@@ -31,9 +31,10 @@ export function formatXlift(value: number | null | undefined): string {
 
 type Expected = Schemas["ExpectedRecordModel"];
 
-/** An expected category record in whole numbers, each part rounded: "58–45–5" (010). */
+/** An expected category record in whole categories, as the API splits it: "58–45–5" (010). */
 export function formatRecord(r: Expected): string {
-  return [r.wins, r.losses, r.ties].map((v) => String(Math.round(v))).join("–");
+  const { wins, losses, ties } = r.record;
+  return `${wins}–${losses}–${ties}`;
 }
 
 /** A standings win % (0–1) as a whole percentage: "56%". */

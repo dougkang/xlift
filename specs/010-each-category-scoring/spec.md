@@ -162,8 +162,9 @@ naming a format, and check the league still uses each-category scoring.
   is a tie.
 - **Matchup not loaded** (Tactical): the existing notice shows, and no headline record is shown.
 - **Unsupported format**: the existing notice shows.
-- **Rounding**: records show whole numbers, each part rounded; W + L + T may differ from the
-  exact total by 1 through rounding. The win % is computed from unrounded values.
+- **Rounding**: records show whole categories. Each opponent's W + L + T is exactly the category
+  count, and the Total is the sum of the rows, so a small expected T (e.g. 0.2 against every
+  opponent) can show as 0. The win % is computed from unrounded values.
 - **Before/after across a format change**: changes compare two results of the same league, so the
   format can't differ between them.
 

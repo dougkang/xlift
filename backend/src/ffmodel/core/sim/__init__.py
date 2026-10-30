@@ -17,6 +17,7 @@ from ffmodel.core.sim.engine import (
     simulate_team,
     strategic_k,
     tactical_k,
+    whole_record,
 )
 from ffmodel.core.sim.matchup import MissingStats, actual_values, base_vector, current_record
 from ffmodel.core.sim.shape import league_shape
@@ -45,4 +46,5 @@ __all__ = [
     "simulate_team",
     "strategic_k",
     "tactical_k",
+    "whole_record",
 ]

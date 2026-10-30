@@ -4,10 +4,9 @@ import pytest
 from sqlalchemy import text
 
 from ffmodel.api.schemas import AnalysisResult
-from ffmodel.core.scenario import Add, Drop
+from ffmodel.core.scenario import Add, Drop, Swap
 from ffmodel.tools.impact_analysis import cache
 from ffmodel.tools.impact_analysis.analysis import analyze
-from ffmodel.tools.impact_analysis.changes import whole
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings
 from tests.fixtures import impact_dataset as fx
 
@@ -59,11 +58,16 @@ def test_h2h_rows_and_total(each):  # FR-012, FR-013, SC-005
     for row in r["matchups"]:
         assert row["result"] is None
         assert total(row["expected_record"]) == pytest.approx(N_CATS)
+        assert total(row["expected_record"]["record"]) == N_CATS  # whole, and adds up (R4)
         cats = row["categories"].values()
         assert row["expected_record"]["ties"] == pytest.approx(sum(c["tie"] for c in cats))
     totals = r["matchup_totals"]
     assert totals["matchups"] is None
-    assert totals["expected"] == pytest.approx(r["header"]["expected_record"])
+    assert totals["expected"] == r["header"]["expected_record"]
+    # The Total (and so the headline) is the sum of the rows as shown.
+    shown = [row["expected_record"]["record"] for row in r["matchups"]]
+    for k in ("wins", "losses", "ties"):
+        assert totals["expected"]["record"][k] == sum(rec[k] for rec in shown)
 
 
 def test_tactical_headline_is_this_weeks_expected_record(each):  # FR-009
@@ -71,6 +75,7 @@ def test_tactical_headline_is_this_weeks_expected_record(each):  # FR-009
     assert r["header"]["record"] is None
     rec = r["header"]["expected_record"]
     assert total(rec) == pytest.approx(N_CATS)
+    assert total(rec["record"]) == N_CATS
     odds = [row["win_probability"] for row in r["category_table"]["rows"]]
     assert rec["wins"] == pytest.approx(sum(odds))
     assert r["header"]["matchup"]["current"]  # the score so far is unchanged (FR-011)
@@ -83,15 +88,21 @@ def test_final_week_expected_record_is_the_final_score(each):  # US3 AS2
     r = run(each, mode="tactical")
     rec, now = r["header"]["expected_record"], r["header"]["matchup"]["current"]
     assert {k: rec[k] for k in ("wins", "losses", "ties")} == pytest.approx(now)
+    assert rec["record"] == now
 
 
 @pytest.mark.parametrize("mode", ["strategic", "tactical"])
 def test_move_changes_expected_wins(each, mode):  # FR-015, FR-016, SC-003
-    base = run(each, mode=mode)
-    r = run(each, [Drop(fx.GAMMA_1), Add(fx.BUSY)], mode=mode)
+    if mode == "strategic":  # the Deltas trade for Alpha One: whole wins against the league
+        team, moves = 4, [Swap(acquire_id=fx.ALPHA_1, give_id=fx.DELTA_1, team_id=4)]
+    else:
+        team, moves = GAMMAS, [Drop(fx.GAMMA_1), Add(fx.BUSY)]
+    base = run(each, mode=mode, team=team)
+    r = run(each, moves, mode=mode, team=team)
     ch = r["changes"]
-    delta = whole(r["header"]["expected_record"]["wins"]) - whole(
-        base["header"]["expected_record"]["wins"]
+    delta = (
+        r["header"]["expected_record"]["record"]["wins"]
+        - base["header"]["expected_record"]["record"]["wins"]
     )
     head = ch["header"]
     if mode == "strategic":

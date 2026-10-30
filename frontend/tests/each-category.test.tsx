@@ -38,7 +38,7 @@ async function show(result: Any) {
   return (await screen.findByRole("heading", { level: 2 }, { timeout: 2000 })).closest("header")!;
 }
 
-const rec = (r: Any) => [r.wins, r.losses, r.ties].map((v: number) => String(Math.round(v))).join("–");
+const rec = (r: Any) => `${r.record.wins}–${r.record.losses}–${r.record.ties}`;
 const pct = (p: number) => `${Math.round(p * 100)}%`;
 
 describe("each-category standings (010)", () => {
@@ -67,6 +67,10 @@ describe("each-category standings (010)", () => {
     const first = strategicEach.matchups[0].expected_record!;
     expect(rows[0]).toHaveTextContent(rec(first));
     expect(table).not.toHaveTextContent("%");
+    for (const row of rows) {
+      const [w, l, t] = row.querySelector(".nowrap")!.textContent!.split("–").map(Number);
+      expect(w + l + t).toBe(9); // whole categories that add up
+    }
     const total = table.querySelector("tfoot tr")!;
     expect(total).toHaveTextContent(rec(strategicEach.header.expected_record!));
   });

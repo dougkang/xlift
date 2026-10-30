@@ -20,7 +20,12 @@
    "wins": 10.556,
    "losses": 15.172,
    "ties": 1.2719999999999998,
-   "win_pct": 0.41451851851851845
+   "win_pct": 0.41451851851851845,
+   "record": {
+    "wins": 10,
+    "losses": 16,
+    "ties": 1
+   }
   },
   "matchup_win_probability": null,
   "matchup": null
@@ -5736,7 +5741,12 @@
     "wins": 2.2545,
     "losses": 6.535500000000001,
     "ties": 0.21,
-    "win_pct": 0.26216666666666666
+    "win_pct": 0.26216666666666666,
+    "record": {
+     "wins": 2,
+     "losses": 7,
+     "ties": 0
+    }
    }
   },
   {
@@ -5805,7 +5815,12 @@
     "wins": 2.8285,
     "losses": 5.7250000000000005,
     "ties": 0.4465,
-    "win_pct": 0.33908333333333335
+    "win_pct": 0.33908333333333335,
+    "record": {
+     "wins": 3,
+     "losses": 6,
+     "ties": 0
+    }
    }
   },
   {
@@ -5874,7 +5889,12 @@
     "wins": 5.472999999999999,
     "losses": 2.9114999999999998,
     "ties": 0.6154999999999999,
-    "win_pct": 0.6423055555555555
+    "win_pct": 0.6423055555555555,
+    "record": {
+     "wins": 5,
+     "losses": 3,
+     "ties": 1
+    }
    }
   }
  ],
@@ -5889,7 +5909,12 @@
    "wins": 10.556,
    "losses": 15.172,
    "ties": 1.2719999999999998,
-   "win_pct": 0.41451851851851845
+   "win_pct": 0.41451851851851845,
+   "record": {
+    "wins": 10,
+    "losses": 16,
+    "ties": 1
+   }
   }
  },
  "rosters": [
@@ -6148,7 +6173,7 @@
    "ties": null,
    "chance_to_win": null,
    "expected_wins": {
-    "delta": 4.0,
+    "delta": 3.0,
     "tone": "better"
    },
    "win_pct": {
@@ -6616,7 +6641,7 @@
     "ties": null
    },
    "expected_wins": {
-    "delta": 4.0,
+    "delta": 3.0,
     "tone": "better"
    }
   }

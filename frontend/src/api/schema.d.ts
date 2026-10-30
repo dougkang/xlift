@@ -357,6 +357,7 @@ export interface components {
             ties: number;
             /** Win Pct */
             win_pct: number;
+            record: components["schemas"]["RecordCounts"];
         };
         /** Footnote */
         Footnote: {

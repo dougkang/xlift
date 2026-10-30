@@ -16,6 +16,7 @@ from ffmodel.core.sim import (
     STRATEGIC,
     TACTICAL,
     MissingStats,
+    Record,
     actual_values,
     base_vector,
     category_values,
@@ -30,6 +31,7 @@ from ffmodel.core.sim import (
     simulate_team,
     strategic_k,
     tactical_k,
+    whole_record,
 )
 from ffmodel.tools.impact_analysis import cache, fragility, value
 from ffmodel.tools.impact_analysis.changes import build_changes
@@ -189,9 +191,22 @@ def _rec(r) -> dict:
     return {"wins": r.wins, "losses": r.losses, "ties": r.ties}
 
 
-def _expected(r) -> dict:
-    """An expected category record, unrounded, with its standings win % (010 R2)."""
-    return {"wins": r.wins, "losses": r.losses, "ties": r.ties, "win_pct": r.win_pct}
+def _expected(r, whole=None) -> dict:
+    """An expected category record, unrounded, with its standings win % (010 R2), and the whole
+    record the page shows (`whole`, or `r` in whole categories, 010 R4)."""
+    return {
+        "wins": r.wins,
+        "losses": r.losses,
+        "ties": r.ties,
+        "win_pct": r.win_pct,
+        "record": _rec(whole or whole_record(r)),
+    }
+
+
+def _sum_records(rows: list) -> Record:
+    """The whole records of the H2H rows, added up: the Total the table shows."""
+    recs = [r["expected_record"]["record"] for r in rows]
+    return Record(*(sum(c[k] for c in recs) for k in ("wins", "losses", "ties")))
 
 
 def _matchup_row(o, fmt: ScoringFormat, names: dict, teams: dict) -> dict:
@@ -217,7 +232,7 @@ def _matchup_row(o, fmt: ScoringFormat, names: dict, teams: dict) -> dict:
     }
 
 
-def _totals(rows: list, expected=None) -> dict:
+def _totals(rows: list, expected=None, whole=None) -> dict:
     """Total row for the record table: matchup W-L-T and summed category W-L-T.
 
     `expected` (each-category standings, 010): the expected record summed over opponents, which
@@ -233,7 +248,7 @@ def _totals(rows: list, expected=None) -> dict:
             "ties": results.count("tie"),
         },
         "categories": {k: sum(c[k] for c in cats) for k in ("wins", "losses", "ties")},
-        "expected": None if expected is None else _expected(expected),
+        "expected": None if expected is None else _expected(expected, whole),
     }
 
 
@@ -452,8 +467,9 @@ def _analyze(
         # Each category is a W, L or T in the standings: the expected category record summed
         # over every opponent (010 FR-007).
         total = sum((expected_record(o.categories) for o in odds), expected_record(()))
-        result["header"]["expected_record"] = _expected(total)
-        result["matchup_totals"] = _totals(result["matchups"], total)
+        whole = _sum_records(result["matchups"])  # so the headline is the H2H Total
+        result["header"]["expected_record"] = _expected(total, whole)
+        result["matchup_totals"] = _totals(result["matchups"], total, whole)
     else:
         rec = record(o.matchup for o in odds)
         result["header"]["record"] = {

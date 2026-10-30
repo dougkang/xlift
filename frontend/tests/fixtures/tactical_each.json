@@ -20,7 +20,12 @@
    "wins": 3.0495,
    "losses": 5.447500000000001,
    "ties": 0.503,
-   "win_pct": 0.3667777777777778
+   "win_pct": 0.3667777777777778,
+   "record": {
+    "wins": 3,
+    "losses": 5,
+    "ties": 1
+   }
   },
   "matchup_win_probability": 0.0875,
   "matchup": {

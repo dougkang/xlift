@@ -15,6 +15,8 @@ Header
 ExpectedRecordModel                                      NEW
   wins: float      losses: float      ties: float       (unrounded)
   win_pct: float   (W + ½T) / (W + L + T), 0..1
+  record: RecordCounts   whole categories, as shown: per opponent they sum to the category
+                         count; the strategic total and headline are the sum of the rows
 
 MatchupModel  (strategic H2H row)
   expected_record: ExpectedRecordModel | null            NEW, set under "category"
@@ -26,7 +28,7 @@ MatchupTotals
   expected: ExpectedRecordModel | null                   NEW, set under "category"
 
 HeaderChange
-  expected_wins: Change | null     NEW  whole: round(W) after − round(W) before, half up
+  expected_wins: Change | null     NEW  whole: record.wins after − record.wins before
   win_pct: Change | null           NEW  whole points (scale 100), strategic only
 
 MatchupChange
