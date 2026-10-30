@@ -27,13 +27,13 @@ format conformance) and by SC-004 (most-categories unchanged).
 
 - [x] T009 [US1] Under `fmt.standings == "category"`, set `header.expected_record` (summed over opponents, unrounded) and `header.record = None` in the strategic path of `backend/src/ffmodel/tools/impact_analysis/analysis.py`
 - [x] T010 [US1] Integration tests in `backend/tests/integration/test_impact_each_category.py`: headline win % equals the mean radar Win % of the selected team within 0.005 (SC-001); W+L+T = 9 × opponents; `standings == "category"`; API validates
-- [x] T011 [US1] Strategic headline under `standings === "category"`: "Aggregated Record" (the combined H2H score), W–L–T to one decimal, win % in `frontend/src/components/RecordHeadline.tsx`, with a `formatRecord` helper in `frontend/src/format.ts`
+- [x] T011 [US1] Strategic headline under `standings === "category"`: "Aggregated Record" (the combined H2H score), W–L–T in whole numbers, win % in `frontend/src/components/RecordHeadline.tsx`, with a `formatRecord` helper in `frontend/src/format.ts`
 
 ## Phase 4: User Story 2 — changes from moves (P1)
 
-**Independent test**: a move shows a signed expected-wins change to one decimal.
+**Independent test**: a move shows a signed expected-wins change between whole-number records.
 
-- [x] T012 [US2] In `backend/src/ffmodel/tools/impact_analysis/changes.py`: `EXPECTED_DECIMALS = 1`; under the category rule fill `header.expected_wins` (both modes), `header.win_pct` (strategic, whole points), row and totals `expected_wins`; null flips/original results and W/L/T changes; matchup rule unchanged
+- [x] T012 [US2] In `backend/src/ffmodel/tools/impact_analysis/changes.py`: expected-wins changes between records rounded half up to whole numbers; under the category rule fill `header.expected_wins` (both modes), `header.win_pct` (strategic, whole points), row and totals `expected_wins`; null flips/original results and W/L/T changes; matchup rule unchanged
 - [x] T013 [P] [US2] Unit tests for the category-rule change builder (0.04 → no change, 0.06 → +0.1, tones) in `backend/tests/unit/test_changes.py`; integration test with a move in `backend/tests/integration/test_impact_each_category.py`
 - [x] T014 [US2] Show `expected_wins` (and `win_pct`) changes in the headline in `frontend/src/components/RecordHeadline.tsx`
 

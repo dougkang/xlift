@@ -49,7 +49,7 @@ function ExpectedWLT({ record, change }: { record: Expected; change?: Schemas["C
     <span className="with-delta">
       <span className={`nowrap${change ? ` wins-${change.tone}` : ""}`}>{formatRecord(record)}</span>
       <span className="delta-line">
-        <Delta change={change} decimals={1} />
+        <Delta change={change} />
       </span>
     </span>
   );

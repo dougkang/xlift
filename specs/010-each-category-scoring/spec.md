@@ -35,7 +35,7 @@ Leagues that score Most Categories keep today's behavior, unchanged.
 
 A manager in an each-category league opens Impact Analysis in Strategic mode. The headline shows
 the category record they're projected to earn if they played every other team once, e.g.
-"58.4–45.1–4.5", and their standings win %. That is the number that moves them up the table.
+"58–45–5", and their standings win %. That is the number that moves them up the table.
 
 **Why this priority**: the headline is the first thing a manager reads. Today it shows a matchup
 record that doesn't exist in this league, so it measures the wrong goal.
@@ -46,7 +46,7 @@ is an expected category record summed over all opponents, with a win % of (W + �
 **Acceptance Scenarios**:
 
 1. **Given** an each-category league in Strategic mode, **Then** the headline shows the expected
-   category W–L–T summed over every other team, to one decimal, labeled **Aggregated Record**:
+   category W–L–T summed over every other team, in whole numbers, labeled **Aggregated Record**:
    the combined H2H score, equal to the H2H Total row.
 2. **Given** that headline, **Then** it also shows the standings win %, (W + ½T) ÷ (W + L + T),
    as a whole percentage.
@@ -67,14 +67,16 @@ whole wins and matchup flips (loss→win), which mean nothing in this league, so
 as no change.
 
 **Independent Test**: make a move that helps one category, and check that the headline and H2H
-rows show a signed change in expected wins to one decimal, colored better or worse.
+rows show a signed change in expected wins, colored better or worse.
 
 **Acceptance Scenarios**:
 
 1. **Given** an each-category league and a roster move, **Then** the headline shows the change in
-   expected wins to one decimal (e.g. "+0.4"), green if more and red if fewer, and the change in
+   expected wins (e.g. "+1"), the difference of the whole-number records, green if more and red
+   if fewer, and the change in
    win %.
-2. **Given** a move whose change rounds to zero at one decimal, **Then** no change is shown.
+2. **Given** a move that leaves the whole-number wins the same, **Then** no change in wins is
+   shown; the win % change still shows it if it moves a whole point.
 3. **Given** each H2H row, **Then** it shows the change in that opponent's expected category wins,
    and no matchup flip markers.
 4. **Given** a most-categories league, **Then** the changes are as today, including loss↔win
@@ -85,7 +87,7 @@ rows show a signed change in expected wins to one decimal, colored better or wor
 ### User Story 3 - See this week's projected category record (Priority: P2)
 
 In Tactical mode, the manager sees the category record they're projected to finish the current
-week with: the score so far plus the games left, e.g. "5.6–3.1–0.3", instead of a chance to win
+week with: the score so far plus the games left, e.g. "6–3–0", instead of a chance to win
 the matchup.
 
 **Why this priority**: the tactical headline drives streaming decisions. In an each-category
@@ -99,10 +101,10 @@ its change in expected wins.
 **Acceptance Scenarios**:
 
 1. **Given** an each-category league in Tactical mode with this week's matchup loaded, **Then** the
-   headline shows the projected category W–L–T for this week, to one decimal, labeled as a
+   headline shows the projected category W–L–T for this week, in whole numbers, labeled as a
    projected record.
 2. **Given** the week is over, **Then** the projected record equals the final category score.
-3. **Given** a move, **Then** the headline shows the change in expected wins to one decimal.
+3. **Given** a move, **Then** the headline shows the change in expected wins in whole numbers.
 4. **Given** a most-categories league, **Then** the headline is "Chance to Win" as today.
 
 ---
@@ -121,7 +123,7 @@ equals the headline record.
 **Acceptance Scenarios**:
 
 1. **Given** an each-category league, **Then** each H2H row shows the opponent, the expected
-   category W–L–T against them to one decimal, and the win % from that record.
+   category W–L–T against them in whole numbers, and the win % from that record.
 2. **Given** the H2H table, **Then** it has no matchup Win or Result column.
 3. **Given** the Total row, **Then** it shows the summed expected record and win %, equal to the
    headline.
@@ -160,8 +162,8 @@ naming a format, and check the league still uses each-category scoring.
   is a tie.
 - **Matchup not loaded** (Tactical): the existing notice shows, and no headline record is shown.
 - **Unsupported format**: the existing notice shows.
-- **Rounding**: records show one decimal; W + L + T may differ from the exact total by up to 0.1
-  per part through rounding. The win % is computed from unrounded values.
+- **Rounding**: records show whole numbers, each part rounded; W + L + T may differ from the
+  exact total by 1 through rounding. The win % is computed from unrounded values.
 - **Before/after across a format change**: changes compare two results of the same league, so the
   format can't differ between them.
 
@@ -188,20 +190,20 @@ naming a format, and check the league still uses each-category scoring.
 
 - **FR-007**: Under each-category, the strategic headline, **Aggregated Record**, MUST be the
   combined H2H score: the expected category W–L–T summed over every other team (the H2H Total),
-  to one decimal, and the standings win %.
+  in whole numbers, and the standings win %.
 - **FR-008**: Under most categories, the strategic headline MUST be unchanged.
 
 **Tactical headline**
 
 - **FR-009**: Under each-category, the tactical headline MUST show this week's expected category
-  W–L–T against the current opponent (week-to-date totals plus the games left), to one decimal.
+  W–L–T against the current opponent (week-to-date totals plus the games left), in whole numbers.
 - **FR-010**: Under most categories, the tactical headline MUST be unchanged ("Chance to Win").
 - **FR-011**: The current score line ("Now 4–4–1") MUST be unchanged under both rules.
 
 **H2H table (Strategic)**
 
 - **FR-012**: Under each-category, each H2H row MUST show the expected category W–L–T against that
-  opponent to one decimal, and its win %; the matchup Win and Result columns MUST NOT appear.
+  opponent in whole numbers, and its win %; the matchup Win and Result columns MUST NOT appear.
 - **FR-013**: Under each-category, the Total row MUST show the summed expected record and win %,
   equal to the headline.
 - **FR-014**: Under most categories, the H2H table MUST be unchanged.
@@ -209,10 +211,10 @@ naming a format, and check the league still uses each-category scoring.
 **Changes from roster moves**
 
 - **FR-015**: Under each-category, the headline (both modes) MUST show the change in expected wins
-  to one decimal, and in Strategic the change in win % in whole points, each colored better or
+  in whole numbers, and in Strategic the change in win % in whole points, each colored better or
   worse and hidden when zero at that precision.
 - **FR-016**: Under each-category, each H2H row and the Total row MUST show the change in expected
-  wins to one decimal; there MUST be no matchup flip markers.
+  wins in whole numbers; there MUST be no matchup flip markers.
 - **FR-017**: Under most categories, all changes MUST be as today.
 - **FR-018**: Per-category changes (rank, average, Win %, win probability) MUST be unchanged under
   both rules; they already show which categories moved.
@@ -255,7 +257,7 @@ naming a format, and check the league still uses each-category scoring.
   averaged over opponents and categories, so they are the same number).
 - **SC-002**: For every opponent, the expected W + L + T equals the number of categories within
   0.001 before rounding.
-- **SC-003**: A roster move that changes expected wins by 0.1 or more shows a change in the
+- **SC-003**: A roster move that changes the whole-number expected wins shows that change in the
   headline 100% of the time.
 - **SC-004**: For a most-categories league, every analysis result, in both modes, with and without
   moves, is identical to the result before this feature.
@@ -279,5 +281,5 @@ naming a format, and check the league still uses each-category scoring.
   uncommitted analysis work and isn't changed here.
 - **The daily refresh script isn't changed.** The format is set once by the maintainer and kept by
   later loads.
-- **Display precision.** Records to one decimal, win % to whole percentages, as elsewhere in the
+- **Display precision.** Records in whole numbers, win % to whole percentages, as elsewhere in the
   app.

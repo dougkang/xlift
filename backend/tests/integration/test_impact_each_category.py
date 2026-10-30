@@ -7,6 +7,7 @@ from ffmodel.api.schemas import AnalysisResult
 from ffmodel.core.scenario import Add, Drop
 from ffmodel.tools.impact_analysis import cache
 from ffmodel.tools.impact_analysis.analysis import analyze
+from ffmodel.tools.impact_analysis.changes import whole
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings
 from tests.fixtures import impact_dataset as fx
 
@@ -89,11 +90,17 @@ def test_move_changes_expected_wins(each, mode):  # FR-015, FR-016, SC-003
     base = run(each, mode=mode)
     r = run(each, [Drop(fx.GAMMA_1), Add(fx.BUSY)], mode=mode)
     ch = r["changes"]
-    delta = r["header"]["expected_record"]["wins"] - base["header"]["expected_record"]["wins"]
-    assert abs(delta) >= 0.1
+    delta = whole(r["header"]["expected_record"]["wins"]) - whole(
+        base["header"]["expected_record"]["wins"]
+    )
     head = ch["header"]
-    assert head["expected_wins"]["delta"] == pytest.approx(round(delta, 1))
-    assert head["expected_wins"]["tone"] == ("better" if delta > 0 else "worse")
+    if mode == "strategic":
+        assert delta != 0  # the fixture move is worth whole wins across the league
+    if delta:  # the change is the difference of the whole-number records (010 R4)
+        assert head["expected_wins"]["delta"] == delta
+        assert head["expected_wins"]["tone"] == ("better" if delta > 0 else "worse")
+    else:
+        assert head["expected_wins"] is None
     assert head["wins"] is None and head["chance_to_win"] is None
     assert (head["win_pct"] is None) == (mode == "tactical")
     for row in ch["matchups"].values():

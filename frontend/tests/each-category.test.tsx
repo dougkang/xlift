@@ -38,7 +38,7 @@ async function show(result: Any) {
   return (await screen.findByRole("heading", { level: 2 }, { timeout: 2000 })).closest("header")!;
 }
 
-const rec = (r: Any) => [r.wins, r.losses, r.ties].map((v: number) => v.toFixed(1)).join("–");
+const rec = (r: Any) => [r.wins, r.losses, r.ties].map((v: number) => String(Math.round(v))).join("–");
 const pct = (p: number) => `${Math.round(p * 100)}%`;
 
 describe("each-category standings (010)", () => {
@@ -74,7 +74,7 @@ describe("each-category standings (010)", () => {
   it("a move shows its change in expected wins, with no flip markers", async () => {
     const header = await show(strategicEachMoves);
     const ch = strategicEachMoves.changes!.header;
-    expect(within(header).getByLabelText(`up ${ch.expected_wins!.delta.toFixed(1)}, better`)).toBeInTheDocument();
+    expect(within(header).getByLabelText(`up ${ch.expected_wins!.delta}, better`)).toBeInTheDocument();
     expect(within(header).getByLabelText(`up ${ch.win_pct!.delta}%, better`)).toBeInTheDocument();
     const table = document.querySelector("table.record-table") as HTMLElement;
     expect(table.querySelector(".flip-better, .flip-worse")).toBeNull();

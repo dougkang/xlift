@@ -57,7 +57,7 @@ export function RecordHeadline({ result, pending = false }: { result: AnalysisRe
             </span>
           </div>
           <div className="delta-line">
-            <Delta change={ch?.expected_wins} decimals={1} />
+            <Delta change={ch?.expected_wins} />
             {ch?.win_pct && (
               <>
                 {" "}

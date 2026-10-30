@@ -103,11 +103,12 @@ How the record reads depends on the league's standings rule:
 
 - **Each category** (our league): the headline, **Aggregated Record**, is the combined H2H score: the
   **expected category record**, equal to the H2H table's Total. For each category and
-  opponent, the chances of a win, loss and tie across the simulations are added up, e.g. 58.4–45.1–4.5 in
+  opponent, the chances of a win, loss and tie across the simulations are added up and shown rounded to whole
+  numbers, e.g. 58–45–5 in
   strategic mode (every other team once), with the standings win % (W + ½T) ÷ total; in tactical mode it is
   this week's projected record against the current opponent, the score so far plus the games left. The H2H
   table lists each opponent's expected category record and win %, and roster moves show the change in
-  expected wins to one decimal. There is no matchup result, so no loss↔win flips.
+  expected wins between the rounded records. There is no matchup result, so no loss↔win flips.
 - **Most categories**: the strategic headline counts matchup wins and losses (a matchup is a W if won in more
   than half the simulations), the tactical headline is the chance to win the matchup, and the H2H table shows
   each matchup's chance to win and result.

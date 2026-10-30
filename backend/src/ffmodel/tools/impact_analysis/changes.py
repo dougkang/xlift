@@ -11,7 +11,6 @@ COUNT_DECIMALS = 0  # W/L/T, ranks
 PCT_DECIMALS = 0  # win %, chance to win: whole percentage points (scale 100)
 AREA_DECIMALS = 0  # 0-100 area score (scale 100)
 COUNT_AVG_DECIMALS = 1
-EXPECTED_DECIMALS = 1  # expected category wins (each-category standings, 010 R4)
 RATIO_AVG_DECIMALS = 3
 
 RESULT_ORDER = {"loss": 0, "tie": 1, "win": 2}
@@ -87,8 +86,17 @@ def _pct(cur, orig) -> dict | None:
     return change(cur, orig, decimals=PCT_DECIMALS, better_when="higher", scale=100)
 
 
+def whole(x: float) -> int:
+    """Half up, as the page rounds (JavaScript's Math.round), not Python's half-to-even."""
+    return math.floor(x + 0.5)
+
+
 def _expected_wins(cur: dict, orig: dict) -> dict | None:
-    return change(cur["wins"], orig["wins"], decimals=EXPECTED_DECIMALS, better_when="higher")
+    """Change in expected category wins as the page shows them: whole numbers, so the change is
+    the difference of the rounded records (010 R4)."""
+    return change(
+        whole(cur["wins"]), whole(orig["wins"]), decimals=COUNT_DECIMALS, better_when="higher"
+    )
 
 
 _NO_WLT = {"wins": None, "losses": None, "ties": None}

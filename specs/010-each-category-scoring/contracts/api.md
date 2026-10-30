@@ -26,17 +26,17 @@ MatchupTotals
   expected: ExpectedRecordModel | null                   NEW, set under "category"
 
 HeaderChange
-  expected_wins: Change | null     NEW  1 decimal, better when higher
+  expected_wins: Change | null     NEW  whole: round(W) after − round(W) before, half up
   win_pct: Change | null           NEW  whole points (scale 100), strategic only
 
 MatchupChange
-  expected_wins: Change | null     NEW  1 decimal
+  expected_wins: Change | null     NEW  whole, as above
   original_result: ... | null      null under "category"
   transition: ... | null           null under "category" (no flips)
 
 TotalsChange
   matchups: WLTChange | null       null under "category"
-  expected_wins: Change | null     NEW  1 decimal
+  expected_wins: Change | null     NEW  whole, as above
 ```
 
 Under `"category"`, `HeaderChange.wins/losses/ties/chance_to_win` are null.

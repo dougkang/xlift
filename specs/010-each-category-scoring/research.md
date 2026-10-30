@@ -62,8 +62,11 @@ the change builder for no user-visible gain.
 
 ## R4. Precision of record changes
 
-**Decision**: expected wins change to **one decimal** (`EXPECTED_DECIMALS = 1`), win % change in
-whole points (the existing `PCT_DECIMALS`, scale 100). Records display to one decimal.
+**Decision**: records display in **whole numbers** (each part rounded half up), as the style guide
+asks of scores and totals. The expected-wins change is the difference of the rounded wins, so it
+always matches the numbers on screen; the win % change is in whole points (the existing
+`PCT_DECIMALS`, scale 100), which still shows moves under one win. (First built at one decimal;
+changed at the user's request: "lets round to whole numbers".)
 
 **Rationale**: `COUNT_DECIMALS = 0` would round a +0.4-win move to nothing (SC-003). One decimal
 matches the app's count averages.
@@ -95,10 +98,10 @@ fixtures (`pre007`, `pre009`) aren't regenerated.
 
 **Decision**: `RecordHeadline` and `RecordTable` branch on `result.standings`.
 
-- Headline (category, strategic): label "Aggregated Record" (the combined H2H score, equal to the H2H Total), value `W–L–T` to one decimal, then the
+- Headline (category, strategic): label "Aggregated Record" (the combined H2H score, equal to the H2H Total), value `W–L–T` in whole numbers, then the
   win % ("56%") on the line under it with the expected-wins change; the wins number colored by its
   change as today.
-- Headline (category, tactical): label "Projected Record", value to one decimal, change below.
+- Headline (category, tactical): label "Projected Record", value in whole numbers, change below.
 - H2H table (category): columns Opponent | Record | Win %; Total row: summed record and win %.
   No Result column.
 - A small `formatRecord` helper in `format.ts` formats one-decimal records (display only, no

@@ -11,7 +11,7 @@ Key checks:
 - the conformance suite runs for both `9cat_h2h` and `9cat_h2h_each`;
 - `pre010_impact.json` comparison: most-categories results unchanged (SC-004);
 - strategic win % equals the mean radar Win % (SC-001); per-opponent W+L+T = 9 (SC-002);
-- a move's expected-wins change appears at one decimal (SC-003);
+- a move's expected-wins change is the difference of the whole-number records (SC-003);
 - H2H Total equals the headline (SC-005).
 
 ## Switch the real league
