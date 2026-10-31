@@ -16,11 +16,13 @@ from ffmodel.core.sim import (
     STRATEGIC,
     TACTICAL,
     MissingStats,
+    Record,
     actual_values,
     base_vector,
     category_values,
     current_record,
     density_curves,
+    expected_record,
     league_shape,
     matchup_odds,
     projected_averages,
@@ -29,6 +31,7 @@ from ffmodel.core.sim import (
     simulate_team,
     strategic_k,
     tactical_k,
+    whole_record,
 )
 from ffmodel.tools.impact_analysis import cache, fragility, value
 from ffmodel.tools.impact_analysis.changes import build_changes
@@ -188,10 +191,33 @@ def _rec(r) -> dict:
     return {"wins": r.wins, "losses": r.losses, "ties": r.ties}
 
 
+def _expected(r, whole=None) -> dict:
+    """An expected category record, unrounded, with its standings win % (010 R2), and the whole
+    record the page shows (`whole`, or `r` in whole categories, 010 R4)."""
+    return {
+        "wins": r.wins,
+        "losses": r.losses,
+        "ties": r.ties,
+        "win_pct": r.win_pct,
+        "record": _rec(whole or whole_record(r)),
+    }
+
+
+def _sum_records(rows: list) -> Record:
+    """The whole records of the H2H rows, added up: the Total the table shows."""
+    recs = [r["expected_record"]["record"] for r in rows]
+    return Record(*(sum(c[k] for c in recs) for k in ("wins", "losses", "ties")))
+
+
 def _matchup_row(o, fmt: ScoringFormat, names: dict, teams: dict) -> dict:
-    """One opponent: odds, projected category record, and the projected matchup result."""
+    """One opponent: odds, projected category record, and the projected matchup result.
+
+    Under each-category standings there is no matchup result; the expected category record is
+    what the matchup adds to the standings (010 R3).
+    """
     cat_rec = record(o.categories)
     m = record([o.matchup])
+    each = fmt.standings == "category"
     return {
         "opponent_id": o.opponent_id,
         "opponent_name": names[o.opponent_id],
@@ -201,21 +227,28 @@ def _matchup_row(o, fmt: ScoringFormat, names: dict, teams: dict) -> dict:
             c.key: _odds(co) for c, co in zip(fmt.categories, o.categories, strict=True)
         },
         "category_record": _rec(cat_rec),
-        "result": _RESULT[(m.wins, m.losses, m.ties)],
+        "result": None if each else _RESULT[(m.wins, m.losses, m.ties)],
+        "expected_record": _expected(expected_record(o.categories)) if each else None,
     }
 
 
-def _totals(rows: list) -> dict:
-    """Total row for the record table: matchup W-L-T and summed category W-L-T."""
+def _totals(rows: list, expected=None, whole=None) -> dict:
+    """Total row for the record table: matchup W-L-T and summed category W-L-T.
+
+    `expected` (each-category standings, 010): the expected record summed over opponents, which
+    replaces the matchup W-L-T."""
     results = [r["result"] for r in rows]
     cats = [r["category_record"] for r in rows]
     return {
-        "matchups": {
+        "matchups": None
+        if expected is not None
+        else {
             "wins": results.count("win"),
             "losses": results.count("loss"),
             "ties": results.count("tie"),
         },
         "categories": {k: sum(c[k] for c in cats) for k in ("wins", "losses", "ties")},
+        "expected": None if expected is None else _expected(expected, whole),
     }
 
 
@@ -312,11 +345,13 @@ def _analyze(
     freshness = get_data_freshness(conn, s.league_id).__dict__
     result = {
         "settings": _settings_echo(s),
+        "standings": "matchup",  # the format's rule, once it's known (010 FR-006)
         "header": {
             "team_id": s.team_id,
             "team_name": selected.name,
             "manager": selected.manager,
             "record": None,
+            "expected_record": None,  # each-category standings (010)
             "matchup_win_probability": None,
         },
         "categories": [],
@@ -345,6 +380,7 @@ def _analyze(
         result["rosters"] = _roster_rows(scenario, snapshot, info, {}, False)
         return result, None
 
+    result["standings"] = fmt.standings
     result["categories"] = [
         {
             "key": c.key,
@@ -426,15 +462,23 @@ def _analyze(
         for tid in teams
         if tid != s.team_id
     ]
-    rec = record(o.matchup for o in odds)
-    result["header"]["record"] = {
-        "wins": rec.wins,
-        "losses": rec.losses,
-        "ties": rec.ties,
-        "unit": "matchups",
-    }
     result["matchups"] = [_matchup_row(o, fmt, names, teams) for o in odds]
-    result["matchup_totals"] = _totals(result["matchups"])
+    if fmt.standings == "category":
+        # Each category is a W, L or T in the standings: the expected category record summed
+        # over every opponent (010 FR-007).
+        total = sum((expected_record(o.categories) for o in odds), expected_record(()))
+        whole = _sum_records(result["matchups"])  # so the headline is the H2H Total
+        result["header"]["expected_record"] = _expected(total, whole)
+        result["matchup_totals"] = _totals(result["matchups"], total, whole)
+    else:
+        rec = record(o.matchup for o in odds)
+        result["header"]["record"] = {
+            "wins": rec.wins,
+            "losses": rec.losses,
+            "ties": rec.ties,
+            "unit": "matchups",
+        }
+        result["matchup_totals"] = _totals(result["matchups"])
     result["radar"] = {
         "team_count": len(teams),
         "series": [
@@ -705,13 +749,17 @@ def _tactical_results(
     }
     actual_mine, actual_theirs = actual_values(mine_now, fmt), actual_values(theirs_now, fmt)
     odds = matchup_odds(me, values[me], opp, values[opp], fmt)
-    rec = record(odds.categories)
-    result["header"]["record"] = {
-        "wins": rec.wins,
-        "losses": rec.losses,
-        "ties": rec.ties,
-        "unit": "categories",
-    }
+    if fmt.standings == "category":
+        # This week's expected category record: the score so far plus the games left (010 FR-009).
+        result["header"]["expected_record"] = _expected(expected_record(odds.categories))
+    else:
+        rec = record(odds.categories)
+        result["header"]["record"] = {
+            "wins": rec.wins,
+            "losses": rec.losses,
+            "ties": rec.ties,
+            "unit": "categories",
+        }
     result["header"]["matchup_win_probability"] = odds.matchup.win
     # The opponent's roster replaces H2H in tactical mode (005 FR-016).
     result["matchups"] = []

@@ -11,6 +11,7 @@ from ffmodel.tools.player_analysis.leaderboard import leaderboard
 from ffmodel.tools.player_analysis.settings import LeaderboardQuery, PlayerAnalysisSettings
 from tests.fixtures import impact_dataset as fx
 from tests.integration.test_pre009_snapshot import PRE009, impact_numbers
+from tests.pre010 import strip_010
 
 ALPHAS, GAMMAS = 1, 3
 FREE_AGENTS = {fx.STEADY, fx.BUSY, fx.ROOKIE, fx.BENCH}
@@ -89,7 +90,7 @@ def test_footnote_marks_short_projections(impact_engine):
 def test_impact_analysis_is_unchanged(impact_engine):
     """SC-007: Impact Analysis reproduces its pre-009 numbers exactly."""
     with impact_engine.connect() as conn:
-        assert impact_numbers(conn) == json.loads(PRE009.read_text())
+        assert strip_010(impact_numbers(conn)) == json.loads(PRE009.read_text())
 
 
 def test_unknown_team_is_not_found(impact_engine):

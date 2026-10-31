@@ -1,6 +1,7 @@
 import type { AnalysisResult, Schemas } from "../api/client";
 import { Delta, Wins, WLTDelta } from "./Delta";
 import { HelpButton } from "../help/HelpButton";
+import { formatPct, formatRecord } from "../format";
 
 export function RecordHeadline({ result, pending = false }: { result: AnalysisResult; pending?: boolean }) {
   const { header, radar } = result;
@@ -8,6 +9,10 @@ export function RecordHeadline({ result, pending = false }: { result: AnalysisRe
   const opponents = radar ? radar.team_count - 1 : 0;
   const m = header.matchup;
   const ch = result.changes?.header;
+  // Each-category standings (010): every category is a W, L or T, so the headline is the
+  // expected category record, in either mode.
+  const expected = result.standings === "category" ? header.expected_record : null;
+  const tactical = result.settings.mode === "tactical";
   return (
     <header className={`record-headline${pending ? " pending" : ""}`}>
       <div className="team-block">
@@ -35,6 +40,30 @@ export function RecordHeadline({ result, pending = false }: { result: AnalysisRe
           </div>
           <div className="delta-line">
             <WLTDelta change={ch} />
+          </div>
+        </div>
+      )}
+      {expected && (
+        <div className="score">
+          <div className="units" title={tactical ? "Categories won–lost–tied this week" : `Categories won–lost–tied vs ${opponents} teams`}>
+            {tactical ? "Projected Record" : "Aggregated Record"}
+            {!tactical && <> · <span aria-label="Standings win %">{formatPct(expected.win_pct)}</span></>}{" "}
+            <HelpButton topic="headline" />
+          </div>
+          <div className="record nowrap" aria-label="Projected record">
+            {/* Colored like a changed W: green when expected wins went up, red when down. */}
+            <span className={ch?.expected_wins ? `wins-${ch.expected_wins.tone}` : undefined}>
+              {formatRecord(expected)}
+            </span>
+          </div>
+          <div className="delta-line">
+            <Delta change={ch?.expected_wins} />
+            {ch?.win_pct && (
+              <>
+                {" "}
+                <Delta change={ch.win_pct} percent />
+              </>
+            )}
           </div>
         </div>
       )}

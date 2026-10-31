@@ -124,3 +124,17 @@ def test_unknown_format():
 def test_unshrunk_stats_are_base_stats(fid):
     fmt = get_format(fid)
     assert set(fmt.unshrunk_stats) <= set(fmt.base_stats)
+
+
+@pytest.mark.parametrize("fid", FORMATS)
+def test_standings_rule_is_declared(fid):
+    assert get_format(fid).standings in ("matchup", "category")
+
+
+def test_each_category_9cat_shares_the_categories():
+    most, each = get_format("9cat_h2h"), get_format("9cat_h2h_each")
+    assert (most.standings, each.standings) == ("matchup", "category")
+    assert each.categories == most.categories
+    assert each.base_stats == most.base_stats
+    assert each.subset_constraints == most.subset_constraints
+    assert each.unshrunk_stats == most.unshrunk_stats

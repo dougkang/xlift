@@ -3,11 +3,13 @@ from ffmodel.core.sim.engine import (
     GAMES_PER_PERIOD,
     STRATEGIC,
     TACTICAL,
+    ExpectedRecord,
     MatchupOdds,
     Odds,
     Record,
     TeamSamples,
     category_values,
+    expected_record,
     matchup_odds,
     projected_averages,
     ranks,
@@ -15,6 +17,7 @@ from ffmodel.core.sim.engine import (
     simulate_team,
     strategic_k,
     tactical_k,
+    whole_record,
 )
 from ffmodel.core.sim.matchup import MissingStats, actual_values, base_vector, current_record
 from ffmodel.core.sim.shape import league_shape
@@ -23,6 +26,7 @@ __all__ = [
     "GAMES_PER_PERIOD",
     "STRATEGIC",
     "TACTICAL",
+    "ExpectedRecord",
     "MatchupOdds",
     "MissingStats",
     "Odds",
@@ -33,6 +37,7 @@ __all__ = [
     "category_values",
     "current_record",
     "density_curves",
+    "expected_record",
     "league_shape",
     "matchup_odds",
     "projected_averages",
@@ -41,4 +46,5 @@ __all__ = [
     "simulate_team",
     "strategic_k",
     "tactical_k",
+    "whole_record",
 ]

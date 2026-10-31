@@ -4,6 +4,7 @@ Each player draws from its own stream seeded by (seed, player_id, mode), so a ro
 changes only the moved players' draws (common random numbers) and results are reproducible.
 """
 
+import math
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 
@@ -42,6 +43,26 @@ class Record:
     wins: int
     losses: int
     ties: int
+
+
+@dataclass(frozen=True)
+class ExpectedRecord:
+    """Expected category W-L-T (010 R2): per category, the odds of each outcome, summed."""
+
+    wins: float
+    losses: float
+    ties: float
+
+    @property
+    def win_pct(self) -> float:
+        """Standings win %: a tie counts half (Constitution I)."""
+        total = self.wins + self.losses + self.ties
+        return (self.wins + 0.5 * self.ties) / total if total > 0 else 0.0
+
+    def __add__(self, other: "ExpectedRecord") -> "ExpectedRecord":
+        return ExpectedRecord(
+            self.wins + other.wins, self.losses + other.losses, self.ties + other.ties
+        )
 
 
 # A typical strategic week: games per player per scoring period, before availability.
@@ -150,3 +171,26 @@ def record(odds: Iterable[Odds]) -> Record:
         else:
             ties += 1
     return Record(wins, losses, ties)
+
+
+def whole_record(r: ExpectedRecord) -> Record:
+    """The expected record in whole categories that still add up (010 R4): each part's floor,
+    then the categories left over go to the parts with the largest fractions (ties: W, L, T).
+    Rounding each part alone could show 4-4-0 for one matchup's 9 categories."""
+    parts = (r.wins, r.losses, r.ties)
+    n = round(sum(parts))
+    out = [math.floor(p) for p in parts]
+    by_fraction = sorted(range(3), key=lambda i: (-(parts[i] - out[i]), i))
+    for i in by_fraction[: max(n - sum(out), 0)]:
+        out[i] += 1
+    return Record(*out)
+
+
+def expected_record(odds: Iterable[Odds]) -> ExpectedRecord:
+    """The expected record over categories (each-category standings, 010 R2)."""
+    wins = losses = ties = 0.0
+    for o in odds:
+        wins += o.win
+        losses += o.loss
+        ties += o.tie
+    return ExpectedRecord(wins, losses, ties)

@@ -66,3 +66,14 @@ def test_missing_inputs(bad):
 )
 def test_transitions(orig, cur, expected):
     assert transition(orig, cur) == expected
+
+
+def test_expected_wins_change_is_between_whole_records():  # 010 R4
+    from ffmodel.tools.impact_analysis.changes import _expected_wins
+
+    def rec(w):
+        return {"record": {"wins": w}}
+
+    assert _expected_wins(rec(5), rec(5)) is None
+    assert _expected_wins(rec(6), rec(5)) == {"delta": 1, "tone": "better"}
+    assert _expected_wins(rec(4), rec(5)) == {"delta": -1, "tone": "worse"}

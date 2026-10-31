@@ -28,3 +28,16 @@ export function formatXlift(value: number | null | undefined): string {
   if (fixed === "0.00") return "0.00";
   return `${value < 0 ? "−" : "+"}${fixed}`;
 }
+
+type Expected = Schemas["ExpectedRecordModel"];
+
+/** An expected category record in whole categories, as the API splits it: "58–45–5" (010). */
+export function formatRecord(r: Expected): string {
+  const { wins, losses, ties } = r.record;
+  return `${wins}–${losses}–${ties}`;
+}
+
+/** A standings win % (0–1) as a whole percentage: "56%". */
+export function formatPct(p: number): string {
+  return `${Math.round(p * 100)}%`;
+}

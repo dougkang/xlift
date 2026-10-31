@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 from ffmodel.core import cache as _core
 from ffmodel.core.cache import MAX_KEYS, _latest_run, dab, projections, spread
+from ffmodel.core.data import list_leagues
 
 __all__ = ["MAX_KEYS", "clear", "dab", "original", "projections", "spread"]
 
@@ -21,6 +22,12 @@ def clear() -> None:
 # The no-moves analysis depends only on settings and data, so a session of moves computes it once.
 ORIGINAL_MAX_KEYS = 8
 _original: OrderedDict[tuple, tuple] = OrderedDict()
+
+
+def _scoring_format(conn, league_id: int) -> str | None:
+    return next(
+        (lg.scoring_format_id for lg in list_leagues(conn) if lg.league_id == league_id), None
+    )
 
 
 def original(conn, settings, compute):
@@ -40,6 +47,7 @@ def original(conn, settings, compute):
         s.fragility,
         s.games_per_period,
         _latest_run(conn),
+        _scoring_format(conn, s.league_id),  # the standings rule shapes the result (010)
     )
     hit = _original.get(key)
     if hit is None:

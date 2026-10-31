@@ -125,6 +125,12 @@ export interface components {
         /** AnalysisResult */
         AnalysisResult: {
             settings: components["schemas"]["SettingsEcho"];
+            /**
+             * Standings
+             * @default matchup
+             * @enum {string}
+             */
+            standings: "matchup" | "category";
             header: components["schemas"]["Header"];
             /** Categories */
             categories: components["schemas"]["CategoryInfo"][];
@@ -338,6 +344,21 @@ export interface components {
             /** Swap Give Options */
             swap_give_options: ("roster" | "free_agent")[];
         };
+        /**
+         * ExpectedRecordModel
+         * @description Expected category W-L-T, unrounded (each-category standings, 010).
+         */
+        ExpectedRecordModel: {
+            /** Wins */
+            wins: number;
+            /** Losses */
+            losses: number;
+            /** Ties */
+            ties: number;
+            /** Win Pct */
+            win_pct: number;
+            record: components["schemas"]["RecordCounts"];
+        };
         /** Footnote */
         Footnote: {
             /** Marker */
@@ -370,6 +391,7 @@ export interface components {
             /** Manager */
             manager: string;
             record: components["schemas"]["RecordModel"] | null;
+            expected_record?: components["schemas"]["ExpectedRecordModel"] | null;
             /** Matchup Win Probability */
             matchup_win_probability?: number | null;
             matchup?: components["schemas"]["MatchupHeader"] | null;
@@ -380,6 +402,8 @@ export interface components {
             losses: components["schemas"]["Change"] | null;
             ties: components["schemas"]["Change"] | null;
             chance_to_win: components["schemas"]["Change"] | null;
+            expected_wins?: components["schemas"]["Change"] | null;
+            win_pct?: components["schemas"]["Change"] | null;
         };
         /** Leaderboard */
         Leaderboard: {
@@ -540,13 +564,11 @@ export interface components {
         MatchupChange: {
             category_record: components["schemas"]["WLTChange"];
             win: components["schemas"]["Change"] | null;
-            /**
-             * Original Result
-             * @enum {string}
-             */
-            original_result: "win" | "loss" | "tie";
+            /** Original Result */
+            original_result: ("win" | "loss" | "tie") | null;
             /** Transition */
             transition: ("flip_better" | "flip_worse" | "better" | "worse") | null;
+            expected_wins?: components["schemas"]["Change"] | null;
         };
         /**
          * MatchupHeader
@@ -592,16 +614,15 @@ export interface components {
                 [key: string]: components["schemas"]["OddsModel"];
             };
             category_record: components["schemas"]["RecordCounts"];
-            /**
-             * Result
-             * @enum {string}
-             */
-            result: "win" | "loss" | "tie";
+            /** Result */
+            result: ("win" | "loss" | "tie") | null;
+            expected_record?: components["schemas"]["ExpectedRecordModel"] | null;
         };
         /** MatchupTotals */
         MatchupTotals: {
-            matchups: components["schemas"]["RecordCounts"];
+            matchups: components["schemas"]["RecordCounts"] | null;
             categories: components["schemas"]["RecordCounts"];
+            expected?: components["schemas"]["ExpectedRecordModel"] | null;
         };
         /** OddsModel */
         OddsModel: {
@@ -1025,8 +1046,9 @@ export interface components {
         };
         /** TotalsChange */
         TotalsChange: {
-            matchups: components["schemas"]["WLTChange"];
+            matchups: components["schemas"]["WLTChange"] | null;
             categories: components["schemas"]["WLTChange"];
+            expected_wins?: components["schemas"]["Change"] | null;
         };
         /** ValidationError */
         ValidationError: {

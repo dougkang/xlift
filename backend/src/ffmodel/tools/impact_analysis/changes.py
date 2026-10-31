@@ -86,6 +86,17 @@ def _pct(cur, orig) -> dict | None:
     return change(cur, orig, decimals=PCT_DECIMALS, better_when="higher", scale=100)
 
 
+def _expected_wins(cur: dict, orig: dict) -> dict | None:
+    """Change in category wins as the page shows them: the difference of the whole records
+    (010 R4)."""
+    return change(
+        cur["record"]["wins"], orig["record"]["wins"], decimals=COUNT_DECIMALS, better_when="higher"
+    )
+
+
+_NO_WLT = {"wins": None, "losses": None, "ties": None}
+
+
 RADAR_TONE_DECIMALS = 2  # a radar marker appears once a spoke moves by >= 1% of the radius
 
 
@@ -109,9 +120,22 @@ def build_changes(original: dict, current: dict, orig_comp, comp, s) -> dict:
     cats = current["categories"]
     tactical = s.mode == "tactical"
     me, opp = s.team_id, s.opponent_id
+    each = current["standings"] == "category"
 
-    # 1-2. Headline
-    if tactical:
+    # 1-2. Headline. Each-category: the change in expected category wins, and in strategic the
+    # standings win % (010 FR-015).
+    if each:
+        cur_exp, orig_exp = (
+            current["header"]["expected_record"],
+            original["header"]["expected_record"],
+        )
+        header = {
+            **_NO_WLT,
+            "chance_to_win": None,
+            "expected_wins": _expected_wins(cur_exp, orig_exp),
+            "win_pct": None if tactical else _pct(cur_exp["win_pct"], orig_exp["win_pct"]),
+        }
+    elif tactical:
         header = {
             "wins": None,
             "losses": None,
@@ -120,11 +144,15 @@ def build_changes(original: dict, current: dict, orig_comp, comp, s) -> dict:
                 current["header"]["matchup_win_probability"],
                 original["header"]["matchup_win_probability"],
             ),
+            "expected_wins": None,
+            "win_pct": None,
         }
     else:
         header = {
             **_wlt(current["header"]["record"], original["header"]["record"]),
             "chance_to_win": None,
+            "expected_wins": None,
+            "win_pct": None,
         }
 
     # 3-4. Radar
@@ -211,7 +239,7 @@ def build_changes(original: dict, current: dict, orig_comp, comp, s) -> dict:
             )
         curves[cat["key"]] = {"means": means}
 
-    # 8. H2H rows
+    # 8. H2H rows. Each-category has no matchup result, so no flips (010 FR-016).
     orig_matchups = {m["opponent_id"]: m for m in original["matchups"]}
     matchups = {}
     for m in current["matchups"]:
@@ -219,19 +247,24 @@ def build_changes(original: dict, current: dict, orig_comp, comp, s) -> dict:
         matchups[str(m["opponent_id"])] = {
             "category_record": _wlt(m["category_record"], o["category_record"]),
             "win": _pct(m["matchup"]["win"], o["matchup"]["win"]),
-            "original_result": o["result"],
-            "transition": transition(o["result"], m["result"]),
+            "original_result": None if each else o["result"],
+            "transition": None if each else transition(o["result"], m["result"]),
+            "expected_wins": _expected_wins(m["expected_record"], o["expected_record"])
+            if each
+            else None,
         }
 
     # 9. H2H totals (none in tactical: the opponent's roster replaces H2H, 005)
-    totals = (
-        {
-            part: _wlt(current["matchup_totals"][part], original["matchup_totals"][part])
-            for part in ("matchups", "categories")
+    cur_t, orig_t = current["matchup_totals"], original["matchup_totals"]
+    totals = None
+    if cur_t and orig_t:
+        totals = {
+            "matchups": None if each else _wlt(cur_t["matchups"], orig_t["matchups"]),
+            "categories": _wlt(cur_t["categories"], orig_t["categories"]),
+            "expected_wins": _expected_wins(cur_t["expected"], orig_t["expected"])
+            if each
+            else None,
         }
-        if current["matchup_totals"] and original["matchup_totals"]
-        else None
-    )
     return {
         "header": header,
         "radar": radar,
