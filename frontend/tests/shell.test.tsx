@@ -48,6 +48,7 @@ describe("the tool shell", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Impact Analysis");
     expect(within(nav()).getByRole("link", { name: "Impact Analysis" })).toHaveAttribute("aria-current", "page");
     expect(within(nav()).getByRole("link", { name: "Player Analysis" })).toHaveAttribute("href", "#/player-analysis");
+    expect(within(nav()).getByRole("link", { name: "How it works" })).toHaveAttribute("href", "./how-it-works.html");
     await go("#/player-analysis");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Player Analysis");
     expect(within(nav()).getByRole("link", { name: "Player Analysis" })).toHaveAttribute("aria-current", "page");
