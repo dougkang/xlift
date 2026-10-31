@@ -62,6 +62,10 @@ class PlayersRequest(ScenarioRequest):
     limit: int = Field(50, ge=1, le=200)
     offset: int = Field(0, ge=0)
     free_agents_only: bool = False
+    # Filters and sort (013); empty = no filter / total xLift.
+    positions: list[Literal["G", "F", "C"]] = Field(default_factory=list)
+    owners: list[Literal["fa"] | int] = Field(default_factory=list)  # "fa" = free agents
+    sort_categories: list[str] = Field(default_factory=list)  # the format's category keys
 
 
 # --- Leagues -------------------------------------------------------------------------------
@@ -518,6 +522,7 @@ class PlayerRow(BaseModel):
     # Expected weekly category wins added for the selected team, swapped in for its weakest
     # active player (007). None without a projection.
     xlift: float | None
+    sort_xlift: float | None = None  # xLift summed over the sort categories (013)
     eligibility: Eligibility
 
 

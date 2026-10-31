@@ -154,6 +154,10 @@ cheap to gain and which aren't:
 On the right sidebar, we should list out all players not on selected team: free agents first,
 then rostered players, each ordered by xLift for the selected team, highest first.
 A search bar should be present at the top enable name-based filtering.
+Under it, **Pos** (G, F, C) and **Team** (free agents and the other fantasy teams) narrow the list,
+several at once, and **Sort by** ranks players by the xLift they add in the picked categories, summed
+(e.g. REB + BLK), shown in its own column beside the total. Nothing picked means every player, by
+total xLift.
 A '+' button to the left of each player should add the player to the selected team iff the roster has an empty slot.
 
 An "empty slot" means an empty active slot. Reserve slots (IL, NA) are not available for moves.

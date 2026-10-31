@@ -8,7 +8,7 @@ from ffmodel.contract.migrate import current_version
 from ffmodel.core.data import get_data_freshness, get_league, get_matchup_state, list_leagues
 from ffmodel.core.scenario import Add, Drop, MoveError, Swap
 from ffmodel.tools.impact_analysis.analysis import NotFound, analyze
-from ffmodel.tools.impact_analysis.picker import list_players
+from ffmodel.tools.impact_analysis.picker import InvalidQuery, list_players
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings
 from ffmodel.tools.player_analysis import leaderboard as player_analysis
 from ffmodel.tools.player_analysis.settings import LeaderboardQuery, PlayerAnalysisSettings
@@ -109,6 +109,8 @@ def _run(request: Request, fn):
             return fn(conn)
         except (NotFound, player_analysis.NotFound) as exc:
             raise HTTPException(404, str(exc)) from exc
+        except InvalidQuery as exc:
+            raise HTTPException(422, str(exc)) from exc
         except MoveError as exc:
             detail = schemas.MoveErrorDetail(
                 move_index=exc.move_index if exc.move_index is not None else -1,
@@ -139,6 +141,9 @@ def impact_players(req: schemas.PlayersRequest, request: Request):
             limit=req.limit,
             offset=req.offset,
             free_agents_only=req.free_agents_only,
+            positions=req.positions,
+            owners=req.owners,
+            sort_categories=req.sort_categories,
         ),
     )
 
