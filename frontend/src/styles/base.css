@@ -462,8 +462,19 @@ select:hover {
 }
 
 /* Trade Finder (014) */
+/* As wide as its columns need, not the full page: the gains stay near the trade they belong to. */
+table.data.trades-table {
+  width: auto;
+}
+
 .trades-table td {
   vertical-align: top;
+}
+
+.trades-table td.cat-col,
+.trades-table th.cat-col {
+  padding-left: 0.55rem;
+  padding-right: 0.55rem;
 }
 
 .trades-table .player-name {
@@ -475,7 +486,7 @@ select:hover {
   display: grid;
   gap: 0.15rem;
   margin-top: 0.25rem;
-  padding-left: 0.4rem;
+  padding-left: 0.75rem;
   font-size: var(--data-size);
 }
 
