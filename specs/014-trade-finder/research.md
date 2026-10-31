@@ -28,10 +28,10 @@ in `core/value/scenario.py`; the tool function `find_trades` in `tools/player_an
 `POST /api/player-analysis/trades`. Shares Player Analysis's projections, Fragility Penalty and
 spread caches.
 
-## R6. Try it
+## R6. View Impact
 **Decision**: the page dispatches `reset` then `addMove({type: "swap", acquire_id: b, give_id: a,
-team_id: A})` on the shared scenario state and navigates to Impact Analysis (`#/`). With moves
-present, the button reads "Try it (replaces your moves)".
+team_id: A})` on the shared scenario state and navigates to Impact Analysis (`#/`). It replaces
+any existing moves; the label stays "View Impact".
 
 ## R7. Measured (T014)
 On the real league (18 teams), warm: 0.52–0.55 s per request (SC-004: < 3 s). 14 of 17 teams had a

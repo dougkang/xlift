@@ -294,7 +294,6 @@ export function PlayerAnalysis({
         {/* The Trade Finder (014): always for the selected team, with the shared settings. */}
         <Trades
           request={leagueId === null || teamId === null ? null : { league_id: leagueId, team_id: teamId, window, fragility }}
-          movesCount={state.moves.length}
           onTry={(t) => {
             // Impact Analysis opens with just this swap (014 FR-008).
             dispatch({ type: "reset" });

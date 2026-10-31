@@ -77,7 +77,12 @@ describe("trade finder (014)", () => {
     expect(betas).toHaveTextContent("+0.31");
     // One column per category: your gain, bold when positive.
     const heads = [...document.querySelectorAll(".trades-table thead th")].map((th) => th.textContent);
-    expect(heads).toEqual(["Team", "You give", "You get", "You", "Them", "REB", "3PM", ""]);
+    expect(heads).toEqual(["Team", "You", "Them", "REB", "3PM", ""]);
+    // Give and Get sit under the team's name.
+    const team = betas.querySelector("td.trade-team")!;
+    expect(team).toHaveTextContent("Betas");
+    expect(team).toHaveTextContent("Give Delta One");
+    expect(team).toHaveTextContent("Get Beta One");
     const [reb, threes] = betas.querySelectorAll("td.cat-col");
     expect(reb).toHaveTextContent("+1.2");
     expect(reb).toHaveClass("gain");
@@ -87,9 +92,9 @@ describe("trade finder (014)", () => {
     expect(alphas).toHaveTextContent("No trade helps both teams.");
   });
 
-  it("Try it opens Impact Analysis with just that swap", async () => {
+  it("View Impact opens Impact Analysis with just that swap", async () => {
     renderPage([{ type: "drop", player_id: 7, team_id: 4 }]);
-    const button = await screen.findByRole("button", { name: "Try it (replaces your moves)" }, { timeout: 2000 });
+    const button = await screen.findByRole("button", { name: "View Impact" }, { timeout: 2000 });
     fireEvent.click(button);
     await waitFor(() => expect(window.location.hash).toBe("#/"));
     const saved = JSON.parse(sessionStorage.getItem("ffm.impact.v3")!);

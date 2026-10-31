@@ -18,7 +18,7 @@ gives a net benefit to both teams")
   gain, the one whose smaller gain is largest.
 - Q: Trade sizes? → A: 1-for-1 only.
 - Q: Where does it live? → A: A **Trades** section in Player Analysis, one row per team, with a
-  **Try it** action that opens Impact Analysis with the swap applied.
+  **View Impact** action that opens Impact Analysis with the swap applied.
 
 ## Overview
 
@@ -67,14 +67,14 @@ The manager likes a trade and wants to see it in full: radar, H2H, breakdown.
 
 **Why this priority**: the finder suggests; Impact Analysis is where a move is tested.
 
-**Independent Test**: click Try it and check Impact Analysis opens with the swap as its move.
+**Independent Test**: click View Impact and check Impact Analysis opens with the swap as its move.
 
 **Acceptance Scenarios**:
 
-1. **Given** a trade row, **When** the manager clicks **Try it**, **Then** Impact Analysis opens
+1. **Given** a trade row, **When** the manager clicks **View Impact**, **Then** Impact Analysis opens
    for the same league, team and settings, with that swap as a move.
-2. **Given** the manager already has moves in Impact Analysis, **Then** the button says it will
-   replace them, and doing so leaves only the trade.
+2. **Given** the manager already has moves in Impact Analysis, **Then** opening the trade replaces
+   them, leaving only the trade.
 
 ---
 
@@ -103,17 +103,18 @@ The manager likes a trade and wants to see it in full: radar, H2H, breakdown.
 - **FR-003**: Per team, the trade shown MUST be the one, among swaps where both gains are above
   zero at display precision (at least +0.01), maximizing the smaller gain; ties by larger total
   gain, then by player names.
-- **FR-004**: Each row MUST show the other team, the player given and received (name, NBA team,
-  status), the manager's gain and the other team's gain, signed to two decimals.
+- **FR-004**: Each row MUST show the other team with the player given and received (name, NBA
+  team, status) under its name in the same column, then the manager's gain and the other team's
+  gain, signed to two decimals.
 - **FR-005**: Each row MUST show the manager's gain in every category, one column per category in
   the format's order, signed to one decimal, positives in bold. *(Revised 2026-10-30: first built
   as a "Why" list of the categories changing by at least 0.1.)*
 - **FR-006**: Teams with no win-win swap MUST be listed with a "No trade helps both teams" note.
 - **FR-007**: Rows MUST be ordered by the smaller gain, largest first; no-trade rows last, by name.
-- **FR-008**: **Try it** MUST open Impact Analysis with the swap as its only move, saying so when
-  it replaces existing moves.
+- **FR-008**: **View Impact** MUST open Impact Analysis with the swap as its only move. *(Revised
+  2026-10-30: the label no longer notes that it replaces existing moves.)*
 - **FR-009**: The trades MUST be computed by the analysis (backend); the page only draws them.
-- **FR-010**: The section MUST have help explaining the gains, the balanced pick and Try it in plain
+- **FR-010**: The section MUST have help explaining the gains, the balanced pick and View Impact in plain
   words, without naming data files, and follow the style guide.
 - **FR-011**: The Trades section MUST use the same league, team, window and Fragility Penalty as
   the rest of Player Analysis.
@@ -135,7 +136,7 @@ The manager likes a trade and wants to see it in full: radar, H2H, breakdown.
   computed directly from the two changed rosters within 0.01.
 - **SC-004**: The Trades section appears within 3 seconds of opening Player Analysis on the real
   league (18 teams).
-- **SC-005**: Try it opens Impact Analysis with exactly that swap applied.
+- **SC-005**: View Impact opens Impact Analysis with exactly that swap applied.
 
 ## Assumptions
 

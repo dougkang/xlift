@@ -18,11 +18,9 @@ function oneDecimal(v: number | null): string {
  * in the server's order. The page only draws; the search and the pick are the server's. */
 export function Trades({
   request,
-  movesCount,
   onTry,
 }: {
   request: TradesRequest | null;
-  movesCount: number;
   onTry: (trade: Trade) => void;
 }) {
   const [result, setResult] = useState<TradesResult | null>(null);
@@ -55,7 +53,6 @@ export function Trades({
   }, [key]);
 
   const cats = result?.categories ?? [];
-  const tryLabel = movesCount > 0 ? "Try it (replaces your moves)" : "Try it";
   return (
     <section className={pending ? "pending" : undefined}>
       <h3 className="section-divider">
@@ -81,8 +78,6 @@ export function Trades({
               <thead>
                 <tr>
                   <th className="col-header">Team</th>
-                  <th className="col-header">You give</th>
-                  <th className="col-header">You get</th>
                   <th className="col-header num">You</th>
                   <th className="col-header num">Them</th>
                   {/* Your gain in each category, so the trade's shape reads across the row. */}
@@ -95,7 +90,7 @@ export function Trades({
                       {c.label}
                     </th>
                   ))}
-                  <th aria-label="Try it" />
+                  <th aria-label="View Impact" />
                 </tr>
               </thead>
               <tbody>
@@ -103,17 +98,26 @@ export function Trades({
                   const t = row.trade;
                   return (
                     <tr key={row.team_id} data-testid="trade-row" className={t ? undefined : "no-trade"}>
-                      <td className="name-col nowrap">
-                        {row.team_name} <span className="sub">{row.manager}</span>
+                      {/* The team, with the trade underneath: what you give and what you get. */}
+                      <td className="trade-team">
+                        <div className="name-col nowrap">
+                          {row.team_name} <span className="sub">{row.manager}</span>
+                        </div>
+                        {t ? (
+                          <div className="trade-sides">
+                            <div className="nowrap">
+                              <span className="col-header">Give</span> <TradePlayer p={t.give} />
+                            </div>
+                            <div className="nowrap">
+                              <span className="col-header">Get</span> <TradePlayer p={t.get} />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="sub">No trade helps both teams.</div>
+                        )}
                       </td>
-                      {t ? (
+                      {t && (
                         <>
-                          <td className="nowrap">
-                            <TradePlayer p={t.give} />
-                          </td>
-                          <td className="nowrap">
-                            <TradePlayer p={t.get} />
-                          </td>
                           <td className="num">{formatXlift(t.your_gain)}</td>
                           <td className="num">{formatXlift(t.their_gain)}</td>
                           {cats.map((c, i) => {
@@ -130,14 +134,10 @@ export function Trades({
                           })}
                           <td className="nowrap">
                             <button className="try-trade nowrap" onClick={() => onTry(t)}>
-                              {tryLabel}
+                              View Impact
                             </button>
                           </td>
                         </>
-                      ) : (
-                        <td colSpan={5 + cats.length} className="sub">
-                          No trade helps both teams.
-                        </td>
                       )}
                     </tr>
                   );

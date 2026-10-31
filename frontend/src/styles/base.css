@@ -470,6 +470,22 @@ select:hover {
   font-weight: 700;
 }
 
+/* Give / Get sit under the team's name, in the same column. */
+.trades-table .trade-sides {
+  margin-top: 0.1rem;
+  font-size: var(--data-size);
+}
+
+.trades-table .trade-sides .col-header {
+  display: inline-block;
+  min-width: 2rem;
+}
+
+.trades-table td.num,
+.trades-table td:last-child {
+  vertical-align: middle;
+}
+
 /* Your gain per category: positives bold, so where a trade helps you stands out. */
 .trades-table td.cat-col.gain {
   font-weight: 700;

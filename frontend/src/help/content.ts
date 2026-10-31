@@ -285,9 +285,9 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
 
   trades: () => ({
     title: "Trades",
-    controls: [["Try it", "opens Impact Analysis with just that trade as your move."]],
+    controls: [["View Impact", "opens Impact Analysis with just that trade as your move."]],
     reading: [
-      "One row per team: the fairest 1-for-1 trade that raises both teams' expected weekly category wins.",
+      "One row per team, with what you give and get under its name: the fairest 1-for-1 trade that raises both teams' expected weekly category wins.",
       "You / Them: each team's gain. Of the trades that help both, this one makes the smaller gain as large as possible.",
       "Then your gain in each category; gains are bold.",
       "Teams need different things, so a trade can help both. Rosters are as they are, without your moves.",

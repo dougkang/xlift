@@ -42,4 +42,4 @@ is scored for both teams with xLift's measure (the change in expected weekly cat
 the whole league, with both rosters changed). Of the swaps that help both teams, the one shown is
 the fairest: the one whose smaller gain is as large as possible. Each row shows what you give and
 get, each team's gain, and then your gain in each category, one column each, gains in bold. Teams with no swap that
-helps both say so. **Try it** opens Impact Analysis with just that trade as your move.
+helps both say so. **View Impact** opens Impact Analysis with just that trade as your move.

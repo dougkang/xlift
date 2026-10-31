@@ -6,7 +6,7 @@
 For the selected team and each other team, score every 1-for-1 active swap for both teams with
 xLift's weekly expected-wins measure (both rosters changed), keep win-wins, show the most
 balanced (research R1–R4). Core maths in `core/value`, a Player Analysis tool function and
-endpoint (R5), a Trades section with Try it (R6).
+endpoint (R5), a Trades section with View Impact (R6).
 
 ## Technical Context
 **Language**: Python 3.12+, TypeScript/React 19 · **Dependencies**: none new · **Storage**: SQLite,
