@@ -241,7 +241,11 @@ function CurveChart({
 export function CategoryCurves({ result }: { result: AnalysisResult }) {
   if (!result.curves.length) return null;
   const byKey = Object.fromEntries(result.categories.map((c) => [c.key, c]));
-  const series = result.curves[0].series;
+  // Every role drawn in any chart, in first-seen order: under focus a chart can drop its leader
+  // when the opponent leads that category (011), so one chart's series isn't the whole legend.
+  const series = result.curves
+    .flatMap((c) => c.series)
+    .filter((s, i, all) => all.findIndex((o) => o.role === s.role) === i);
   const originalOf: Partial<Record<Role, Role>> = { selected: "selected_original" };
   // Each "<Team> (before)" entry sits right after that team's own entry.
   const legend = series
@@ -270,7 +274,9 @@ export function CategoryCurves({ result }: { result: AnalysisResult }) {
               ? s.label
               : s.role === "league_average"
                 ? "League Average"
-                : `${roleName(s.role)}`}
+                : s.role === "opponent" && result.focus
+                  ? result.focus.opponent_name
+                  : `${roleName(s.role)}`}
           </span>
         ))}
       </div>

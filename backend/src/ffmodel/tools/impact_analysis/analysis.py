@@ -122,6 +122,7 @@ def _settings_echo(s: AnalysisSettings) -> dict:
         "opponent_id": s.opponent_id,
         "period_start": s.period_start,
         "period_end": s.period_end,
+        "focus_opponent_id": s.focus_opponent_id,
     }
 
 
@@ -274,8 +275,12 @@ def _curves(
     selected: int,
     seed: int,
     originals: dict | None = None,
+    focus: int | None = None,
 ) -> list:
-    """`originals`: role -> (values array, averages) for before/after curves (003 research R5)."""
+    """`originals`: role -> (values array, averages) for before/after curves (003 research R5).
+
+    `focus` (011): the H2H opponent whose distribution replaces the League Average's; the leader
+    (or next best) stays unless it is that opponent, who is then drawn once, as the opponent."""
     curves = []
     for i, cat in enumerate(fmt.categories):
         # role -> (team_id, label, samples, mean); means are projected averages (ratio of means).
@@ -284,13 +289,17 @@ def _curves(
         }
         if team_ranks[selected][i] == 1:
             best = _leader(team_ranks, i, exclude=selected)
-            if best is not None:
+            if best is not None and best != focus:
                 roles["next_best"] = (best, names[best], values[best][:, i], averages[best][i])
         else:
             leader = _leader(team_ranks, i)
-            roles["leader"] = (leader, names[leader], values[leader][:, i], averages[leader][i])
-        pooled = np.concatenate([v[:, i] for v in values.values()])
-        roles["league_average"] = (None, "League Average", pooled, league_avg[i])
+            if leader != focus:
+                roles["leader"] = (leader, names[leader], values[leader][:, i], averages[leader][i])
+        if focus is None:
+            pooled = np.concatenate([v[:, i] for v in values.values()])
+            roles["league_average"] = (None, "League Average", pooled, league_avg[i])
+        else:
+            roles["opponent"] = (focus, names[focus], values[focus][:, i], averages[focus][i])
         for role, (vals, avgs) in (originals or {}).items():
             roles[role] = (None, "Original", vals[:, i], avgs[i])
         dens = density_curves({r: v for r, (_, _, v, _) in roles.items()}, seed=seed)
@@ -342,6 +351,9 @@ def _analyze(
     snapshot, teams, names, scenario = state.snapshot, state.teams, state.names, state.scenario
     info = state.info
     selected = teams[s.team_id]
+    focus = s.focus_opponent_id
+    if focus is not None and focus not in teams:
+        raise NotFound(f"no team {focus} in league {s.league_id}")
     freshness = get_data_freshness(conn, s.league_id).__dict__
     result = {
         "settings": _settings_echo(s),
@@ -363,6 +375,7 @@ def _analyze(
         "matchup_totals": None,
         "rosters": [],
         "footnotes": [],
+        "focus": None,  # the focused H2H opponent, strategic (011)
         "warnings": [],
         "freshness": freshness,
     }
@@ -429,7 +442,10 @@ def _analyze(
             return result, None
         result["warnings"] += _matchup_warnings(conn, s, scenario, freshness)
 
-    comp = _compute(s, fmt, scenario, projections, teams, reuse, bases)
+    # A focus change re-renders the cached simulation (011 research R2).
+    comp = cache.computed(
+        conn, s, moves, lambda: _compute(s, fmt, scenario, projections, teams, reuse, bases)
+    )
     samples, values, averages = comp.samples, comp.values, comp.averages
     team_ranks, normalized, win_rates = comp.team_ranks, comp.normalized, comp.win_rates
     area_scores = comp.area_scores
@@ -479,25 +495,38 @@ def _analyze(
             "unit": "matchups",
         }
         result["matchup_totals"] = _totals(result["matchups"])
+    # Focused on an H2H opponent (011): the radar's two teams, the table's League and Win %
+    # columns and the curves compare with that opponent; Win % is this matchup's chance.
+    rates = win_rates
+    if focus is not None:
+        mine = _matchup_win_rate(next(o for o in odds if o.opponent_id == focus))
+        rates = {**win_rates, s.team_id: mine, focus: [1 - m for m in mine]}
+        result["focus"] = {"opponent_id": focus, "opponent_name": names[focus]}
+    shown = list(teams) if focus is None else [focus, s.team_id]
     result["radar"] = {
         "team_count": len(teams),
         "series": [
             {
                 "team_id": tid,
                 "team_name": names[tid],
-                "emphasis": "selected" if tid == s.team_id else "other",
+                "emphasis": "selected"
+                if tid == s.team_id
+                else ("opponent" if focus is not None else "other"),
                 "ranks": team_ranks[tid],
                 "normalized": normalized[tid],
-                "win_rate": win_rates[tid],
+                "win_rate": rates[tid],
                 "area": area_scores[tid],
                 "averages": [_num(v) for v in averages[tid]],
             }
-            for tid in teams
+            for tid in shown
         ],
     }
     league_avg = _league_average(samples, fmt)
     leaders = [_leader(team_ranks, i) for i in range(len(fmt.categories))]
-    result["radar"]["league"] = _radar_league(fmt, averages, league_avg, win_rates)
+    result["radar"]["league"] = (
+        _radar_league(fmt, averages, league_avg, win_rates) if focus is None else []
+    )
+    compared = league_avg if focus is None else averages[focus]
     result["category_table"] = {
         "kind": "ranks",
         "rows": [
@@ -505,20 +534,26 @@ def _analyze(
                 "category": c.key,
                 "rank": team_ranks[s.team_id][i],
                 "average": _num(averages[s.team_id][i]),
-                "league_average": _num(league_avg[i]),
+                "league_average": _num(compared[i]),
                 "leader_team_id": leaders[i],
                 "leader_name": names[leaders[i]],
                 "leader_average": _num(averages[leaders[i]][i]),
-                "win_rate": win_rates[s.team_id][i],
+                "win_rate": rates[s.team_id][i],
             }
             for i, c in enumerate(fmt.categories)
         ],
     }
     result["curves"] = _curves(
-        fmt, values, averages, league_avg, team_ranks, names, s.team_id, s.seed, originals
+        fmt, values, averages, league_avg, team_ranks, names, s.team_id, s.seed, originals, focus
     )
     result["league_shape"] = _league_shape(fmt, comp, names, s.team_id, reuse)
     return result, comp
+
+
+def _matchup_win_rate(o) -> list[float]:
+    """Per category, the chance of winning it in this matchup: P(win) + 0.5 * P(tie), from the
+    same odds as the H2H row (011 FR-005a)."""
+    return [c.win + 0.5 * c.tie for c in o.categories]
 
 
 def _league_shape(fmt: ScoringFormat, comp: Computed, names: dict, selected: int, reuse) -> list:

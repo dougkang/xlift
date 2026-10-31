@@ -71,6 +71,12 @@ describe("each-category standings (010)", () => {
       const [w, l, t] = row.querySelector(".nowrap")!.textContent!.split("–").map(Number);
       expect(w + l + t).toBe(9); // whole categories that add up
     }
+    // Winning records are bold (as shown, more W than L).
+    strategicEach.matchups.forEach((m, i) => {
+      const { wins, losses } = m.expected_record!.record;
+      const cell = rows[i].querySelector(".with-delta > .nowrap")!;
+      expect(cell.classList.contains("record-winning")).toBe(wins > losses);
+    });
     const total = table.querySelector("tfoot tr")!;
     expect(total).toHaveTextContent(rec(strategicEach.header.expected_record!));
   });

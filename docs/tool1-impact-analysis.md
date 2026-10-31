@@ -115,6 +115,14 @@ How the record reads depends on the league's standings rule:
 
 In an each-category league, xLift and the radar's Win % measure exactly what the standings count.
 
+**Focusing on an opponent** (strategic): clicking a team in the H2H table compares the page with that team
+instead of the league, to show why the matchup goes the way it does. The radar shows only the two teams, and
+its Win % view becomes each side's chance of winning each category in this matchup. In the per-category
+table, the League column becomes the opponent's averages and Win % your chance of beating them. Each
+category's distribution chart shows the opponent in place of the League Average, beside the League Leader.
+Ranks, area scores and the league-shape charts stay league-wide. Clicking the team again returns to the
+league; changing mode, team or league does too, and roster moves keep the focus.
+
 Below this, we should have two columns:
 
 On the right, we should have a radar visualization where each axis represents a team's rank in a particular category

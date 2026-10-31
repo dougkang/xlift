@@ -1,8 +1,8 @@
-"""Compare results with pre-010 fixtures: drop 010's additions when they're at their
-most-categories values (null, or `standings: "matchup"`), so anything else still differs."""
+"""Compare results with pre-010 fixtures: drop later additions when they're at their default
+values (null, or `standings: "matchup"`), so anything else still differs."""
 
-# Keys 010 added, by where they appear; each must be null under most-categories standings.
-ADDED = {"expected_record", "expected", "expected_wins", "win_pct"}
+# Keys added since (010, and 011's focus), by where they appear; each must be null by default.
+ADDED = {"expected_record", "expected", "expected_wins", "win_pct", "focus", "focus_opponent_id"}
 
 
 def strip_010(obj):

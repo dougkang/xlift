@@ -6,7 +6,7 @@ TypeScript types are generated from the OpenAPI schema these produce (`npm run g
 from datetime import date
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 Mode = Literal["strategic", "tactical"]
 Fragility = Literal["none", "last15", "dab", "dab_tag"]
@@ -47,6 +47,14 @@ class ScenarioRequest(BaseModel):
     # Fragility Penalty (007): how availability is estimated for the whole analysis.
     fragility: Fragility = "dab_tag"
     moves: list[Move] = Field(default_factory=list)
+    # Strategic: compare with this H2H opponent instead of the league (011); ignored in tactical.
+    focus_opponent_id: int | None = None
+
+    @model_validator(mode="after")
+    def _focus_is_another_team(self):
+        if self.focus_opponent_id is not None and self.focus_opponent_id == self.team_id:
+            raise ValueError("focus_opponent_id must be another team")
+        return self
 
 
 class PlayersRequest(ScenarioRequest):
@@ -111,6 +119,7 @@ class SettingsEcho(BaseModel):
     opponent_id: int | None
     period_start: date | None
     period_end: date | None
+    focus_opponent_id: int | None = None
 
 
 class RecordModel(BaseModel):
@@ -458,6 +467,13 @@ class CategoryShape(BaseModel):
     before: ShapePoint | None  # the selected team before moves; null without moves
 
 
+class Focus(BaseModel):
+    """The H2H opponent the page is focused on (011)."""
+
+    opponent_id: int
+    opponent_name: str
+
+
 class AnalysisResult(BaseModel):
     settings: SettingsEcho
     # How a matchup enters the standings, from the league's scoring format (010).
@@ -475,6 +491,7 @@ class AnalysisResult(BaseModel):
     warnings: list[WarningModel]
     freshness: Freshness
     changes: Changes | None = None
+    focus: Focus | None = None  # strategic, when focused on an H2H opponent (011)
 
 
 # --- Picker and errors ---------------------------------------------------------------------
