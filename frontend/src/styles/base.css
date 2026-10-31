@@ -475,7 +475,7 @@ select:hover {
   display: grid;
   gap: 0.15rem;
   margin-top: 0.25rem;
-  padding-left: 0.75rem;
+  padding-left: 0.4rem;
   font-size: var(--data-size);
 }
 
