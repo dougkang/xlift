@@ -262,10 +262,12 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     title: "Players",
     controls: [
       ["Search", "filter by name; accents are ignored."],
-      ["+", "adds a free agent to an open slot. On another team's player, it opens a swap: give a roster player (a trade) or a free agent."],
+      ["Pos / Team", "filter; none picked means all."],
+      ["Sort by", "rank by summed xLift in picked categories."],
+      ["+", "adds a free agent to an open slot. On another team's player, opens a swap: give a roster player (a trade) or a free agent."],
     ],
     reading: [
-      "Free agents are listed first, highest xLift first. Red text is status; * means a short history.",
+      "Free agents first, highest xLift first. Red text is status; * means a short history.",
       ...(ctx.mode === "tactical" ? ["G: games left this week."] : []),
     ],
     terms: [XLIFT],

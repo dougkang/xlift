@@ -676,6 +676,8 @@ export interface components {
             footnote: string | null;
             /** Xlift */
             xlift: number | null;
+            /** Sort Xlift */
+            sort_xlift?: number | null;
             eligibility: components["schemas"]["Eligibility"];
         };
         /** PlayersRequest */
@@ -737,6 +739,12 @@ export interface components {
              * @default false
              */
             free_agents_only: boolean;
+            /** Positions */
+            positions?: ("G" | "F" | "C")[];
+            /** Owners */
+            owners?: ("fa" | number)[];
+            /** Sort Categories */
+            sort_categories?: string[];
         };
         /** Radar */
         Radar: {

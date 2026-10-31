@@ -284,6 +284,8 @@ export function ImpactAnalysis({
             {req && (
               <PlayerPicker
                 request={req}
+                teams={league?.teams.filter((t) => t.team_id !== state.settings.teamId) ?? []}
+                categories={result?.categories ?? []}
                 onAdd={(id) => addMove({ type: "add", player_id: id })}
                 onSwap={setSwapTarget}
               />
