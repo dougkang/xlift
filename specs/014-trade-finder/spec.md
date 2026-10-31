@@ -101,7 +101,8 @@ The manager likes a trade and wants to see it in full: radar, H2H, breakdown.
   wins against every other team in the league, with **both** rosters changed, using the same
   weekly lines, spreads, window and Fragility Penalty as xLift.
 - **FR-003**: Per team, the trade shown MUST be the one, among swaps where both gains are above
-  zero, maximizing the smaller gain; ties by larger total gain, then by player names.
+  zero at display precision (at least +0.01), maximizing the smaller gain; ties by larger total
+  gain, then by player names.
 - **FR-004**: Each row MUST show the other team, the player given and received (name, NBA team,
   status), the manager's gain and the other team's gain, signed to two decimals.
 - **FR-005**: Each row MUST show the manager's per-category gain for the categories the trade
@@ -126,7 +127,7 @@ The manager likes a trade and wants to see it in full: radar, H2H, breakdown.
 
 ### Measurable Outcomes
 
-- **SC-001**: Every shown trade has both gains above zero in 100% of rows.
+- **SC-001**: Every shown trade has both gains of at least +0.01 in 100% of rows.
 - **SC-002**: For every team, no other win-win 1-for-1 swap of active players has a larger smaller
   gain than the one shown.
 - **SC-003**: A shown trade's gain for the manager equals the change in expected weekly wins

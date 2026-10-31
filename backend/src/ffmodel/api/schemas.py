@@ -591,3 +591,52 @@ class Leaderboard(BaseModel):
     total: int  # eligible players before `top`
     entries: list[LeaderboardEntry]
     warnings: list[WarningModel]
+
+
+# --- Trade Finder (014) -----------------------------------------------------------------------
+
+
+class TradesRequest(BaseModel):
+    league_id: int
+    team_id: int
+    window: int = Field(82, ge=1, le=82)
+    as_of: date | None = None
+    fragility: Fragility = "dab_tag"
+
+
+class TradePlayer(BaseModel):
+    player_id: int
+    name: str
+    nba_team: str | None
+    status: str
+
+
+class CategoryGain(BaseModel):
+    category: str
+    gain: float
+
+
+class Trade(BaseModel):
+    """A 1-for-1 swap; both gains are expected weekly category wins, both above zero."""
+
+    give: TradePlayer
+    get: TradePlayer
+    your_gain: float
+    their_gain: float
+    your_categories: list[CategoryGain]  # |gain| >= 0.1, largest first
+
+
+class TradeRow(BaseModel):
+    team_id: int
+    team_name: str
+    manager: str
+    trade: Trade | None  # None: no 1-for-1 swap helps both teams
+
+
+class TradesResult(BaseModel):
+    settings: LeaderboardSettings
+    team_id: int
+    team_name: str
+    categories: list[LeaderboardCategory]
+    rows: list[TradeRow]
+    warnings: list[WarningModel]

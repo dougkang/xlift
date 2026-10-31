@@ -15,6 +15,7 @@ from ffmodel.core.value.xlift import (
     score_candidates_by_category,
     score_own,
     score_own_by_category,
+    trade_gains,
     weakest,
 )
 
@@ -217,3 +218,34 @@ def score_team_by_category(
         )
         out |= dict(zip(reserve, vals, strict=True))
     return out
+
+
+def trade_grid(
+    scenario,
+    a_team: int,
+    b_team: int,
+    roster_projections: dict,
+    fmt: ScoringFormat,
+    games_per_period: int,
+    spread,
+):
+    """1-for-1 swaps of active, projected players between two teams (014): (a_players,
+    b_players, gain_a, gain_b, gain_a_by_category), the arrays as from `trade_gains`."""
+    pl = lines(roster_projections, games_per_period)
+    team_ids, T = team_totals(scenario, pl, fmt.base_stats)
+    a_players = [p for p in scenario.active_players(a_team) if p in pl]
+    b_players = [p for p in scenario.active_players(b_team) if p in pl]
+    n_cats = len(fmt.categories)
+    if not a_players or not b_players:
+        empty = np.zeros((len(a_players), len(b_players)))
+        return a_players, b_players, empty, empty, np.zeros((*empty.shape, n_cats))
+    gains = trade_gains(
+        team_ids.index(a_team),
+        team_ids.index(b_team),
+        T,
+        np.array([pl[p] for p in a_players]),
+        np.array([pl[p] for p in b_players]),
+        fmt,
+        spread,
+    )
+    return (a_players, b_players, *gains)

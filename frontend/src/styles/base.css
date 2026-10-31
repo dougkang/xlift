@@ -461,6 +461,33 @@ select:hover {
   vertical-align: top;
 }
 
+/* Trade Finder (014) */
+.trades-table td {
+  vertical-align: top;
+}
+
+.trades-table .player-name {
+  font-weight: 700;
+}
+
+.trades-table .why {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.4rem;
+}
+
+.trades-table .why .loss {
+  color: var(--muted);
+}
+
+.trades-table tr.no-trade td {
+  color: var(--muted);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
 /* Picker filters (013): quiet pills and a Team checklist, in the style guide's control idiom. */
 .picker-filters {
   display: grid;

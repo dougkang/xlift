@@ -21,6 +21,7 @@ import {
 } from "../state/playerAnalysis";
 import type { Action, ScenarioState } from "../state/scenario";
 import { Leaderboard } from "./Leaderboard";
+import { Trades } from "./Trades";
 
 const DEBOUNCE_MS = 250;
 // Player Analysis only changes the settings it shares with Impact Analysis: never moves or mode.
@@ -290,6 +291,20 @@ export function PlayerAnalysis({
             </>
           )}
         </section>
+        {/* The Trade Finder (014): always for the selected team, with the shared settings. */}
+        <Trades
+          request={leagueId === null || teamId === null ? null : { league_id: leagueId, team_id: teamId, window, fragility }}
+          movesCount={state.moves.length}
+          onTry={(t) => {
+            // Impact Analysis opens with just this swap (014 FR-008).
+            dispatch({ type: "reset" });
+            dispatch({
+              type: "addMove",
+              move: { type: "swap", acquire_id: t.get.player_id, give_id: t.give.player_id, team_id: teamId },
+            });
+            globalThis.location.hash = "#/"; // `window` here is the games window setting
+          }}
+        />
       </div>
     </HelpProvider>
   );

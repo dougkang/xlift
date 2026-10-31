@@ -16,6 +16,7 @@ export type TopicId =
   | "players"
   // Player Analysis (009)
   | "leaderboard"
+  | "trades"
   | "playerAnalysisSettings";
 
 export interface HelpContext {
@@ -280,6 +281,17 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
       "The black tick is the net, the number on the left. Red text is status; * means a short history.",
     ],
     terms: [XLIFT],
+  }),
+
+  trades: () => ({
+    title: "Trades",
+    controls: [["Try it", "opens Impact Analysis with just that trade as your move."]],
+    reading: [
+      "One row per team: the fairest 1-for-1 trade that raises both teams' expected weekly category wins.",
+      "You / Them: each team's gain. Of the trades that help both, this one makes the smaller gain as large as possible.",
+      "Why: the categories the trade changes most for you.",
+      "Teams need different things, so a trade can help both. Rosters are as they are, without your moves.",
+    ],
   }),
 
   playerAnalysisSettings: (ctx) => ({

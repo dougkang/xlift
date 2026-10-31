@@ -106,6 +106,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/player-analysis/trades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Player Analysis Trades
+         * @description The Trade Finder (014): per other team, the most balanced win-win 1-for-1 trade.
+         */
+        post: operations["player_analysis_trades_api_player_analysis_trades_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -170,6 +190,13 @@ export interface components {
             opponent_average?: components["schemas"]["Change"] | null;
             difference?: components["schemas"]["Change"] | null;
             win_probability?: components["schemas"]["Change"] | null;
+        };
+        /** CategoryGain */
+        CategoryGain: {
+            /** Category */
+            category: string;
+            /** Gain */
+            gain: number;
         };
         /** CategoryInfo */
         CategoryInfo: {
@@ -1074,6 +1101,75 @@ export interface components {
             categories: components["schemas"]["WLTChange"];
             expected_wins?: components["schemas"]["Change"] | null;
         };
+        /**
+         * Trade
+         * @description A 1-for-1 swap; both gains are expected weekly category wins, both above zero.
+         */
+        Trade: {
+            give: components["schemas"]["TradePlayer"];
+            get: components["schemas"]["TradePlayer"];
+            /** Your Gain */
+            your_gain: number;
+            /** Their Gain */
+            their_gain: number;
+            /** Your Categories */
+            your_categories: components["schemas"]["CategoryGain"][];
+        };
+        /** TradePlayer */
+        TradePlayer: {
+            /** Player Id */
+            player_id: number;
+            /** Name */
+            name: string;
+            /** Nba Team */
+            nba_team: string | null;
+            /** Status */
+            status: string;
+        };
+        /** TradeRow */
+        TradeRow: {
+            /** Team Id */
+            team_id: number;
+            /** Team Name */
+            team_name: string;
+            /** Manager */
+            manager: string;
+            trade: components["schemas"]["Trade"] | null;
+        };
+        /** TradesRequest */
+        TradesRequest: {
+            /** League Id */
+            league_id: number;
+            /** Team Id */
+            team_id: number;
+            /**
+             * Window
+             * @default 82
+             */
+            window: number;
+            /** As Of */
+            as_of?: string | null;
+            /**
+             * Fragility
+             * @default dab_tag
+             * @enum {string}
+             */
+            fragility: "none" | "last15" | "dab" | "dab_tag";
+        };
+        /** TradesResult */
+        TradesResult: {
+            settings: components["schemas"]["LeaderboardSettings"];
+            /** Team Id */
+            team_id: number;
+            /** Team Name */
+            team_name: string;
+            /** Categories */
+            categories: components["schemas"]["LeaderboardCategory"][];
+            /** Rows */
+            rows: components["schemas"]["TradeRow"][];
+            /** Warnings */
+            warnings: components["schemas"]["WarningModel"][];
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -1269,6 +1365,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Leaderboard"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    player_analysis_trades_api_player_analysis_trades_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TradesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TradesResult"];
                 };
             };
             /** @description Validation Error */

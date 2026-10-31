@@ -32,3 +32,8 @@ spread caches.
 **Decision**: the page dispatches `reset` then `addMove({type: "swap", acquire_id: b, give_id: a,
 team_id: A})` on the shared scenario state and navigates to Impact Analysis (`#/`). With moves
 present, the button reads "Try it (replaces your moves)".
+
+## R7. Measured (T014)
+On the real league (18 teams), warm: 0.52–0.55 s per request (SC-004: < 3 s). 14 of 17 teams had a
+win-win trade for the first team; the smallest shown gain was +0.08. A first version allowed any
+positive gain and showed a trade at "0.00" (0.003 wins), so gains must now round to at least +0.01.
