@@ -75,7 +75,14 @@ describe("trade finder (014)", () => {
     expect(betas).toHaveTextContent("Beta One");
     expect(betas).toHaveTextContent("+0.42");
     expect(betas).toHaveTextContent("+0.31");
-    expect(betas.querySelector(".why")).toHaveTextContent("+REB−3PM");
+    // One column per category: your gain, bold when positive.
+    const heads = [...document.querySelectorAll(".trades-table thead th")].map((th) => th.textContent);
+    expect(heads).toEqual(["Team", "You give", "You get", "You", "Them", "REB", "3PM", ""]);
+    const [reb, threes] = betas.querySelectorAll("td.cat-col");
+    expect(reb).toHaveTextContent("+1.2");
+    expect(reb).toHaveClass("gain");
+    expect(threes).toHaveTextContent("−0.6");
+    expect(threes).not.toHaveClass("gain");
     expect(within(betas).getByText("Q")).toHaveClass("status");
     expect(alphas).toHaveTextContent("No trade helps both teams.");
   });

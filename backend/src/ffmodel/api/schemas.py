@@ -623,7 +623,7 @@ class Trade(BaseModel):
     get: TradePlayer
     your_gain: float
     their_gain: float
-    your_categories: list[CategoryGain]  # |gain| >= 0.1, largest first
+    your_categories: list[CategoryGain]  # every category, in the format's order
 
 
 class TradeRow(BaseModel):

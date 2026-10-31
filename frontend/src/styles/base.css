@@ -470,14 +470,14 @@ select:hover {
   font-weight: 700;
 }
 
-.trades-table .why {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 0.4rem;
+/* Your gain per category: positives bold, so where a trade helps you stands out. */
+.trades-table td.cat-col.gain {
+  font-weight: 700;
 }
 
-.trades-table .why .loss {
-  color: var(--muted);
+/* A little room between the two teams' gains and your per-category ones. */
+.trades-table .cat-first {
+  padding-left: 1rem;
 }
 
 .trades-table tr.no-trade td {

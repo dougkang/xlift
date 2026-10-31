@@ -86,9 +86,9 @@ def test_one_row_per_other_team_and_win_wins(complementary, team):  # US1, SC-00
     assert shown, "the Alphas and Betas should find a win-win"
     for t in shown:
         assert round(t["your_gain"], 2) > 0 and round(t["their_gain"], 2) > 0
-        assert all(abs(c["gain"]) >= 0.1 for c in t["your_categories"])
-        gains = [abs(c["gain"]) for c in t["your_categories"]]
-        assert gains == sorted(gains, reverse=True)
+        # Every category in the format's order, summing to your gain.
+        assert [c["category"] for c in t["your_categories"]] == [c["key"] for c in r["categories"]]
+        assert sum(c["gain"] for c in t["your_categories"]) == pytest.approx(t["your_gain"])
     # Order: the smaller gain, largest first; no-trade rows last.
     keys = [
         min(row["trade"]["your_gain"], row["trade"]["their_gain"])

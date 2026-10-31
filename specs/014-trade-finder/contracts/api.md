@@ -12,7 +12,7 @@ Response: {
       give: { player_id, name, nba_team, status },
       get:  { player_id, name, nba_team, status },
       your_gain: float, their_gain: float,          # both > 0
-      your_categories: [{ category: key, gain: float }]
+      your_categories: [{ category: key, gain: float }]   # every category, format order
     }
   }],
   warnings: [{ code, message }]

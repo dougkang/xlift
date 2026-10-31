@@ -56,8 +56,8 @@ expected weekly wins, and that no other 1-for-1 swap with that team has a larger
 4. **Given** a team with no swap that helps both, **Then** its row says no trade helps both teams.
 5. **Given** the rows, **Then** they are ordered by the smaller gain, largest first, with the
    no-trade rows last.
-6. **Given** a row, **Then** it also shows the categories the trade changes most for the manager
-   (e.g. "+REB +BLK −FT%"), so the reason is visible.
+6. **Given** a row, **Then** it also shows the manager's gain in each category, one column per
+   category, positives in bold, so the reason is visible.
 
 ---
 
@@ -105,8 +105,9 @@ The manager likes a trade and wants to see it in full: radar, H2H, breakdown.
   gain, then by player names.
 - **FR-004**: Each row MUST show the other team, the player given and received (name, NBA team,
   status), the manager's gain and the other team's gain, signed to two decimals.
-- **FR-005**: Each row MUST show the manager's per-category gain for the categories the trade
-  changes by at least 0.1 wins, largest first, as signed category labels.
+- **FR-005**: Each row MUST show the manager's gain in every category, one column per category in
+  the format's order, signed to one decimal, positives in bold. *(Revised 2026-10-30: first built
+  as a "Why" list of the categories changing by at least 0.1.)*
 - **FR-006**: Teams with no win-win swap MUST be listed with a "No trade helps both teams" note.
 - **FR-007**: Rows MUST be ordered by the smaller gain, largest first; no-trade rows last, by name.
 - **FR-008**: **Try it** MUST open Impact Analysis with the swap as its only move, saying so when

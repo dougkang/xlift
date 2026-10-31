@@ -17,7 +17,6 @@ from ffmodel.core.value import trade_grid
 from ffmodel.tools.player_analysis.leaderboard import NotFound
 from ffmodel.tools.player_analysis.settings import PlayerAnalysisSettings, normalize
 
-REASON_MIN = 0.1  # categories that change by at least this many wins are named (FR-005)
 # A gain must show as at least +0.01 at the page's two decimals, or it isn't a gain (FR-003).
 MIN_GAIN = 0.005
 
@@ -101,14 +100,8 @@ def find_trades(conn, settings: PlayerAnalysisSettings) -> dict:
                     names[theirs[ij[1]]],
                 ),
             )
-            cats = sorted(
-                (
-                    (c.key, float(by_cat[i, j, k]))
-                    for k, c in enumerate(fmt.categories)
-                    if abs(by_cat[i, j, k]) >= REASON_MIN
-                ),
-                key=lambda kv: -abs(kv[1]),
-            )
+            # Every category, in the format's order: one column each on the page.
+            cats = [(c.key, float(by_cat[i, j, k])) for k, c in enumerate(fmt.categories)]
             trade = {
                 "give": player(mine[i]),
                 "get": player(theirs[j]),

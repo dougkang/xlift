@@ -5,6 +5,15 @@ import { HelpButton } from "../help/HelpButton";
 
 const DEBOUNCE_MS = 250;
 
+/** A category gain at one decimal, signed with a real minus (+2.7, 0.0, −1.3): nine of them share
+ * the row with the two teams' gains, which keep xLift's two decimals. */
+function oneDecimal(v: number | null): string {
+  if (v === null || Number.isNaN(v)) return "–";
+  const fixed = Math.abs(v).toFixed(1);
+  if (fixed === "0.0") return "0.0";
+  return `${v < 0 ? "−" : "+"}${fixed}`;
+}
+
 /** The Trade Finder (014): one row per other team with its most balanced win-win 1-for-1 trade,
  * in the server's order. The page only draws; the search and the pick are the server's. */
 export function Trades({
@@ -45,7 +54,7 @@ export function Trades({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
-  const label = (key: string) => result?.categories.find((c) => c.key === key)?.label ?? key;
+  const cats = result?.categories ?? [];
   const tryLabel = movesCount > 0 ? "Try it (replaces your moves)" : "Try it";
   return (
     <section className={pending ? "pending" : undefined}>
@@ -76,7 +85,16 @@ export function Trades({
                   <th className="col-header">You get</th>
                   <th className="col-header num">You</th>
                   <th className="col-header num">Them</th>
-                  <th className="col-header">Why</th>
+                  {/* Your gain in each category, so the trade's shape reads across the row. */}
+                  {cats.map((c, i) => (
+                    <th
+                      key={c.key}
+                      className={`col-header num cat-col${i === 0 ? " cat-first" : ""}`}
+                      title={`Your weekly ${c.label} wins gained`}
+                    >
+                      {c.label}
+                    </th>
+                  ))}
                   <th aria-label="Try it" />
                 </tr>
               </thead>
@@ -98,22 +116,26 @@ export function Trades({
                           </td>
                           <td className="num">{formatXlift(t.your_gain)}</td>
                           <td className="num">{formatXlift(t.their_gain)}</td>
-                          <td className="why">
-                            {t.your_categories.map((c) => (
-                              <span key={c.category} className={c.gain < 0 ? "loss" : undefined}>
-                                {c.gain > 0 ? "+" : "−"}
-                                {label(c.category)}
-                              </span>
-                            ))}
-                          </td>
-                          <td>
-                            <button className="try-trade" onClick={() => onTry(t)}>
+                          {cats.map((c, i) => {
+                            const gain = t.your_categories.find((g) => g.category === c.key)?.gain ?? null;
+                            const shown = oneDecimal(gain);
+                            return (
+                              <td
+                                key={c.key}
+                                className={`num cat-col${i === 0 ? " cat-first" : ""}${shown.startsWith("+") ? " gain" : ""}`}
+                              >
+                                {shown}
+                              </td>
+                            );
+                          })}
+                          <td className="nowrap">
+                            <button className="try-trade nowrap" onClick={() => onTry(t)}>
                               {tryLabel}
                             </button>
                           </td>
                         </>
                       ) : (
-                        <td colSpan={6} className="sub">
+                        <td colSpan={5 + cats.length} className="sub">
                           No trade helps both teams.
                         </td>
                       )}
