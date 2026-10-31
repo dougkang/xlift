@@ -70,7 +70,7 @@ export function Trades({
       ))}
       {result && result.rows.length > 0 && (
         <>
-          <p className="scope-line">
+          <p className="scope-line trades-scope">
             For {result.team_name} · the fairest 1-for-1 trade with each team that helps both · weekly category wins
           </p>
           <div className="table-scroll">

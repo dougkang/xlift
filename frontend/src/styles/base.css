@@ -462,9 +462,12 @@ select:hover {
 }
 
 /* Trade Finder (014) */
-/* As wide as its columns need, not the full page: the gains stay near the trade they belong to. */
-table.data.trades-table {
-  width: auto;
+/* Narrower than the page and centered, so the gains stay near the trade they belong to. */
+table.data.trades-table,
+.trades-scope {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .trades-table td {
