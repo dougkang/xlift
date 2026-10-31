@@ -18,8 +18,8 @@ const text = (id: TopicId, mode: HelpContext["mode"], over?: Partial<HelpContext
   helpText(HELP[id](ctx(mode, over)));
 
 describe("help content", () => {
-  it("covers all 12 topics", () => {
-    expect(topics).toHaveLength(12);
+  it("covers all 13 topics", () => {
+    expect(topics).toHaveLength(13);
   });
 
   it.each(modes.flatMap((m) => topics.map((t) => [t, m] as const)))("%s (%s) is at most 120 words", (t, m) => {

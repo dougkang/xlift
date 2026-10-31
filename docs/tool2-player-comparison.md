@@ -29,3 +29,17 @@ shooter often costs FG%). The black tick marks the net, which is also the number
 - The window and the Fragility Penalty are shared with Impact Analysis, as are the league and
   team: switching tools keeps them.
 - The leaderboard always uses rosters as they are. Moves made in Impact Analysis don't apply.
+
+### Trades
+
+Below the leaderboard, **Trades** suggests one trade with every other team. Teams need different
+things: a team that loses rebounds by a hair gains more from a rebounder than a team that already
+wins them, and the other way around for shooters. So a 1-for-1 trade can raise **both** teams'
+expected weekly category wins at once.
+
+For the selected team and each other team, every swap of one active player for one active player
+is scored for both teams with xLift's measure (the change in expected weekly category wins against
+the whole league, with both rosters changed). Of the swaps that help both teams, the one shown is
+the fairest: the one whose smaller gain is as large as possible. Each row shows what you give and
+get, each team's gain, and then your gain in each category, one column each, gains in bold. Teams with no swap that
+helps both say so. **View Impact** opens Impact Analysis with just that trade as your move.

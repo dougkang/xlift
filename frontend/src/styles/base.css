@@ -461,6 +461,73 @@ select:hover {
   vertical-align: top;
 }
 
+/* Trade Finder (014) */
+/* Narrower than the page and centered, so the gains stay near the trade they belong to. */
+/* The section's full width with no sideways scroll: names wrap when space runs short, and the
+   numbers (kept on one line) take what they need. */
+table.data.trades-table {
+  width: 100%;
+}
+
+.trades-table td.trade-team {
+  min-width: 11rem;
+}
+
+.trades-table .trade-side {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+}
+
+.trades-table td.num {
+  white-space: nowrap;
+}
+
+.trades-table td {
+  vertical-align: top;
+}
+
+.trades-table td.cat-col,
+.trades-table th.cat-col {
+  padding-left: 0.55rem;
+  padding-right: 0.55rem;
+}
+
+.trades-table .player-name {
+  font-weight: 700;
+}
+
+/* Give / Get sit under the team's name, in the same column. */
+.trades-table .trade-sides {
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 0.25rem;
+  padding-left: 0.75rem;
+  font-size: var(--data-size);
+}
+
+.trades-table .trade-sides .col-header {
+  line-height: inherit;
+}
+
+.trades-table td.num,
+.trades-table td:last-child {
+  vertical-align: middle;
+}
+
+/* Your gain per category: positives bold, so where a trade helps you stands out. */
+.trades-table td.cat-col.gain {
+  font-weight: 700;
+}
+
+/* A little room between the two teams' gains and your per-category ones. */
+.trades-table .cat-first {
+  padding-left: 1rem;
+}
+
+.trades-table tr.no-trade td {
+  color: var(--muted);
+}
+
 /* Picker filters (013): quiet pills and a Team checklist, in the style guide's control idiom. */
 .picker-filters {
   display: grid;

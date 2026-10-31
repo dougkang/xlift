@@ -12,6 +12,7 @@ from ffmodel.tools.impact_analysis.picker import InvalidQuery, list_players
 from ffmodel.tools.impact_analysis.settings import AnalysisSettings
 from ffmodel.tools.player_analysis import leaderboard as player_analysis
 from ffmodel.tools.player_analysis.settings import LeaderboardQuery, PlayerAnalysisSettings
+from ffmodel.tools.player_analysis.trades import find_trades
 
 router = APIRouter(prefix="/api")
 
@@ -161,3 +162,16 @@ def player_analysis_leaderboard(req: schemas.LeaderboardRequest, request: Reques
         evaluate_for=req.evaluate_for, pool=req.pool, top=req.top, min_games=req.min_games
     )
     return _run(request, lambda conn: player_analysis.leaderboard(conn, settings, query))
+
+
+@router.post("/player-analysis/trades", response_model=schemas.TradesResult)
+def player_analysis_trades(req: schemas.TradesRequest, request: Request):
+    """The Trade Finder (014): per other team, the most balanced win-win 1-for-1 trade."""
+    settings = PlayerAnalysisSettings(
+        league_id=req.league_id,
+        team_id=req.team_id,
+        window=req.window,
+        as_of=req.as_of,
+        fragility=req.fragility,
+    )
+    return _run(request, lambda conn: find_trades(conn, settings))

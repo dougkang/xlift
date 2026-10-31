@@ -25,6 +25,7 @@ __all__ = [
     "score_own",
     "score_own_by_category",
     "team_keys",
+    "trade_gains",
     "weakest",
 ]
 
@@ -148,3 +149,37 @@ def score_own_by_category(
     out = now - _wins_by_category(team_keys(T[team_idx] - own + weak, fmt), others, spread)
     out[np.all(own == weak, axis=1)] = 0.0
     return out
+
+
+def _pair_odds(a: np.ndarray, b: np.ndarray, spread: np.ndarray) -> np.ndarray:
+    """Win probability of keys a against keys b, elementwise (same shapes)."""
+    s = np.maximum(np.asarray(spread, dtype=float), _MIN_SPREAD)
+    return phi(np.nan_to_num((a - b) / s, nan=0.0))
+
+
+def trade_gains(
+    a_idx: int, b_idx: int, T: np.ndarray, lines_a, lines_b, fmt: ScoringFormat, spread
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Every 1-for-1 swap between teams a and b (014 research R1): team a gives row i of
+    `lines_a` and gets row j of `lines_b`, team b the reverse, with both rosters changed.
+
+    Returns (gain_a, gain_b, gain_a_by_category), shaped (n_a, n_b), (n_a, n_b) and
+    (n_a, n_b, categories): each team's change in expected weekly category wins against every
+    other team, b being one of a's opponents and a one of b's."""
+    T = np.asarray(T, dtype=float)
+    La = np.asarray(lines_a, dtype=float).reshape(-1, T.shape[-1])
+    Lb = np.asarray(lines_b, dtype=float).reshape(-1, T.shape[-1])
+    rest = team_keys(np.delete(T, [a_idx, b_idx], axis=0), fmt)  # (others, cats)
+    ka, kb = team_keys(T[a_idx], fmt), team_keys(T[b_idx], fmt)
+    swap = Lb[None, :, :] - La[:, None, :]  # what a gains in base stats, per pair
+    ka_new = team_keys(T[a_idx] + swap, fmt)  # (n_a, n_b, cats)
+    kb_new = team_keys(T[b_idx] - swap, fmt)
+
+    def by_cat(k_new, k_old, partner_new, partner_old):
+        now = _wins_by_category(k_old, rest, spread) + _pair_odds(k_old, partner_old, spread)
+        new = _wins_by_category(k_new, rest, spread) + _pair_odds(k_new, partner_new, spread)
+        return new - now
+
+    gain_a_cat = by_cat(ka_new, ka, kb_new, kb)
+    gain_b_cat = by_cat(kb_new, kb, ka_new, ka)
+    return gain_a_cat.sum(axis=-1), gain_b_cat.sum(axis=-1), gain_a_cat

@@ -77,3 +77,17 @@ export const leaderboard = (req: LeaderboardRequest, signal?: AbortSignal) =>
     body: JSON.stringify(req),
     signal,
   });
+
+/** The Trade Finder (014): per other team, the most balanced win-win 1-for-1 trade. */
+type TradesDefaulted = "window" | "fragility";
+export type TradesRequest = Omit<Schemas["TradesRequest"], TradesDefaulted> &
+  Partial<Pick<Schemas["TradesRequest"], TradesDefaulted>>;
+export type TradesResult = Schemas["TradesResult"];
+export type Trade = Schemas["Trade"];
+
+export const trades = (req: TradesRequest, signal?: AbortSignal) =>
+  request<TradesResult>("/api/player-analysis/trades", {
+    method: "POST",
+    body: JSON.stringify(req),
+    signal,
+  });
