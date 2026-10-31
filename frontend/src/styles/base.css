@@ -472,7 +472,10 @@ select:hover {
 
 /* Give / Get sit under the team's name, in the same column. */
 .trades-table .trade-sides {
-  margin-top: 0.1rem;
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 0.25rem;
+  padding-left: 0.75rem;
   font-size: var(--data-size);
 }
 
