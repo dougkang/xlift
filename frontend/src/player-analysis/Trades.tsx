@@ -70,11 +70,10 @@ export function Trades({
       ))}
       {result && result.rows.length > 0 && (
         <>
-          <p className="scope-line trades-scope">
+          <p className="scope-line">
             For {result.team_name} · the fairest 1-for-1 trade with each team that helps both · weekly category wins
           </p>
-          <div className="table-scroll">
-            <table className="data trades-table">
+          <table className="data trades-table">
               <thead>
                 <tr>
                   <th className="col-header">Team</th>
@@ -100,15 +99,15 @@ export function Trades({
                     <tr key={row.team_id} data-testid="trade-row" className={t ? undefined : "no-trade"}>
                       {/* The team, with the trade underneath: what you give and what you get. */}
                       <td className="trade-team">
-                        <div className="name-col nowrap">
+                        <div className="name-col">
                           {row.team_name} <span className="sub">{row.manager}</span>
                         </div>
                         {t ? (
                           <div className="trade-sides">
-                            <div className="nowrap">
+                            <div className="trade-side">
                               <span className="col-header">Give</span> <TradePlayer p={t.give} />
                             </div>
-                            <div className="nowrap">
+                            <div className="trade-side">
                               <span className="col-header">Get</span> <TradePlayer p={t.get} />
                             </div>
                           </div>
@@ -143,8 +142,7 @@ export function Trades({
                   );
                 })}
               </tbody>
-            </table>
-          </div>
+          </table>
         </>
       )}
     </section>
@@ -153,9 +151,9 @@ export function Trades({
 
 function TradePlayer({ p }: { p: Trade["give"] }) {
   return (
-    <>
+    <span>
       <span className="player-name">{p.name}</span> <span className="sub">{p.nba_team ?? "–"}</span>
       {p.status !== "healthy" && <span className="status"> {p.status}</span>}
-    </>
+    </span>
   );
 }

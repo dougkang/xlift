@@ -463,11 +463,23 @@ select:hover {
 
 /* Trade Finder (014) */
 /* Narrower than the page and centered, so the gains stay near the trade they belong to. */
-table.data.trades-table,
-.trades-scope {
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+/* The section's full width with no sideways scroll: names wrap when space runs short, and the
+   numbers (kept on one line) take what they need. */
+table.data.trades-table {
+  width: 100%;
+}
+
+.trades-table td.trade-team {
+  min-width: 11rem;
+}
+
+.trades-table .trade-side {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+}
+
+.trades-table td.num {
+  white-space: nowrap;
 }
 
 .trades-table td {
@@ -494,8 +506,7 @@ table.data.trades-table,
 }
 
 .trades-table .trade-sides .col-header {
-  display: inline-block;
-  min-width: 2rem;
+  line-height: inherit;
 }
 
 .trades-table td.num,
@@ -515,10 +526,6 @@ table.data.trades-table,
 
 .trades-table tr.no-trade td {
   color: var(--muted);
-}
-
-.table-scroll {
-  overflow-x: auto;
 }
 
 /* Picker filters (013): quiet pills and a Team checklist, in the style guide's control idiom. */
