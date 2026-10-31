@@ -72,11 +72,13 @@ def test_categories_sum_to_the_net(impact_engine):
 @pytest.mark.parametrize("fragility", ["dab_tag", "last15", "none"])
 @pytest.mark.parametrize("team", [ALPHAS, GAMMAS])
 def test_team_values_equal_the_strategic_picker(impact_engine, team, fragility):
-    """SC-001: the leaderboard's Your team values are the picker's."""
+    """SC-001: the leaderboard's Your team values are the picker's. (The picker doesn't list the
+    team's own players; they match its roster table, see test_own_team_as_the_pool.)"""
     r = board(impact_engine, team=team, fragility=fragility, pool="all")
     picked = picker_xlift(impact_engine, team=team, fragility=fragility)
-    assert r["entries"]
-    for e in r["entries"]:
+    others = [e for e in r["entries"] if e["owner_team_id"] != team]
+    assert others
+    for e in others:
         assert e["xlift"] == pytest.approx(picked[e["player_id"]], abs=0.005)
 
 
@@ -103,16 +105,71 @@ def test_unknown_team_is_not_found(impact_engine):
 # --- US2 --------------------------------------------------------------------------------------
 
 
-def test_all_players_adds_other_teams_but_never_your_own(impact_engine):
+def test_all_players_adds_every_team(impact_engine):
     r = board(impact_engine, pool="all")
     owners = {e["owner_team_id"] for e in r["entries"]}
-    assert None in owners and owners - {None}
-    assert ALPHAS not in owners
-    names = {2: "Betas", 3: "Gammas", 4: "Deltas"}
+    assert None in owners and {ALPHAS, 2, 3, 4} <= owners
+    names = {1: "Alphas", 2: "Betas", 3: "Gammas", 4: "Deltas"}
     for e in r["entries"]:
         if e["owner_team_id"] is not None:
             assert e["owner_label"] == names[e["owner_team_id"]]
     assert_ordered(r["entries"])
+
+
+def test_one_teams_players_beside_yours(impact_engine):
+    """A team as the pool lists that team's players, and under Your team your own players beside
+    them for comparison, each scored as under All players."""
+    every = {e["player_id"]: e for e in board(impact_engine, pool="all")["entries"]}
+    r = board(impact_engine, pool=GAMMAS)
+    assert {e["owner_team_id"] for e in r["entries"]} == {GAMMAS, ALPHAS}
+    for e in r["entries"]:
+        assert e["xlift"] == every[e["player_id"]]["xlift"]
+    assert_ordered(r["entries"])
+    # Under League no team is being scored: only that team's players.
+    league = board(impact_engine, pool=GAMMAS, evaluate_for="league")
+    assert {e["owner_team_id"] for e in league["entries"]} == {GAMMAS}
+
+
+@pytest.mark.parametrize("fragility", ["dab_tag", "none"])
+def test_own_team_as_the_pool(impact_engine, fragility):
+    """Your own roster as the pool: each player valued as Impact Analysis values your roster
+    (against your weakest active player, who shows 0); under League they're scored for every
+    other team instead."""
+    from ffmodel.tools.impact_analysis.analysis import analyze
+
+    r = board(impact_engine, pool=ALPHAS, fragility=fragility)
+    assert r["entries"] and {e["owner_team_id"] for e in r["entries"]} == {ALPHAS}
+    s = AnalysisSettings(league_id=1, team_id=ALPHAS, as_of=fx.IMPACT_TODAY, fragility=fragility)
+    with impact_engine.connect() as conn:
+        roster = next(t for t in analyze(conn, s)["rosters"] if t["team_id"] == ALPHAS)
+    want = {p["player_id"]: p["xlift"] for p in roster["players"] if p["xlift"] is not None}
+    got = {e["player_id"]: e["xlift"] for e in r["entries"]}
+    assert got.keys() == want.keys()
+    for pid, v in got.items():
+        assert v == pytest.approx(want[pid], abs=1e-9), pid
+    assert 0.0 in got.values()  # the weakest active player
+    for e in r["entries"]:
+        assert sum(e["by_category"]) == pytest.approx(e["xlift"])
+    assert_ordered(r["entries"])
+    league = board(impact_engine, pool=ALPHAS, evaluate_for="league")
+    assert league["entries"] and {e["owner_team_id"] for e in league["entries"]} == {ALPHAS}
+
+
+def test_all_players_includes_your_own_roster(impact_engine):
+    """All players lists your own players too, valued as on your own team's pool."""
+    every = {e["player_id"]: e for e in board(impact_engine, pool="all")["entries"]}
+    own = board(impact_engine, pool=ALPHAS)["entries"]
+    assert own and all(e["player_id"] in every for e in own)
+    for e in own:
+        assert every[e["player_id"]]["xlift"] == e["xlift"]
+    assert_ordered(list(every.values()))
+
+
+def test_unknown_pool_team_is_not_found(impact_engine):
+    from ffmodel.tools.player_analysis.leaderboard import NotFound
+
+    with pytest.raises(NotFound):
+        board(impact_engine, pool=99)
 
 
 def test_top_keeps_the_head_of_the_order(impact_engine):

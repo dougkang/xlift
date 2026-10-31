@@ -14,6 +14,7 @@ from ffmodel.core.value.xlift import (
     score_candidates,
     score_candidates_by_category,
     score_own,
+    score_own_by_category,
     weakest,
 )
 
@@ -184,4 +185,35 @@ def score_league_by_category(
         warnings.simplefilter("ignore", RuntimeWarning)  # a one-team league: nothing to average
         mean = np.nanmean(per_team, axis=0)
     out |= dict(zip(ids, mean, strict=True))
+    return out
+
+
+def score_team_by_category(
+    scenario,
+    team_id: int,
+    fmt: ScoringFormat,
+    games_per_period: int,
+    spread,
+    roster_projections: dict,
+) -> dict[int, np.ndarray | None]:
+    """`score_rows` per category for one team's own roster: {player: (categories,)}. Active
+    players are scored against a copy of the weakest, reserve players as if they replaced it,
+    so each row sums to the player's xLift in Impact Analysis. Players without a line get None."""
+    pl = lines(roster_projections, games_per_period)
+    team_ids, T = team_totals(scenario, pl, fmt.base_stats)
+    ti = team_ids.index(team_id)
+    baseline = out_line(scenario, team_id, ti, T, pl, fmt, spread)
+    active = set(scenario.active_players(team_id))
+    roster = [s.player_id for s in scenario.rosters[team_id]]
+    out: dict[int, np.ndarray | None] = dict.fromkeys(roster)
+    own = [p for p in roster if p in active and p in pl]
+    if own:
+        vals = score_own_by_category(ti, T, np.array([pl[p] for p in own]), baseline, fmt, spread)
+        out |= dict(zip(own, vals, strict=True))
+    reserve = [p for p in roster if p not in active and p in pl]
+    if reserve:
+        vals = score_candidates_by_category(
+            ti, T, baseline, np.array([pl[p] for p in reserve]), fmt, spread
+        )
+        out |= dict(zip(reserve, vals, strict=True))
     return out

@@ -159,8 +159,11 @@ def build_changes(original: dict, current: dict, orig_comp, comp, s) -> dict:
     cur_series = {r["team_id"]: r for r in current["radar"]["series"]}
     orig_series = {r["team_id"]: r for r in original["radar"]["series"]}
     show = [me]
-    if tactical and orig_comp.active.get(opp) != comp.active.get(opp):
-        show.append(opp)
+    # The opponent on screen: tactical's, or the focused H2H opponent (011), when a move
+    # changed their roster.
+    other = opp if tactical else s.focus_opponent_id
+    if other is not None and orig_comp.active.get(other) != comp.active.get(other):
+        show.append(other)
     radar = {
         "original": [
             {
@@ -212,8 +215,12 @@ def build_changes(original: dict, current: dict, orig_comp, comp, s) -> dict:
                     row["rank"], o["rank"], decimals=COUNT_DECIMALS, better_when="lower"
                 ),
                 "average": change(row["average"], o["average"], decimals=d, better_when=_dir(cat)),
+                # Focused (011): the opponent's average, so a better opponent is worse for you.
                 "league_average": change(
-                    row["league_average"], o["league_average"], decimals=d, better_when="neutral"
+                    row["league_average"],
+                    o["league_average"],
+                    decimals=d,
+                    better_when=_inverse(cat) if s.focus_opponent_id is not None else "neutral",
                 ),
                 "leader_average": change(
                     row["leader_average"], o["leader_average"], decimals=d, better_when="neutral"

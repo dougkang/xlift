@@ -43,11 +43,53 @@ function ResultCell({ result, change }: { result: "win" | "loss" | "tie"; change
 
 type Expected = Schemas["ExpectedRecordModel"];
 
+/** Focusing on an opponent (011): clicking a row compares the page with that team; clicking it
+ * again returns to the league. */
+export interface FocusProps {
+  focusId?: number | null;
+  onFocus?: (opponentId: number) => void;
+}
+
+/** Row props: the whole row is the mouse target and the focused row is marked like a selected
+ * row (style guide). */
+function rowProps(id: number, { focusId, onFocus }: FocusProps) {
+  return {
+    className: [id === focusId ? "opponent-row" : "", onFocus ? "focusable-row" : ""].join(" ").trim() || undefined,
+    onClick: onFocus ? () => onFocus(id) : undefined,
+  };
+}
+
+/** The opponent's name; a button when rows are focusable, for keyboard and screen readers. */
+function OpponentName({ m, focus }: { m: Schemas["MatchupModel"]; focus: FocusProps }) {
+  const label = (
+    <>
+      {m.opponent_name} <span className="sub">{m.opponent_manager}</span>
+    </>
+  );
+  if (!focus.onFocus) return label;
+  return (
+    <button
+      type="button"
+      className="row-focus"
+      aria-pressed={m.opponent_id === focus.focusId}
+      title={m.opponent_id === focus.focusId ? "Back to the league" : `Compare with ${m.opponent_name}`}
+      onClick={(e) => {
+        e.stopPropagation(); // the row's own click would toggle it back
+        focus.onFocus!(m.opponent_id);
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 /** An expected category record with its change in expected wins below (010). */
 function ExpectedWLT({ record, change }: { record: Expected; change?: Schemas["Change"] | null }) {
+  // A winning record (more W than L, as shown) is bold, like a W in the Result column.
+  const { wins, losses } = record.record;
   return (
     <span className="with-delta">
-      <span className={`nowrap${change ? ` wins-${change.tone}` : ""}`}>{formatRecord(record)}</span>
+      <span className={`nowrap${wins > losses ? " record-winning" : ""}`}>{formatRecord(record)}</span>
       <span className="delta-line">
         <Delta change={change} />
       </span>
@@ -57,7 +99,7 @@ function ExpectedWLT({ record, change }: { record: Expected; change?: Schemas["C
 
 /** Each-category standings (010): the expected category record per opponent; there is no
  * matchup result. */
-function CategoryRecordTable({ result }: { result: AnalysisResult }) {
+function CategoryRecordTable({ result, focus }: { result: AnalysisResult; focus: FocusProps }) {
   const changes = result.changes;
   const total = result.matchup_totals?.expected;
   if (!total) return null;
@@ -76,12 +118,9 @@ function CategoryRecordTable({ result }: { result: AnalysisResult }) {
         <tbody>
           {result.matchups.map((m) =>
             m.expected_record ? (
-              <tr
-                key={m.opponent_id}
-                className={m.opponent_id === result.settings.opponent_id ? "opponent-row" : undefined}
-              >
+              <tr key={m.opponent_id} {...rowProps(m.opponent_id, focus)}>
                 <td className="name-col">
-                  {m.opponent_name} <span className="sub">{m.opponent_manager}</span>
+                  <OpponentName m={m} focus={focus} />
                 </td>
                 <td className="num nowrap">
                   <ExpectedWLT
@@ -106,11 +145,11 @@ function CategoryRecordTable({ result }: { result: AnalysisResult }) {
   );
 }
 
-export function RecordTable({ result }: { result: AnalysisResult }) {
+export function RecordTable({ result, ...focus }: { result: AnalysisResult } & FocusProps) {
   const changes = result.changes;
   const totals = result.matchup_totals;
   if (!result.matchups.length || !totals) return null;
-  if (result.standings === "category") return <CategoryRecordTable result={result} />;
+  if (result.standings === "category") return <CategoryRecordTable result={result} focus={focus} />;
   return (
     <section>
       <h3 className="section-divider">
@@ -127,12 +166,9 @@ export function RecordTable({ result }: { result: AnalysisResult }) {
         </thead>
         <tbody>
           {result.matchups.map((m) => (
-            <tr
-              key={m.opponent_id}
-              className={m.opponent_id === result.settings.opponent_id ? "opponent-row" : undefined}
-            >
+            <tr key={m.opponent_id} {...rowProps(m.opponent_id, focus)}>
               <td className="name-col">
-                {m.opponent_name} <span className="sub">{m.opponent_manager}</span>
+                <OpponentName m={m} focus={focus} />
               </td>
               <td className="num nowrap">
                 <WLT counts={m.category_record} change={changes?.matchups[String(m.opponent_id)]?.category_record} />

@@ -26,7 +26,7 @@
 | as_of | date \| null | today | |
 | fragility | `none` \| `last15` \| `dab` \| `dab_tag` | `dab_tag` | |
 | evaluate_for | `team` \| `league` | `team` | |
-| pool | `free_agents` \| `all` | `free_agents` | |
+| pool | `free_agents` \| `all` \| team id | `free_agents` | a team id lists only that team's players (amended 2026-10-29); under `evaluate_for: team` the evaluated team's own players are listed beside it (and in `all`), valued as in Impact Analysis; its own id lists just its roster; unknown team → 404 |
 | top | int | 25 | 10–50, multiple of 5 |
 | min_games | int | 5 | 1–15 |
 

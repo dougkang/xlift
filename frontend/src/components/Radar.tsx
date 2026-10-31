@@ -111,6 +111,15 @@ export function Radar({ result, scale = "rank" }: { result: AnalysisResult; scal
         </path>
       ))}
     </svg>
+    {/* Focused on an H2H opponent (011): name them; the League Average isn't drawn. */}
+    {result.focus && (
+      <div className="curve-legend radar-legend">
+        <span className="legend-item">
+          <span className="swatch line-swatch" style={{ borderTop: "2px solid var(--opp)" }} />
+          {result.focus.opponent_name}
+        </span>
+      </div>
+    )}
     {league.length > 0 && (
       <div className="curve-legend radar-legend">
         {league.map((l) => (

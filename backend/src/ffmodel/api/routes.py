@@ -87,6 +87,7 @@ def _settings(req: schemas.ScenarioRequest) -> AnalysisSettings:
         iterations=req.iterations,
         seed=req.seed,
         fragility=req.fragility,
+        focus_opponent_id=req.focus_opponent_id,
     )
 
 

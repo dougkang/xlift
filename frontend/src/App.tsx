@@ -38,6 +38,8 @@ export function toRequest(state: ScenarioState): ScenarioRequest | null {
     window: s.window,
     fragility: s.fragility,
     moves: state.moves,
+    // Strategic only: tactical already compares with one opponent (011).
+    focus_opponent_id: s.mode === "strategic" ? state.focusOpponentId : null,
   };
 }
 
@@ -145,6 +147,7 @@ export function ImpactAnalysis({
       opponentName: result?.header.matchup?.opponent_name ?? null,
       asOf: league?.current_matchup?.as_of ?? null,
       standings: result?.standings ?? "matchup",
+      focusName: result?.focus?.opponent_name ?? null,
     }),
     [state.settings.mode, state.settings.window, result, league],
   );
@@ -250,7 +253,11 @@ export function ImpactAnalysis({
                         helpTopic="opponentRoster"
                       />
                     ) : (
-                      <RecordTable result={result} />
+                      <RecordTable
+                        result={result}
+                        focusId={state.focusOpponentId}
+                        onFocus={(id) => dispatch({ type: "toggleFocus", opponentId: id })}
+                      />
                     )}
                   </div>
                 </div>

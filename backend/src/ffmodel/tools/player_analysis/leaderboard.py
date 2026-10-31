@@ -13,7 +13,11 @@ from ffmodel.core.data import get_league, get_player_details
 from ffmodel.core.model import fragility
 from ffmodel.core.scenario import from_snapshot
 from ffmodel.core.scoring import UnsupportedFormat, get_format
-from ffmodel.core.value import score_league_by_category, score_pool_by_category
+from ffmodel.core.value import (
+    score_league_by_category,
+    score_pool_by_category,
+    score_team_by_category,
+)
 from ffmodel.tools.player_analysis.settings import (
     LeaderboardQuery,
     PlayerAnalysisSettings,
@@ -37,6 +41,9 @@ def leaderboard(conn, settings: PlayerAnalysisSettings, query: LeaderboardQuery)
     names = {t.fantasy_team_id: t.name for t in snapshot.teams}
     if s.team_id not in names:
         raise NotFound(f"no team {s.team_id} in league {s.league_id}")
+    one_team = query.pool if isinstance(query.pool, int) else None  # a team's players only
+    if one_team is not None and one_team not in names:
+        raise NotFound(f"no team {one_team} in league {s.league_id}")
     scenario = from_snapshot(snapshot)
     out = {
         "settings": {
@@ -83,8 +90,11 @@ def leaderboard(conn, settings: PlayerAnalysisSettings, query: LeaderboardQuery)
             continue
         if team is not None and query.pool == "free_agents":
             continue
-        if team == s.team_id and query.evaluate_for == "team":
-            continue  # the team being scored
+        # One team's players; under Your team, with the team's own players beside them for
+        # comparison.
+        yours = query.evaluate_for == "team" and team == s.team_id
+        if one_team is not None and team != one_team and not yours:
+            continue
         candidates.append(pid)
 
     statuses = {pid: status for pid, (_, status) in pool.items()}
@@ -104,9 +114,16 @@ def leaderboard(conn, settings: PlayerAnalysisSettings, query: LeaderboardQuery)
             scenario, pool_proj, fmt, s.games_per_period, spread, roster_proj
         )
     else:
+        # Other players replace the team's weakest active player; the team's own roster is
+        # valued against that weakest player, as Impact Analysis values it (one scale).
+        others = {p: v for p, v in pool_proj.items() if owner.get(p) != s.team_id}
         scores = score_pool_by_category(
-            scenario, s.team_id, pool_proj, fmt, s.games_per_period, spread, roster_proj
+            scenario, s.team_id, others, fmt, s.games_per_period, spread, roster_proj
         )
+        if any(owner.get(p) == s.team_id for p in candidates):
+            scores |= score_team_by_category(
+                scenario, s.team_id, fmt, s.games_per_period, spread, roster_proj
+            )
 
     rows = []
     for pid in candidates:

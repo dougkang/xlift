@@ -7,6 +7,7 @@ from ffmodel.core.value.scenario import (
     score_pool,
     score_pool_by_category,
     score_rows,
+    score_team_by_category,
     team_totals,
     weekly_spread,
 )
@@ -16,6 +17,7 @@ from ffmodel.core.value.xlift import (
     score_candidates,
     score_candidates_by_category,
     score_own,
+    score_own_by_category,
     team_keys,
     weakest,
 )
@@ -31,9 +33,11 @@ __all__ = [
     "score_candidates",
     "score_candidates_by_category",
     "score_own",
+    "score_own_by_category",
     "score_pool",
     "score_pool_by_category",
     "score_rows",
+    "score_team_by_category",
     "team_keys",
     "team_totals",
     "weakest",

@@ -23,6 +23,7 @@ __all__ = [
     "score_candidates",
     "score_candidates_by_category",
     "score_own",
+    "score_own_by_category",
     "team_keys",
     "weakest",
 ]
@@ -130,5 +131,20 @@ def score_own(
     weak = np.asarray(weakest_line, dtype=float)
     now = _wins_with(team_idx, T, T[team_idx], fmt, spread)
     out = now - _wins_with(team_idx, T, T[team_idx] - own + weak, fmt, spread)
+    out[np.all(own == weak, axis=1)] = 0.0
+    return out
+
+
+def score_own_by_category(
+    team_idx: int, T: np.ndarray, own_lines, weakest_line, fmt: ScoringFormat, spread
+) -> np.ndarray:
+    """`score_own` per category, (players, categories) in `fmt.categories` order: the wins in each
+    category the team would lose if each own player were replaced by the weakest, summed over
+    opponents. Rows sum to `score_own`; the weakest player's row is all zeros."""
+    own = np.asarray(own_lines, dtype=float).reshape(-1, T.shape[-1])
+    weak = np.asarray(weakest_line, dtype=float)
+    others = team_keys(np.delete(np.asarray(T, dtype=float), team_idx, axis=0), fmt)
+    now = _wins_by_category(team_keys(T[team_idx], fmt), others, spread)
+    out = now - _wins_by_category(team_keys(T[team_idx] - own + weak, fmt), others, spread)
     out[np.all(own == weak, axis=1)] = 0.0
     return out

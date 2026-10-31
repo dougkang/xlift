@@ -10,6 +10,11 @@ const avgDelta = (cat: Schemas["CategoryInfo"]) =>
   cat.decimals > 0 ? { decimals: cat.decimals, ratio: true } : { decimals: 1 };
 type DifferenceRow = Schemas["DifferenceRow"];
 
+/** A column header that fits: long team names are cut, with the full name on hover (011). */
+export function shortName(name: string, max = 12): string {
+  return name.length > max ? `${name.slice(0, max - 1)}…` : name;
+}
+
 export function CategoryTable({ result }: { result: AnalysisResult }) {
   const table = result.category_table;
   if (!table) return null;
@@ -26,9 +31,23 @@ export function CategoryTable({ result }: { result: AnalysisResult }) {
             <th className="col-header" aria-label="Category" />
             <th className="col-header num">Rank</th>
             <th className="col-header num">Avg</th>
-            <th className="col-header num">League</th>
+            {/* Focused on an H2H opponent (011), the League column is that opponent's averages. */}
+            {result.focus ? (
+              <th className="col-header num nowrap" title={result.focus.opponent_name}>
+                {shortName(result.focus.opponent_name)}
+              </th>
+            ) : (
+              <th className="col-header num">League</th>
+            )}
             <th className="col-header num">Leader</th>
-            <th className="col-header num" title="Chance of beating a random league opponent in this category">
+            <th
+              className="col-header num"
+              title={
+                result.focus
+                  ? `Chance of beating ${result.focus.opponent_name} in this category`
+                  : "Chance of beating a random league opponent in this category"
+              }
+            >
               Win %
             </th>
           </tr>

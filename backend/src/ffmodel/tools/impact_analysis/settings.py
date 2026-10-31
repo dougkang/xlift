@@ -30,6 +30,8 @@ class AnalysisSettings:
     period_start: date | None = None
     period_end: date | None = None
     matchup_as_of: date | None = None
+    # Strategic: the H2H opponent the page compares with instead of the league (011).
+    focus_opponent_id: int | None = None
 
     @property
     def remaining(self) -> tuple[date, date] | None:
@@ -49,6 +51,7 @@ def normalize(
     s = replace(s, as_of=s.as_of or today or date.today())
     if s.mode != "tactical":
         return s
+    s = replace(s, focus_opponent_id=None)  # tactical already compares with one opponent (011)
     line = state.lines.get(s.team_id) if state else None
     if line is None:
         return replace(s, opponent_id=None, period_start=None, period_end=None, matchup_as_of=None)

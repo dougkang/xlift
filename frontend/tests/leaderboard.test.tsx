@@ -48,6 +48,15 @@ function zeroX(): number {
 }
 
 describe("the leaderboard chart", () => {
+  it("marks the evaluated team's players as yours", () => {
+    const entries = board.entries.map((e, i) => ({ ...e, owner_team_id: i === 0 ? 4 : e.owner_team_id }));
+    render(<Leaderboard categories={board.categories} entries={entries} yours={4} />);
+    const rows = screen.getAllByTestId("leaderboard-row");
+    expect(rows[0]).toHaveClass("yours");
+    expect(rows.slice(1).some((r) => r.classList.contains("yours"))).toBe(false);
+    cleanup();
+  });
+
   it("draws rows in the server's order with name, owner, status and signed net", () => {
     render(<Leaderboard categories={board.categories} entries={board.entries} />);
     const rows = screen.getAllByTestId("leaderboard-row");
@@ -133,7 +142,7 @@ describe("the Player Analysis page", () => {
     renderPage();
     await screen.findAllByTestId("leaderboard-row", undefined, { timeout: 2000 });
     fireEvent.change(screen.getByLabelText("Evaluate for"), { target: { value: "league" } });
-    fireEvent.click(screen.getByRole("radio", { name: "All players" }));
+    fireEvent.change(screen.getByLabelText("Pool"), { target: { value: "all" } });
     fireEvent.change(screen.getByLabelText("Show top"), { target: { value: "50" } });
     fireEvent.change(screen.getByLabelText("Min games"), { target: { value: "10" } });
     await waitFor(() =>
@@ -145,6 +154,32 @@ describe("the Player Analysis page", () => {
       top: 50,
       minGames: 10,
     });
+  });
+
+  it("Pool is a dropdown of free agents, all players and every other team", async () => {
+    renderPage();
+    await screen.findAllByTestId("leaderboard-row", undefined, { timeout: 2000 });
+    const pool = screen.getByLabelText("Pool") as HTMLSelectElement;
+    const options = () => [...pool.options].map((o) => o.textContent);
+    // Deltas (4) are evaluated for: their players sit beside any team's, so they aren't a choice.
+    expect(options()).toEqual(["Free agents", "All players", "Alphas", "Betas", "Gammas"]);
+    fireEvent.change(pool, { target: { value: "3" } });
+    await waitFor(() => expect(lastRequest()).toMatchObject({ pool: 3 }));
+    expect(JSON.parse(sessionStorage.getItem("ffm.player-analysis.v1")!).pool).toBe(3);
+    // Under League no team is evaluated for, so every team is offered.
+    fireEvent.change(screen.getByLabelText("Evaluate for"), { target: { value: "league" } });
+    expect(options()).toEqual(["Free agents", "All players", "Alphas", "Betas", "Gammas", "Deltas"]);
+  });
+
+  it("a stored team pool that no longer applies falls back to free agents", async () => {
+    for (const stored of [99, 4]) {
+      sessionStorage.setItem("ffm.player-analysis.v1", JSON.stringify({ pool: stored }));
+      renderPage();
+      await screen.findAllByTestId("leaderboard-row", undefined, { timeout: 2000 });
+      await waitFor(() => expect(lastRequest()).toMatchObject({ pool: "free_agents" }));
+      expect((screen.getByLabelText("Pool") as HTMLSelectElement).value).toBe("free_agents");
+      cleanup();
+    }
   });
 
   it("picks the team in Evaluate for, with League as an option and no separate Team control", async () => {

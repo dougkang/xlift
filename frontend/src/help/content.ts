@@ -30,7 +30,11 @@ export interface HelpContext {
   /** How a matchup enters the standings (010): one W/L/T per matchup, or one per category.
    * Defaults to per matchup. */
   standings?: "matchup" | "category";
+  /** The focused H2H opponent's name (011), when the page compares with one team. */
+  focusName?: string | null;
 }
+
+const FOCUS_HINT = "Click a row to compare with that team in the radar, table and charts; click it again for the league.";
 
 export interface HelpTopic {
   title: string;
@@ -140,14 +144,16 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
           ],
         },
 
-  radar: () => ({
+  radar: (ctx) => ({
     title: "Radar",
     controls: [
       ["Rank / Average / Win %", "how far out each spoke goes; the league's best is at the edge."],
       ["Score on each tab", "your area score for that scale."],
     ],
     reading: [
-      "Your team is navy; other teams are outlines.",
+      ctx.focusName
+        ? `Comparing with ${ctx.focusName}: only your two shapes. On Win %, each spoke is your chance of winning that category against them.`
+        : "Your team is navy; other teams are outlines.",
       "Where another outline pokes past yours, that team beats you in the category.",
       "A dotted outline is your shape before moves.",
     ],
@@ -165,10 +171,19 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
           reading: [
             "Rank: 1 is best.",
             "Avg: your projected weekly total.",
-            "League: the league average. Leader: the best team's average; hover it to see the team.",
+            ctx.focusName
+              ? `${ctx.focusName}: their projected average. Leader: the best team's average; hover it to see the team.`
+              : "League: the league average. Leader: the best team's average; hover it to see the team.",
             BEFORE,
           ],
-          terms: [["Win %", "your chance of beating a random league team in this category; ties count half."]],
+          terms: [
+            [
+              "Win %",
+              ctx.focusName
+                ? `your chance of beating ${ctx.focusName} in this category; ties count half.`
+                : "your chance of beating a random league team in this category; ties count half.",
+            ],
+          ],
         }
       : {
           title: "Per Category Difference",
@@ -211,6 +226,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
             "One row per opponent; Total sums every row and matches the headline.",
             "Record: your expected categories won–lost–tied against them in the simulations.",
             "The number below a record is the change in expected wins from your moves.",
+            FOCUS_HINT,
           ],
         }
       : {
@@ -220,6 +236,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
             "H2H: projected categories won–lost–tied against them in the simulations.",
             "Win: your chance to win the matchup.",
             "Result: W if you win in more than half the simulations. A bold green W means your moves turned a loss into a win; bold red, the reverse.",
+            FOCUS_HINT,
           ],
         },
 
@@ -228,7 +245,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     reading: [
       "Each chart shows the spread of your simulated weekly totals; lines mark averages.",
       ctx.mode === "strategic"
-        ? "League Leader and League Average are overlaid."
+        ? `League Leader and ${ctx.focusName ?? "League Average"} are overlaid.`
         : `Your opponent${ctx.opponentName ? ` (${ctx.opponentName})` : ""} is overlaid.`,
       "A dotted \"(before)\" shape is your distribution before moves.",
       ...(ctx.mode === "strategic"
@@ -269,7 +286,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
       ["Last X games / Fragility Penalty", `as in Impact Analysis (now ${ctx.window} games).`],
       ["League", "whose league to rank players in."],
       ["Evaluate for", "a team scores each player for that team, replacing its weakest active player; it's also the team Impact Analysis opens. League averages that over every team but the player's own."],
-      ["Pool", "All players adds players on other teams."],
+      ["Pool", "free agents, all players, or one team's players beside yours (yellow). Your players are valued against your weakest starter, as on your roster."],
       ["Show top", "how many players are shown."],
       ["Min games", "hides projections built on fewer games."],
     ],
