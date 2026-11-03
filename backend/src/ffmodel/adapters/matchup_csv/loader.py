@@ -1,7 +1,8 @@
 """Loads a matchups export as a league's current matchup state (005, contracts/matchups-csv.md).
 
 All-or-nothing: if any row is invalid, nothing is written and the run is recorded as `rejected`
-with a full report. The as-of date and the period default from the file's modified date.
+with a full report. The as-of date defaults from the file's modified date; the period from the
+file's week_start to that week's Sunday, else the Monday–Sunday week of the as-of date.
 """
 
 from datetime import date, timedelta
@@ -65,7 +66,13 @@ def load_matchups(
     period_end: date | None = None,
 ) -> LoadSummary:
     as_of = as_of or file_date(path)
-    default_start, default_end = week_of(as_of)
+    rows, problems = parse_matchups_csv(path)
+    # Weeks end on Sunday. The file's week_start places the week (week 1 starts midweek); its
+    # week_end is not trusted, as the scoreboard has shown a Monday end.
+    file_start = next((r.period[0] for r in rows if r.period), None)
+    default_start, default_end = (
+        (file_start, week_of(file_start)[1]) if file_start else week_of(as_of)
+    )
     start, end = period_start or default_start, period_end or default_end
     scope = {
         "path": str(path),
@@ -76,7 +83,6 @@ def load_matchups(
     run_id = start_run(engine, SOURCE, scope)
     summary = LoadSummary(run_id=run_id, outcome="running")
     try:
-        rows, problems = parse_matchups_csv(path)
         if end < start:
             problems.append(Problem("BAD_PERIOD", f"period end {end} is before start {start}"))
         with engine.begin() as conn:

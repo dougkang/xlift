@@ -1,5 +1,7 @@
 """matchups.csv parsing (005 contracts/matchups-csv.md)."""
 
+from datetime import date
+
 import pytest
 
 from ffmodel.adapters.matchup_csv.parse import parse_matchups_csv
@@ -70,9 +72,33 @@ def test_bad_pairing(tmp_path, rows):
     assert "BAD_PAIRING" in kinds(problems)
 
 
-def test_weeks_must_agree(tmp_path):
-    _, problems = parse_matchups_csv(write(tmp_path, A, "2" + B[1:]))
+def test_latest_week_kept(tmp_path):
+    # A snapshot taken the day a week ends holds last week's final rows, then this week's.
+    rows, problems = parse_matchups_csv(write(tmp_path, A, B, "2" + A[1:], "2" + B[1:]))
+    assert problems == []
+    assert [(r.week, r.line_no) for r in rows] == [(2, 4), (2, 5)]
+
+
+PERIOD_HEADER = HEADER + ",captured_at,week_start,week_end"
+STAMP = ",2026-10-26T22:00:58-07:00,2026-10-26,2026-11-02"
+
+
+def test_period_columns(tmp_path):
+    rows, problems = parse_matchups_csv(write(tmp_path, A + STAMP, B + STAMP, header=PERIOD_HEADER))
+    assert problems == []
+    assert rows[0].period == (date(2026, 10, 26), date(2026, 11, 2))
+
+
+def test_periods_must_agree(tmp_path):
+    other = B + STAMP.replace("11-02", "11-01")
+    _, problems = parse_matchups_csv(write(tmp_path, A + STAMP, other, header=PERIOD_HEADER))
     assert "INCONSISTENT" in kinds(problems)
+
+
+def test_bad_period_date(tmp_path):
+    bad = B + STAMP.replace("2026-11-02", "soon")
+    _, problems = parse_matchups_csv(write(tmp_path, A + STAMP, bad, header=PERIOD_HEADER))
+    assert "MALFORMED" in kinds(problems)
 
 
 @pytest.mark.parametrize(

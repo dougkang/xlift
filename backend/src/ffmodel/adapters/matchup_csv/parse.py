@@ -2,6 +2,7 @@
 
 import csv
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 # File column -> contract column. Other columns (team_name, cat_wins, display %) are ignored.
@@ -19,6 +20,8 @@ STATS = {
     "to": "tov",
 }
 REQUIRED = ("week", "team_id", "opponent_id", *STATS)
+# The capture's provenance columns: the week's first and last day, when present.
+PERIOD = ("week_start", "week_end")
 
 
 @dataclass(frozen=True)
@@ -28,6 +31,7 @@ class MatchupRow:
     team_key: str
     opponent_key: str
     totals: dict[str, int]  # contract column names
+    period: tuple[date, date] | None = None  # (week_start, week_end) from the file
 
 
 @dataclass(frozen=True)
@@ -55,6 +59,8 @@ def _totals_problems(row: MatchupRow) -> list[str]:
 
 
 def parse_matchups_csv(path: str | Path) -> tuple[list[MatchupRow], list[Problem]]:
+    """Rows for the latest week in the file. A daily snapshot taken the day a week ends also
+    holds the week before (its final score); those rows are dropped."""
     rows: list[MatchupRow] = []
     problems: list[Problem] = []
     with open(path, encoding="utf-8-sig", newline="") as fh:
@@ -62,6 +68,7 @@ def parse_matchups_csv(path: str | Path) -> tuple[list[MatchupRow], list[Problem
         missing = [c for c in REQUIRED if c not in (reader.fieldnames or [])]
         if missing:
             return [], [Problem("MISSING", f"missing columns: {', '.join(missing)}")]
+        has_period = all(c in (reader.fieldnames or []) for c in PERIOD)
         for line_no, raw in enumerate(reader, start=2):
             values = {c: (raw.get(c) or "").strip() for c in REQUIRED}
             numbers = {}
@@ -76,6 +83,15 @@ def parse_matchups_csv(path: str | Path) -> tuple[list[MatchupRow], list[Problem
             if not values["team_id"] or not values["opponent_id"]:
                 problems.append(Problem("MISSING", "team_id and opponent_id are required", line_no))
                 continue
+            period = None
+            if has_period:
+                try:
+                    period = tuple(date.fromisoformat((raw.get(c) or "").strip()) for c in PERIOD)
+                except ValueError:
+                    problems.append(
+                        Problem("MALFORMED", "week_start and week_end must be dates", line_no)
+                    )
+                    continue
             if len(numbers) < 1 + len(STATS):
                 continue
             row = MatchupRow(
@@ -84,20 +100,25 @@ def parse_matchups_csv(path: str | Path) -> tuple[list[MatchupRow], list[Problem
                 team_key=values["team_id"],
                 opponent_key=values["opponent_id"],
                 totals={STATS[c]: numbers[c] for c in STATS},
+                period=period,
             )
             for msg in _totals_problems(row):
                 problems.append(Problem("BAD_TOTALS", f"{row.team_key}: {msg}", line_no))
             rows.append(row)
 
+    if rows:
+        latest = max(r.week for r in rows)
+        rows = [r for r in rows if r.week == latest]
     problems += _file_problems(rows)
     return rows, problems
 
 
 def _file_problems(rows: list[MatchupRow]) -> list[Problem]:
     problems = []
-    weeks = sorted({r.week for r in rows})
-    if len(weeks) > 1:
-        problems.append(Problem("INCONSISTENT", f"rows cover several weeks: {weeks}"))
+    periods = sorted({r.period for r in rows if r.period})
+    if len(periods) > 1:
+        shown = ", ".join(f"{a}–{b}" for a, b in periods)
+        problems.append(Problem("INCONSISTENT", f"rows give several periods: {shown}"))
     by_team: dict[str, MatchupRow] = {}
     for r in rows:
         if r.team_key in by_team:

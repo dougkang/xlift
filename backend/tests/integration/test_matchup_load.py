@@ -61,6 +61,19 @@ def test_load_with_dates_from_file(impact_engine, tmp_path):
     assert tuple(run) == ("matchups_csv", "succeeded")
 
 
+def test_period_from_file(impact_engine, tmp_path):
+    header = HEADER + ",week_start,week_end"
+    rows = [r + ",2026-11-17,2026-11-23" for r in ROWS]  # starts Tuesday; a Monday week_end
+    p = tmp_path / "2026-11-18.csv"
+    p.write_text("\n".join([header, *rows]) + "\n", encoding="utf-8")
+    os.utime(p, (CAPTURED.timestamp(), CAPTURED.timestamp()))
+    summary = load_matchups(impact_engine, p, "impact-league")
+    assert summary.outcome == "succeeded", summary.report
+    s = state(impact_engine)
+    # The file's start, ending that week's Sunday: the scoreboard's week_end is not trusted.
+    assert (s.period_start, s.period_end) == (date(2026, 11, 17), date(2026, 11, 22))
+
+
 def test_explicit_dates_override(impact_engine, tmp_path):
     load_matchups(
         impact_engine,

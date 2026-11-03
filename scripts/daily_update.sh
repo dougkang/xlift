@@ -46,12 +46,16 @@ run() {
 }
 
 ROSTERS="$CCSV_DIR/data/rosters.csv"
-MATCHUPS="$CCSV_DIR/data/matchups.csv"
 
 if [[ $capture == 1 ]]; then
   step "Capture rosters and matchups from Yahoo (Chrome)"
   (cd "$CCSV_DIR" && run uv run python tools/chrome_capture.py dailies)
 fi
+
+# The capture keeps one matchup snapshot per day (data/matchups/YYYY-MM-DD.csv); load the newest,
+# found after the capture so today's counts. Older captures wrote a single data/matchups.csv.
+MATCHUPS="$(ls "$CCSV_DIR"/data/matchups/????-??-??.csv 2>/dev/null | sort | tail -n 1)"
+MATCHUPS="${MATCHUPS:-$CCSV_DIR/data/matchups.csv}"
 
 cd "$REPO/backend"
 
