@@ -26,3 +26,6 @@ frontend/dist/
 
 # marimo local session cache
 analysis/__marimo__/
+
+# Backtest output (holds ESPN data, which stays out of the repo)
+analysis/output/
