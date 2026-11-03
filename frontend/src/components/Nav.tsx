@@ -19,6 +19,8 @@ export function Nav({ current }: { current: Route }) {
           {label}
         </a>
       ))}
+      {/* A plain page explaining xLift and dAB, served beside the app. */}
+      <a href="./how-it-works.html">How it works</a>
     </nav>
   );
 }

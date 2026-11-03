@@ -1,0 +1,470 @@
+<meta charset="utf-8">
+<title>xLift and dAB</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one 1100px newspaper page; text and figures run its full width.
+   Tokens follow docs/style.md ("newspaper meets nutrition label"); the tools are light-only, so
+   this page commits to the same single light look. */
+:root {
+  color-scheme: light;
+  --ink: #111;
+  --paper: #fff;
+  --yours: #f5c518;
+  --muted: #555;
+  --faint: #888;
+  --rule: #ccc;
+  --hover: #eee;
+  --better: #5c8e4e;
+  --worse: #c00;
+  --sel: #1c324a;        /* primary: your team */
+  --sel-light: #9dc0f5;
+  --opp: #a96043;        /* secondary: the other team */
+  --opp-light: #f5c1a9;
+  --league: #898240;     /* tertiary: league references */
+  --league-light: #c5be60;
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --data-size: 0.78rem;
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.5; }
+.page {
+  max-width: 1100px; margin: 0 auto;
+  padding-block: 1.25rem 4rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+/* Tool nav, as in the app (docs/style.md "Layout"): shown only when the app serves this page. */
+.tool-nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin-bottom: 0.75rem; font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; }
+.tool-nav a { color: var(--muted); text-decoration: none; font-weight: 700; }
+.tool-nav a:hover { color: var(--ink); }
+.tool-nav a.current { color: var(--ink); font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
+.kicker { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.35rem; }
+.masthead { font-size: clamp(2.2rem, 6vw, 3rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1; margin: 0; padding-bottom: 0.6rem; border-bottom: 4px solid var(--ink); text-wrap: balance; }
+.dek { font-size: 1.15rem; margin: 0.9rem 0 0; }
+.byline { font-size: var(--data-size); color: var(--muted); margin: 0.5rem 0 0; }
+h2.divider { text-align: center; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; font-weight: 800; margin: 3rem 0 1.25rem; padding-bottom: 0.35rem; border-bottom: 2px solid var(--ink); }
+h3 { font-size: 1.15rem; font-weight: 800; margin: 2rem 0 0.4rem; text-wrap: balance; }
+.text { max-width: none; }
+.text p { margin: 0 0 1rem; }
+.text ol, .text ul { margin: 0 0 1rem; padding-left: 1.25rem; }
+.text li { margin-bottom: 0.4rem; }
+strong { font-weight: 700; }
+.mark { background: var(--yours); padding: 0 0.15em; }
+.minus { white-space: nowrap; }
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1.5rem 2.5rem; align-items: start; }
+.two-col > * { min-width: 0; }
+
+/* Figures */
+figure { margin: 1.5rem 0 2rem; }
+figcaption { font-size: var(--data-size); color: var(--muted); margin-top: 0.5rem; }
+.fig-title { font-weight: 700; font-size: 0.95rem; margin: 0 0 0.25rem; }
+.col-header { font-size: 0.65rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.chart { width: 100%; overflow-x: auto; }
+svg { display: block; max-width: 100%; height: auto; font-family: var(--font); }
+svg text { fill: var(--ink); font-size: 11px; }
+svg .muted { fill: var(--muted); }
+
+/* Controls: quiet until reached for (style guide) */
+.controls { display: flex; flex-wrap: wrap; gap: 0.75rem 1.75rem; align-items: end; margin: 0.5rem 0 0.75rem; font-size: var(--data-size); }
+.control { display: grid; gap: 0.2rem; min-width: 12rem; }
+.control label { font-size: 0.65rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.control output { font-weight: 700; font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--ink); }
+select { font: inherit; font-size: var(--data-size); border: 0; border-bottom: 1px solid var(--rule); background: var(--paper); color: var(--ink); padding: 0.15rem 1.2rem 0.15rem 0; border-radius: 0; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: right 0.45rem center, right 0.15rem center; background-size: 0.3rem 0.3rem; background-repeat: no-repeat; }
+select:hover { border-bottom-color: var(--ink); }
+input:focus-visible, select:focus-visible { outline: 1px solid var(--ink); outline-offset: 2px; }
+
+.readout { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; align-items: baseline; margin: 0.25rem 0; }
+.big { font-size: 2.25rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.unit { font-size: var(--data-size); color: var(--muted); }
+.delta { font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.better { color: var(--better); }
+.worse { color: var(--worse); }
+
+/* Tables: column header rule only, no row separators */
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: var(--data-size); font-variant-numeric: tabular-nums; }
+th { text-align: left; padding: 0.28rem 0.5rem 0.28rem 0; border-bottom: 1px solid var(--ink); }
+th.num, td.num { text-align: right; }
+td { padding: 0.28rem 0.5rem 0.28rem 0; }
+td.name { font-weight: 700; }
+tr.total td { border-top: 1px solid var(--ink); font-weight: 700; }
+tr.yours td { background: var(--yours); }
+
+.formula { font-size: 0.95rem; padding: 0.6rem 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 1rem 0; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; font-size: var(--data-size); margin: 0.25rem 0 0.5rem; }
+.legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.swatch { width: 0.8rem; height: 0.8rem; display: inline-block; }
+.note { font-size: var(--data-size); color: var(--muted); font-style: italic; }
+.steps { counter-reset: step; list-style: none; padding: 0; }
+.steps > li { counter-increment: step; position: relative; padding-left: 2rem; }
+.steps > li::before { content: counter(step); position: absolute; left: 0; top: 0; font-weight: 900; font-size: 1.1rem; line-height: 1.4; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="page">
+  <nav class="tool-nav" aria-label="Tools" id="tool-nav" hidden>
+    <a href="./#/">Impact Analysis</a>
+    <a href="./#/player-analysis">Player Analysis</a>
+    <a href="./how-it-works.html" class="current" aria-current="page">How it works</a>
+  </nav>
+  <p class="kicker">Impact Analysis &#xB7; Player Analysis &#xB7; How it works</p>
+  <h1 class="masthead">xLift and dAB</h1>
+  <p class="dek">Two numbers sit next to every player in our tools. <strong>xLift</strong> says how many extra category wins a player is worth to your team each week. <strong>dAB</strong> says how often he actually plays. Here is what goes into each, in plain terms.</p>
+  <p class="byline">For our 9-category head-to-head league &#xB7; example numbers are marked</p>
+
+  <h2 class="divider">Why not just rank players?</h2>
+  <div class="text">
+    <p>In a points league you can rank players with one number. In our league you don't win on totals. Each week you face one team, and each of the 9 categories (points, rebounds, assists, steals, blocks, threes, field-goal %, free-throw %, turnovers) is its own little contest. Every category you win is a W in the standings.</p>
+    <p>That makes a player's value depend on <em>your</em> team. Twenty extra rebounds a week are worth a lot if you keep losing rebounds by a hair. They are worth almost nothing if you already win rebounds every week, or lose them by a mile. And a great player who sits out half his games is only half as useful.</p>
+    <p>xLift handles the first problem. dAB handles the second.</p>
+  </div>
+
+  <h2 class="divider">xLift: extra wins per week</h2>
+  <div class="text">
+    <p><strong>xLift</strong> (expected lift) answers one question: <span class="mark">if this player took the place of your weakest starter, how many more categories would you expect to win each week, counting a game against every other team in the league?</span></p>
+    <p>An xLift of <strong>+4.0</strong> means about four more category wins a week, spread over all your possible opponents. Here is how the app gets there.</p>
+  </div>
+
+  <ol class="steps text">
+    <li><strong>A player's typical week.</strong> Take his projected per-game averages (the middle of his distribution; see below), multiply by the three games a player plays in a typical week, then by how often he actually plays (his dAB, below). A player averaging 6 rebounds who plays 90% of the time brings 6 &#xD7; 3 &#xD7; 0.9 = 16.2 rebounds to a typical week.</li>
+    <li><strong>Your team's typical week.</strong> Add up your starters. Field-goal and free-throw percentage are worked out from total makes and total attempts, never by averaging percentages, because that's how the league scores them.</li>
+    <li><strong>Your chance of winning a category against one team.</strong> Weeks are noisy: the same team might post 140 rebounds one week and 180 the next. So the app compares your typical total with theirs, measured against how much totals usually swing from week to week. A small gap with big swings is close to a coin flip. A big gap with small swings is nearly certain. Try it below.</li>
+    <li><strong>Add it all up.</strong> Do that for all 9 categories against every other team (17 of them), and add the chances. That sum is your team's expected category wins for a week, out of a possible 153.</li>
+    <li><strong>Swap the player in.</strong> Replace your weakest starter with the player and add it all up again. The difference is his xLift.</li>
+  </ol>
+
+  <figure>
+    <p class="fig-title">How a gap becomes a chance to win</p>
+    <p class="col-header">Example numbers &#xB7; rebounds, one week, you vs. one opponent</p>
+    <div class="controls">
+      <div class="control">
+        <label for="you-reb">Your team's typical weekly rebounds</label>
+        <input id="you-reb" type="range" min="110" max="210" step="1" value="150">
+        <output id="you-reb-out" for="you-reb">150</output>
+      </div>
+      <div class="readout">
+        <div><div class="col-header">Chance you win rebounds</div><div class="big" id="win-chance">31%</div></div>
+        <div><div class="col-header">A +12-rebound player adds</div><div class="big" id="add-chance">+23%</div><div class="unit">of a win, against this team</div></div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="swatch" style="background: var(--sel-light); border-top: 2px solid var(--sel)"></i>Your weekly total</span>
+      <span><i class="swatch" style="background: var(--opp-light); border-top: 2px solid var(--opp)"></i>Opponent (typical 160)</span>
+    </div>
+    <div class="two-col">
+      <div class="chart"><svg id="curves" viewBox="0 0 520 210" role="img" aria-label="Two bell curves of weekly rebound totals"></svg></div>
+      <div class="chart"><svg id="scurve" viewBox="0 0 520 210" role="img" aria-label="Chance of winning rebounds as your total changes"></svg></div>
+    </div>
+    <figcaption>Left: the spread of each team's weekly rebounds. Where the curves overlap, either team can win. Right: your chance of winning as your typical total moves. Slide toward 160 and a +12-rebound player swings the most. Far to either side the curve is flat, so the same player adds almost nothing.</figcaption>
+  </figure>
+
+  <div class="text">
+    <h3>Averages and distributions</h3>
+    <p>The app doesn't model a player as one number. Each player is a <strong>distribution</strong>: what a typical game looks like, how much his games vary from night to night, and how his stats move together (a big scoring night usually comes with more shot attempts). Recent games count more than old ones, and a short or noisy record is pulled toward a typical player's, so one hot week doesn't fool it.</p>
+    <p>xLift uses two parts of that distribution. Its <strong>middle</strong> (the average) sets the player's typical week in step 1. Its <strong>spread</strong> sets the week-to-week swings in step 3: the app plays out thousands of weeks for every team, drawing each player's games from his distribution, and measures how much a typical team's weekly totals move in each category. That one swing per category is used for every matchup.</p>
+    <p>The rest of Impact Analysis goes further. The radar, the H2H records and the Category Breakdown come from 25,000 simulated weeks per team, with every game drawn from every player's distribution, including how many games he plays. xLift is the quick version of the same idea, fast enough to score every player in the league at once. The trade-off: two players with the same average but different consistency get the same xLift, even though a streaky player makes your weekly totals a little less predictable.</p>
+
+    <h3>Why the flat ends matter</h3>
+    <p>That S-shaped curve is the whole idea behind xLift. A player helps most in categories where you are close to the teams around you, and barely at all where you already dominate or are hopelessly behind. Two players with identical stat lines can have very different xLift on two different teams. A rebounder is gold to a team that loses rebounds 45&#x2013;55, and dead weight to one that wins them 80&#x2013;20.</p>
+    <p>It also means xLift can be <strong>negative in a category</strong>. A high-volume, low-percentage shooter adds points but drags your field-goal % down. If that drop costs you more FG% wins than the points gain, his FG% contribution is below zero.</p>
+
+    <h3>Who counts as your weakest starter?</h3>
+    <p>The starter whose removal would cost you the fewest expected wins. That's the player you would actually drop or bench to make room. If you have an open starting spot, the newcomer simply fills it and his xLift is everything he adds. Your own players are scored the same way, against a copy of your weakest starter, so the weakest starter shows 0.</p>
+
+    <h3>Your team or the league</h3>
+    <p>Impact Analysis shows xLift for your team. Player Analysis can also show it for the league: the same calculation done for every other team and averaged, so you can see who would help a typical team. The chart below is that league view of the top free agents.</p>
+  </div>
+
+  <figure>
+    <p class="fig-title">The best free agents, and where their value comes from</p>
+    <p class="col-header">Real numbers &#xB7; league view &#xB7; free agents &#xB7; Oct 29, 2026 &#xB7; category wins per week</p>
+    <div class="legend" id="cat-legend"></div>
+    <div class="chart"><svg id="leaderboard" viewBox="0 0 760 250" role="img" aria-label="Stacked bars of xLift by category for six free agents"></svg></div>
+    <figcaption>Each bar is split into the wins a player adds in each category. Gains stack right of zero, losses left, and the black tick marks his net xLift. Wiggins is an all-rounder. Gillespie wins assists, steals and threes, but gives back field-goal % and turnovers. These numbers change daily with stats and rosters.</figcaption>
+  </figure>
+
+  <div class="text">
+    <h3>In an each-category league, xLift is the standings</h3>
+    <p>Our league scores every category as its own W, L or T, and a tie counts as half a win. So expected category wins aren't a stand-in for something else. They are exactly what the standings count, and xLift measures it directly.</p>
+  </div>
+
+  <h2 class="divider">dAB: how often he plays</h2>
+  <div class="text">
+    <p>A player only helps on nights he plays. <strong>dAB</strong> (Decay-weighted Availability Blend) is the app's estimate of <span class="mark">the share of upcoming games a player will actually play.</span> A dAB of 85% means he should suit up for about 85 of every 100 games his team plays.</p>
+    <p>Predicting that is harder than it sounds. Last week's absence might be a one-off. A player who missed most of two seasons might be fully healthy now. dAB weighs three kinds of evidence.</p>
+  </div>
+
+  <div class="two-col">
+    <div class="text">
+      <h3>1. The recent stretch</h3>
+      <p>His last 15 games played, divided by the team games that went by while he played them. If his team played 20 games while he played those 15, his recent rate is 15 &#xF7; 20 = 75%. This is the strongest signal: what is happening right now.</p>
+      <h3>2. The longer record</h3>
+      <p>The same rate over the last three seasons, with older seasons counting much less. This season counts in full, last season one twentieth as much, and the season before one four-hundredth. An old injury mostly fades. A season he missed entirely counts as missed games once he is back.</p>
+      <h3>3. The typical player</h3>
+      <p>Across the league, a rostered player plays about <strong>77%</strong> of his team's games. With little history (a rookie, a player back after years away), the long-run rate is pulled toward that 77%, so a few games can't make anyone look indestructible or made of glass.</p>
+    </div>
+    <figure>
+      <p class="fig-title">How much each season counts</p>
+      <p class="col-header">Weight of a game, by season &#xB7; drawn to scale</p>
+      <div class="chart"><svg id="decay" viewBox="0 0 420 150" role="img" aria-label="Season weights: this season 1, last season one twentieth, two seasons ago one four-hundredth"></svg></div>
+      <figcaption>A game this season counts 20 times as much as a game last season. That's why a long injury two years ago barely moves dAB.</figcaption>
+    </figure>
+  </div>
+
+  <div class="text">
+    <h3>The blend</h3>
+    <p>The three are mixed with fixed weights, found by testing which mix best predicted how often players actually played in the following games, over the 2022-23 to 2025-26 seasons:</p>
+  </div>
+  <p class="formula"><strong>dAB</strong> = 77% + <strong>59%</strong> &#xD7; (recent &#x2212; 77%) + <strong>14%</strong> &#xD7; (long-run &#x2212; 77%)</p>
+  <div class="text">
+    <p>Read it as: start from the typical player, then move toward what the player has shown. The recent stretch moves him four times as far as the long record. And because 59% + 14% is less than 100%, nobody gets all the way to his own rate. Every estimate keeps a quarter of its weight on the typical player, because availability is partly luck.</p>
+  </div>
+
+  <figure>
+    <p class="fig-title">Try it: build a dAB</p>
+    <p class="col-header">Example player</p>
+    <div class="controls">
+      <div class="control">
+        <label for="recent">Recent rate (last 15 games)</label>
+        <input id="recent" type="range" min="0" max="100" step="1" value="75">
+        <output id="recent-out" for="recent">75%</output>
+      </div>
+      <div class="control">
+        <label for="longrun">Long-run rate (3 seasons)</label>
+        <input id="longrun" type="range" min="0" max="100" step="1" value="60">
+        <output id="longrun-out" for="longrun">60%</output>
+      </div>
+      <div class="control">
+        <label for="tag">Current injury tag</label>
+        <select id="tag">
+          <option value="1">Healthy</option>
+          <option value="0.9">Q / GTD / DTD (&#xD7; 0.9)</option>
+          <option value="0.7">SUSP (&#xD7; 0.7)</option>
+          <option value="0.6">O (&#xD7; 0.6)</option>
+          <option value="0.3">IL (&#xD7; 0.3)</option>
+          <option value="0">NA (&#xD7; 0)</option>
+        </select>
+      </div>
+      <div class="readout">
+        <div><div class="col-header">dAB &#xD7; tag</div><div class="big" id="dab-out">73%</div></div>
+      </div>
+    </div>
+    <div class="chart"><svg id="dab-bar" viewBox="0 0 760 120" role="img" aria-label="How the typical rate, recent pull and long-run pull add up to dAB"></svg></div>
+    <figcaption id="dab-caption">Start at the typical 77%, move by the recent stretch, then by the long record, then apply the tag.</figcaption>
+  </figure>
+
+  <div class="text">
+    <h3>Injury tags</h3>
+    <p>The default, <strong>dAB &#xD7; tag</strong>, also scales dAB by the player's current injury tag: IL &#xD7; 0.3, Out &#xD7; 0.6, Questionable or Day-to-Day &#xD7; 0.9, Suspended &#xD7; 0.7, and NA &#xD7; 0. These multipliers are judgment calls, not fitted, because there's no history of tags to test them against. You can switch the setting to plain dAB, to the last 15 games, or to no penalty at all.</p>
+  </div>
+
+  <h2 class="divider">How they fit together</h2>
+  <div class="text">
+    <p>dAB feeds straight into xLift: it scales the typical week in step 1. Here are two players with the same per-game averages, one durable and one often hurt:</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th class="col-header">Example</th><th class="col-header num">dAB</th><th class="col-header num">Games / wk</th><th class="col-header num">PTS / wk</th><th class="col-header num">REB / wk</th><th class="col-header num">AST / wk</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="name">Durable</td><td class="num">95%</td><td class="num">2.9</td><td class="num">51.3</td><td class="num">17.1</td><td class="num">11.4</td></tr>
+        <tr><td class="name">Often hurt</td><td class="num">60%</td><td class="num">1.8</td><td class="num">32.4</td><td class="num">10.8</td><td class="num">7.2</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="text">
+    <p style="margin-top: 1rem">Both average 18 points, 6 rebounds and 4 assists a game. The often-hurt player brings about a third less to a typical week, so his xLift is lower too. How much lower depends on where those missing games leave your team on the S-curve in each category.</p>
+    <p>That's the whole system: dAB says how much of a player you'll get, and xLift says what that much of him is worth to your team, one category and one opponent at a time.</p>
+  </div>
+
+  <h2 class="divider">In short</h2>
+  <div class="text">
+    <ul>
+      <li><strong>xLift</strong> is the extra category wins per week a player brings, against every team in the league, if he replaces your weakest starter.</li>
+      <li>It is biggest where you are close to other teams in a category, and near zero where you are far ahead or far behind.</li>
+      <li><strong>dAB</strong> is the share of upcoming games he'll play: mostly his recent stretch, a little of his last three seasons, and always some of the typical player's 77%.</li>
+      <li>dAB scales a player's typical week before xLift is worked out, so availability is priced into every xLift you see.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(() => {
+  // The nav links into the app, so show it only where the app serves this page.
+  if (/\/how-it-works\.html$/.test(location.pathname)) {
+    document.getElementById("tool-nav").hidden = false;
+    document.querySelector(".kicker").hidden = true; // the nav already names the page
+  }
+
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs = {}, text) => {
+    const n = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    if (text !== undefined) n.textContent = text;
+    return n;
+  };
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  // Standard normal CDF (Abramowitz\u2013Stegun 7.1.26), as the app computes it.
+  const phi = (x) => {
+    const z = Math.abs(x) / Math.SQRT2, t = 1 / (1 + 0.3275911 * z);
+    const poly = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))));
+    const erf = 1 - poly * Math.exp(-z * z);
+    return 0.5 * (1 + Math.sign(x) * erf);
+  };
+  const pdf = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
+  const pct = (p) => `${Math.round(p * 100)}%`;
+  const signedPct = (p) => (p >= 0 ? "+" : "\u2212") + Math.abs(Math.round(p * 100)) + "%";
+
+  /* --- Figure 1: rebounds, you vs. one opponent (example numbers) --------------------------- */
+  const THEM = 160, SD = 14, ADD = 12;          // one team's weekly SD; difference SD = SD\u00B7\u221A2
+  const S = SD * Math.SQRT2;
+  const X0 = 100, X1 = 220;
+  const W = 520, H = 210, L = 30, R = 12, T = 12, B = 30;
+  const sx = (x) => L + ((x - X0) / (X1 - X0)) * (W - L - R);
+  const curves = document.getElementById("curves");
+  const scurve = document.getElementById("scurve");
+
+  function axis(svg, ticks, label) {
+    svg.append(el("line", { x1: L, x2: W - R, y1: H - B, y2: H - B, stroke: css("--rule") }));
+    for (const t of ticks) svg.append(el("text", { x: sx(t), y: H - B + 14, "text-anchor": "middle", class: "muted" }, t));
+    svg.append(el("text", { x: W - R, y: H - 3, "text-anchor": "end", class: "muted" }, label));
+  }
+
+  function drawFigure1(you) {
+    curves.replaceChildren();
+    scurve.replaceChildren();
+    // Left: two bell curves, filled only, with solid average lines.
+    const ys = (y, max) => H - B - (y / max) * (H - B - T - 14);
+    const peak = pdf(0, 0, SD);
+    for (const [m, fill, stroke] of [[THEM, css("--opp-light"), css("--opp")], [you, css("--sel-light"), css("--sel")]]) {
+      let d = "";
+      for (let x = X0; x <= X1; x += 1) d += `${x === X0 ? "M" : "L"}${sx(x).toFixed(1)},${ys(pdf(x, m, SD), peak).toFixed(1)}`;
+      d += `L${sx(X1)},${H - B}L${sx(X0)},${H - B}Z`;
+      curves.append(el("path", { d, fill, "fill-opacity": 0.75 }));
+      curves.append(el("line", { x1: sx(m), x2: sx(m), y1: H - B, y2: T + 12, stroke, "stroke-width": 1.5 }));
+    }
+    curves.append(el("text", { x: sx(you), y: T + 8, "text-anchor": you < THEM ? "end" : "start", dx: you < THEM ? -3 : 3, style: "font-weight:700" }, `You ${you}`));
+    curves.append(el("text", { x: sx(THEM), y: T + 8, "text-anchor": you < THEM ? "start" : "end", dx: you < THEM ? 3 : -3, style: "font-weight:700" }, `Opp ${THEM}`));
+    axis(curves, [120, 160, 200], "rebounds / week");
+
+    // Right: chance to win vs. your total, with your point and the +12 step.
+    const yp = (p) => H - B - p * (H - B - T);
+    let d = "";
+    for (let x = X0; x <= X1; x += 1) d += `${x === X0 ? "M" : "L"}${sx(x).toFixed(1)},${yp(phi((x - THEM) / S)).toFixed(1)}`;
+    for (const p of [0, 0.5, 1]) scurve.append(el("text", { x: L - 4, y: yp(p) + 4, "text-anchor": "end", class: "muted" }, pct(p)));
+    scurve.append(el("line", { x1: L, x2: W - R, y1: yp(0.5), y2: yp(0.5), stroke: css("--hover") }));
+    scurve.append(el("path", { d, fill: "none", stroke: css("--ink"), "stroke-width": 1.5 }));
+    const p0 = phi((you - THEM) / S), p1 = phi((you + ADD - THEM) / S);
+    scurve.append(el("line", { x1: sx(you), x2: sx(Math.min(you + ADD, X1)), y1: yp(p0), y2: yp(p0), stroke: css("--sel"), "stroke-dasharray": "2,3" }));
+    scurve.append(el("line", { x1: sx(Math.min(you + ADD, X1)), x2: sx(Math.min(you + ADD, X1)), y1: yp(p0), y2: yp(p1), stroke: css("--better"), "stroke-width": 3 }));
+    scurve.append(el("circle", { cx: sx(you), cy: yp(p0), r: 5, fill: css("--sel") }));
+    axis(scurve, [120, 160, 200], "your rebounds / week");
+
+    document.getElementById("you-reb-out").textContent = you;
+    document.getElementById("win-chance").textContent = pct(p0);
+    const add = document.getElementById("add-chance");
+    add.textContent = signedPct(p1 - p0);
+  }
+  const youInput = document.getElementById("you-reb");
+  youInput.addEventListener("input", () => drawFigure1(+youInput.value));
+  drawFigure1(+youInput.value);
+
+  /* --- Figure 2: leaderboard snapshot (real, league view, Oct 29 2026) ---------------------- */
+  const CATS = ["PTS", "REB", "AST", "STL", "BLK", "3PM", "FG%", "FT%", "TO"];
+  const COLORS = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6"];
+  const ROWS = [
+    // [name, NBA team, net xLift, per-category values], from the app's leaderboard.
+    ["Andrew Wiggins", "MIA", 6.37, [1.47, 1.22, 0.86, 0.88, 1.48, 1.11, 0.05, -0.1, -0.58]],
+    ["Collin Gillespie", "PHX", 6.07, [0.93, 0.9, 2.72, 1.99, -0.23, 1.91, -0.78, -0.19, -1.17]],
+    ["Cam Spencer", "MEM", 5.54, [0.61, 0.45, 2.92, 0.63, -0.26, 1.22, 0.2, 0.19, -0.43]],
+    ["Bilal Coulibaly", "WAS", 5.36, [0.92, 1.09, 0.44, 1.74, 1.45, 0.19, 0.07, -0.22, -0.32]],
+    ["Ja'Kobe Walter", "TOR", 5.21, [0.63, 0.65, 0.36, 1.71, 0.12, 1.35, 0.08, -0.21, 0.51]],
+    ["Jordan Goodwin", "PHX", 4.85, [0.37, 1.37, 0.72, 2.0, -0.19, 1.02, -0.3, -0.15, 0.02]],
+  ];
+  const legend = document.getElementById("cat-legend");
+  CATS.forEach((c, i) => {
+    const s = document.createElement("span");
+    s.innerHTML = `<i class="swatch" style="background:${COLORS[i]}"></i>${c}`;
+    legend.append(s);
+  });
+  const lb = document.getElementById("leaderboard");
+  const LW = 760, NAME = 230, RW = 14, ROW = 34, TOP = 30;
+  const MIN = -3, MAX = 11;
+  const bx = (v) => NAME + ((v - MIN) / (MAX - MIN)) * (LW - NAME - RW);
+  for (const t of [-2, 0, 2, 4, 6, 8, 10]) {
+    lb.append(el("text", { x: bx(t), y: 14, "text-anchor": "middle", class: "muted" }, (t > 0 ? "+" : t < 0 ? "\u2212" : "") + Math.abs(t)));
+  }
+  lb.append(el("text", { x: LW - RW, y: 26, "text-anchor": "end", class: "muted" }, "category wins / week"));
+  ROWS.forEach(([name, team, net, vals], r) => {
+    const y = TOP + r * ROW + 8;
+    lb.append(el("text", { x: 0, y: y + 13, style: "font-weight:700" }, name));
+    lb.append(el("text", { x: 130, y: y + 13, class: "muted" }, team));
+    lb.append(el("text", { x: NAME - 8, y: y + 13, "text-anchor": "end", style: "font-weight:700" }, (net >= 0 ? "+" : "\u2212") + Math.abs(net).toFixed(2)));
+    let pos = 0, neg = 0;
+    vals.forEach((v, i) => {
+      const from = v >= 0 ? pos : neg + v;
+      if (v >= 0) pos += v; else neg += v;
+      const rect = el("rect", { x: bx(from), y, width: Math.max(bx(from + Math.abs(v)) - bx(from), 0), height: 18, fill: COLORS[i] });
+      rect.append(el("title", {}, `${name} \u00B7 ${CATS[i]} \u00B7 ${(v >= 0 ? "+" : "\u2212") + Math.abs(v).toFixed(2)}`));
+      lb.append(rect);
+    });
+    lb.append(el("line", { x1: bx(net), x2: bx(net), y1: y - 3, y2: y + 21, stroke: css("--paper"), "stroke-width": 4 }));
+    const tick = el("line", { x1: bx(net), x2: bx(net), y1: y - 3, y2: y + 21, stroke: css("--ink"), "stroke-width": 2 });
+    tick.append(el("title", {}, `${name} \u00B7 xLift ${(net >= 0 ? "+" : "\u2212") + Math.abs(net).toFixed(2)}`));
+    lb.append(tick);
+  });
+  lb.append(el("line", { x1: bx(0), x2: bx(0), y1: TOP, y2: TOP + ROWS.length * ROW, stroke: css("--rule") }));
+
+  /* --- Figure 3: season weights, drawn to scale ---------------------------------------------- */
+  const decay = document.getElementById("decay");
+  const weights = [["This season", 1, "1"], ["Last season", 0.05, "1/20"], ["Two seasons ago", 0.0025, "1/400"]];
+  weights.forEach(([label, w, frac], i) => {
+    const y = 18 + i * 42;
+    decay.append(el("text", { x: 0, y: y + 13 }, label));
+    decay.append(el("rect", { x: 120, y, width: Math.max(w * 260, 1), height: 18, fill: i === 0 ? css("--sel") : css("--sel-light") }));
+    decay.append(el("text", { x: 120 + Math.max(w * 260, 1) + 6, y: y + 13, style: "font-weight:700" }, frac));
+  });
+
+  /* --- Figure 4: dAB calculator ---------------------------------------------------------------- */
+  const ABAR = 0.770113, B1 = 0.586418, B2 = 0.144796;
+  const recent = document.getElementById("recent"), longrun = document.getElementById("longrun"), tag = document.getElementById("tag");
+  const bar = document.getElementById("dab-bar");
+  const DX = (p) => 20 + p * 720;   // 0\u2013100% across the bar
+  function drawDab() {
+    const r = +recent.value / 100, l = +longrun.value / 100, m = +tag.value;
+    const pullR = B1 * (r - ABAR), pullL = B2 * (l - ABAR);
+    const dab = Math.min(Math.max(ABAR + pullR + pullL, 0), 1);
+    const final = dab * m;
+    document.getElementById("recent-out").textContent = pct(r);
+    document.getElementById("longrun-out").textContent = pct(l);
+    document.getElementById("dab-out").textContent = pct(final);
+    bar.replaceChildren();
+    // Scale 0\u2013100%.
+    bar.append(el("line", { x1: DX(0), x2: DX(1), y1: 96, y2: 96, stroke: css("--rule") }));
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) bar.append(el("text", { x: DX(t), y: 112, "text-anchor": "middle", class: "muted" }, pct(t)));
+    // Steps: typical \u2192 + recent pull \u2192 + long-run pull \u2192 \u00D7 tag.
+    const steps = [
+      ["Typical", 0, ABAR, css("--league")],
+      ["Recent", ABAR, ABAR + pullR, pullR >= 0 ? css("--better") : css("--worse")],
+      ["Long run", ABAR + pullR, ABAR + pullR + pullL, pullL >= 0 ? css("--better") : css("--worse")],
+    ];
+    steps.forEach(([label, a, b, color], i) => {
+      const y = 8 + i * 22;
+      const x0 = DX(Math.min(a, b)), x1 = DX(Math.max(a, b));
+      bar.append(el("rect", { x: x0, y, width: Math.max(x1 - x0, 1.5), height: 14, fill: color }));
+      const txt = i === 0 ? `Typical player ${pct(ABAR)}` : `${label} ${b - a >= 0 ? "+" : "\u2212"}${Math.abs((b - a) * 100).toFixed(1)} pts`;
+      const right = x1 + 6 < DX(0.82);
+      bar.append(el("text", { x: right ? x1 + 6 : x0 - 6, y: y + 11, "text-anchor": right ? "start" : "end" }, txt));
+    });
+    // The result, after the tag.
+    bar.append(el("line", { x1: DX(dab), x2: DX(dab), y1: 4, y2: 92, stroke: css("--ink"), "stroke-dasharray": "2,3" }));
+    bar.append(el("rect", { x: DX(final) - 3, y: 82, width: 6, height: 14, fill: css("--ink") }));
+    document.getElementById("dab-caption").textContent =
+      `77% + 59% \u00D7 (${pct(r)} \u2212 77%) + 14% \u00D7 (${pct(l)} \u2212 77%) = ${pct(dab)}` +
+      (m < 1 ? `, then \u00D7 ${m} for the tag = ${pct(final)}.` : ". No tag, so dAB \u00D7 tag is the same.");
+  }
+  [recent, longrun, tag].forEach((n) => n.addEventListener("input", drawDab));
+  drawDab();
+})();
+</script>
