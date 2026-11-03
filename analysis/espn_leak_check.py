@@ -1,7 +1,7 @@
 """Was ESPN's served 2025-26 projection set revised with the season's results? (ccsv-rumble #33)
 
 A set that had seen the results would sit close to the actual averages, would know who got hurt,
-and would track a player's late games at least as well as his early ones. Run from analysis/:
+and would track a player's late games at least as well as their early ones. Run from analysis/:
 
     uv run python espn_leak_check.py output/espn_2026.json output/espn_2025.json
 

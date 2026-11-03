@@ -136,7 +136,7 @@ def window(cutoff: date, horizon: str) -> tuple[date, date] | None:
 
 
 def missed_last_week(played: np.ndarray, club: np.ndarray, cutoff: str, week_ago: str) -> bool:
-    """Did the player miss every game (at least two) his club played in the past 7 days?"""
+    """Did the player miss every game (at least two) their club played in the past 7 days?"""
     games = club[(club >= week_ago) & (club < cutoff)]
     return len(games) >= 2 and not np.isin(games, played).any()
 
@@ -269,7 +269,7 @@ def load_logs(conn) -> Logs:
 
 
 def club_on(logs: Logs, pid: int, cut: str) -> int | None:
-    """The player's club at the cutoff: his last game's, else his first after it."""
+    """The club of the player's last game before the cutoff, else of the first after it."""
     d, t = logs.dates[pid], logs.teams[pid]
     k = int(np.searchsorted(d, cut))
     if k:
