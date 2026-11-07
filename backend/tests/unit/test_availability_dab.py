@@ -54,6 +54,30 @@ def test_blend_formula():
     long = (lp + av.KAPPA * av.ABAR) / (lt + av.KAPPA)
     want = av.ABAR + av.B1 * (win - av.ABAR) + av.B2 * (long - av.ABAR)
     assert av.dab(c) == pytest.approx(want)
+    assert av.dab(c, 0.25) == pytest.approx(want + av.B3 * (0.25 - av.ABAR))
+
+
+def test_recent_rate_weights_the_latest_games_most():
+    team = days("2025-10-20", 30)
+    # Played all but the last two team games: out right now.
+    out_now = av.recent_rate(team[:-2], team, "2026-04-01")
+    w = 0.5 ** (np.arange(av.RECENT_GAMES) / av.HALF_LIFE)
+    assert out_now == pytest.approx(w[2:].sum() / w.sum())
+    # Missed two games long ago instead: back to nearly 1.
+    old_miss = av.recent_rate(np.delete(team, [12, 13]), team, "2026-04-01")
+    assert old_miss > 0.99 > out_now
+    # Only games before the cutoff count, and only team games.
+    assert av.recent_rate(team, team, team[0]) is None
+    assert av.recent_rate(team, team[:5], "2026-04-01") == 1.0
+
+
+def test_out_now_lowers_dab():
+    team = days("2025-10-20", 40)
+    healthy, hurt = team, team[:-4]
+    cut = "2026-04-01"
+    a = av.dab(av.age_counts(healthy, team, [], STARTS, cut), av.recent_rate(healthy, team, cut))
+    b = av.dab(av.age_counts(hurt, team, [], STARTS, cut), av.recent_rate(hurt, team, cut))
+    assert a - b > 0.3
 
 
 def test_clipped_to_unit_interval():

@@ -191,17 +191,19 @@ tr.yours td { background: var(--yours); }
   <h2 class="divider">dAB: how often he plays</h2>
   <div class="text">
     <p>A player only helps on nights he plays. <strong>dAB</strong> (Decay-weighted Availability Blend) is the app's estimate of <span class="mark">the share of upcoming games a player will actually play.</span> A dAB of 85% means he should suit up for about 85 of every 100 games his team plays.</p>
-    <p>Predicting that is harder than it sounds. Last week's absence might be a one-off. A player who missed most of two seasons might be fully healthy now. dAB weighs three kinds of evidence.</p>
+    <p>Predicting that is harder than it sounds. Last week's absence might be a one-off. A player who missed most of two seasons might be fully healthy now. dAB weighs four kinds of evidence.</p>
   </div>
 
   <div class="two-col">
     <div class="text">
-      <h3>1. The recent stretch</h3>
-      <p>His last 15 games played, divided by the team games that went by while he played them. If his team played 20 games while he played those 15, his recent rate is 15 &#xF7; 20 = 75%. This is the strongest signal: what is happening right now.</p>
-      <h3>2. The longer record</h3>
+      <h3>1. Right now</h3>
+      <p>Did he play his team's last few games? The latest game counts in full, the one before half as much, the one before that a quarter, and so on back 20 games. A player who missed the last two games scores about 25% here, even if he never missed a game before that. This is the strongest signal: a player who is out tends to stay out next week.</p>
+      <h3>2. The recent stretch</h3>
+      <p>His last 15 games played, divided by the team games that went by while he played them. If his team played 20 games while he played those 15, his recent rate is 15 &#xF7; 20 = 75%. Once "right now" is known, this adds little.</p>
+      <h3>3. The longer record</h3>
       <p>The same rate over the last three seasons, with older seasons counting much less. This season counts in full, last season one twentieth as much, and the season before one four-hundredth. An old injury mostly fades. A season he missed entirely counts as missed games once he is back.</p>
-      <h3>3. The typical player</h3>
-      <p>Across the league, a rostered player plays about <strong>77%</strong> of his team's games. With little history (a rookie, a player back after years away), the long-run rate is pulled toward that 77%, so a few games can't make anyone look indestructible or made of glass.</p>
+      <h3>4. The typical player</h3>
+      <p>Across the league, a rotation player plays about <strong>72%</strong> of his team's games. With little history (a rookie, a player back after years away), the long-run rate is pulled toward the typical player, so a few games can't make anyone look indestructible or made of glass.</p>
     </div>
     <figure>
       <p class="fig-title">How much each season counts</p>
@@ -213,17 +215,27 @@ tr.yours td { background: var(--yours); }
 
   <div class="text">
     <h3>The blend</h3>
-    <p>The three are mixed with fixed weights, found by testing which mix best predicted how often players actually played in the following games, over the 2022-23 to 2025-26 seasons:</p>
+    <p>They are mixed with fixed weights, found by testing which mix best predicted how often players actually played in their next 15 team games, every Monday of the 2023-24 to 2025-26 seasons:</p>
   </div>
-  <p class="formula"><strong>dAB</strong> = 77% + <strong>59%</strong> &#xD7; (recent &#x2212; 77%) + <strong>14%</strong> &#xD7; (long-run &#x2212; 77%)</p>
+  <p class="formula"><strong>dAB</strong> = 72% + <strong>43%</strong> &#xD7; (right now &#x2212; 72%) + <strong>4%</strong> &#xD7; (recent &#x2212; 72%) + <strong>24%</strong> &#xD7; (long-run &#x2212; 72%)</p>
   <div class="text">
-    <p>Read it as: start from the typical player, then move toward what the player has shown. The recent stretch moves him four times as far as the long record. And because 59% + 14% is less than 100%, nobody gets all the way to his own rate. Every estimate keeps a quarter of its weight on the typical player, because availability is partly luck.</p>
+    <p>Read it as: start from the typical player, then move toward what the player has shown. Whether he is playing right now moves him most, and the long record about half as far. And because the weights add up to well under 100%, nobody gets all the way to his own rate, because availability is partly luck. Adding "right now" cut dAB's error by about a fifth, and by more for players who sat out the week before.</p>
   </div>
 
   <figure>
     <p class="fig-title">Try it: build a dAB</p>
     <p class="col-header">Example player</p>
     <div class="controls">
+      <div class="control">
+        <label for="now">Right now</label>
+        <select id="now">
+          <option value="0">Played his last games</option>
+          <option value="1">Missed the last game</option>
+          <option value="2">Missed the last 2</option>
+          <option value="4">Missed the last 4</option>
+          <option value="20">Out for weeks</option>
+        </select>
+      </div>
       <div class="control">
         <label for="recent">Recent rate (last 15 games)</label>
         <input id="recent" type="range" min="0" max="100" step="1" value="75">
@@ -246,11 +258,11 @@ tr.yours td { background: var(--yours); }
         </select>
       </div>
       <div class="readout">
-        <div><div class="col-header">dAB &#xD7; tag</div><div class="big" id="dab-out">73%</div></div>
+        <div><div class="col-header">dAB &#xD7; tag</div><div class="big" id="dab-out">81%</div></div>
       </div>
     </div>
-    <div class="chart"><svg id="dab-bar" viewBox="0 0 760 120" role="img" aria-label="How the typical rate, recent pull and long-run pull add up to dAB"></svg></div>
-    <figcaption id="dab-caption">Start at the typical 77%, move by the recent stretch, then by the long record, then apply the tag.</figcaption>
+    <div class="chart"><svg id="dab-bar" viewBox="0 0 760 142" role="img" aria-label="How the typical rate and the right-now, recent and long-run pulls add up to dAB"></svg></div>
+    <figcaption id="dab-caption">Start at the typical 72%, move by right now, the recent stretch and the long record, then apply the tag.</figcaption>
   </figure>
 
   <div class="text">
@@ -283,7 +295,7 @@ tr.yours td { background: var(--yours); }
     <ul>
       <li><strong>xLift</strong> is the extra category wins per week a player brings, against every team in the league, if he replaces your weakest starter.</li>
       <li>It is biggest where you are close to other teams in a category, and near zero where you are far ahead or far behind.</li>
-      <li><strong>dAB</strong> is the share of upcoming games he'll play: mostly his recent stretch, a little of his last three seasons, and always some of the typical player's 77%.</li>
+      <li><strong>dAB</strong> is the share of upcoming games he'll play: whether he is playing right now, some of his last three seasons, and always some of the typical player's 72%. Above all it asks whether he is playing right now.</li>
       <li>dAB scales a player's typical week before xLift is worked out, so availability is priced into every xLift you see.</li>
     </ul>
   </div>
@@ -427,27 +439,32 @@ tr.yours td { background: var(--yours); }
   });
 
   /* --- Figure 4: dAB calculator ---------------------------------------------------------------- */
-  const ABAR = 0.770113, B1 = 0.586418, B2 = 0.144796;
+  const ABAR = 0.716, B1 = 0.0377, B2 = 0.2356, B3 = 0.4271;
   const recent = document.getElementById("recent"), longrun = document.getElementById("longrun"), tag = document.getElementById("tag");
+  const now = document.getElementById("now");
+  // Right now: the last 20 team games, game j back weighted 0.5^j, the last k of them missed.
+  const nowRate = (k) => { let a = 0, b = 0; for (let j = 0; j < 20; j++) { const w = 0.5 ** j; b += w; if (j >= k) a += w; } return a / b; };
   const bar = document.getElementById("dab-bar");
   const DX = (p) => 20 + p * 720;   // 0\u2013100% across the bar
   function drawDab() {
     const r = +recent.value / 100, l = +longrun.value / 100, m = +tag.value;
-    const pullR = B1 * (r - ABAR), pullL = B2 * (l - ABAR);
-    const dab = Math.min(Math.max(ABAR + pullR + pullL, 0), 1);
+    const n = nowRate(+now.value);
+    const pullN = B3 * (n - ABAR), pullR = B1 * (r - ABAR), pullL = B2 * (l - ABAR);
+    const dab = Math.min(Math.max(ABAR + pullN + pullR + pullL, 0), 1);
     const final = dab * m;
     document.getElementById("recent-out").textContent = pct(r);
     document.getElementById("longrun-out").textContent = pct(l);
     document.getElementById("dab-out").textContent = pct(final);
     bar.replaceChildren();
     // Scale 0\u2013100%.
-    bar.append(el("line", { x1: DX(0), x2: DX(1), y1: 96, y2: 96, stroke: css("--rule") }));
-    for (const t of [0, 0.25, 0.5, 0.75, 1]) bar.append(el("text", { x: DX(t), y: 112, "text-anchor": "middle", class: "muted" }, pct(t)));
+    bar.append(el("line", { x1: DX(0), x2: DX(1), y1: 118, y2: 118, stroke: css("--rule") }));
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) bar.append(el("text", { x: DX(t), y: 134, "text-anchor": "middle", class: "muted" }, pct(t)));
     // Steps: typical \u2192 + recent pull \u2192 + long-run pull \u2192 \u00D7 tag.
     const steps = [
       ["Typical", 0, ABAR, css("--league")],
-      ["Recent", ABAR, ABAR + pullR, pullR >= 0 ? css("--better") : css("--worse")],
-      ["Long run", ABAR + pullR, ABAR + pullR + pullL, pullL >= 0 ? css("--better") : css("--worse")],
+      ["Right now", ABAR, ABAR + pullN, pullN >= 0 ? css("--better") : css("--worse")],
+      ["Recent", ABAR + pullN, ABAR + pullN + pullR, pullR >= 0 ? css("--better") : css("--worse")],
+      ["Long run", ABAR + pullN + pullR, ABAR + pullN + pullR + pullL, pullL >= 0 ? css("--better") : css("--worse")],
     ];
     steps.forEach(([label, a, b, color], i) => {
       const y = 8 + i * 22;
@@ -458,13 +475,13 @@ tr.yours td { background: var(--yours); }
       bar.append(el("text", { x: right ? x1 + 6 : x0 - 6, y: y + 11, "text-anchor": right ? "start" : "end" }, txt));
     });
     // The result, after the tag.
-    bar.append(el("line", { x1: DX(dab), x2: DX(dab), y1: 4, y2: 92, stroke: css("--ink"), "stroke-dasharray": "2,3" }));
-    bar.append(el("rect", { x: DX(final) - 3, y: 82, width: 6, height: 14, fill: css("--ink") }));
+    bar.append(el("line", { x1: DX(dab), x2: DX(dab), y1: 4, y2: 114, stroke: css("--ink"), "stroke-dasharray": "2,3" }));
+    bar.append(el("rect", { x: DX(final) - 3, y: 104, width: 6, height: 14, fill: css("--ink") }));
     document.getElementById("dab-caption").textContent =
-      `77% + 59% \u00D7 (${pct(r)} \u2212 77%) + 14% \u00D7 (${pct(l)} \u2212 77%) = ${pct(dab)}` +
+      `72% + 43% \u00D7 (${pct(n)} \u2212 72%) + 4% \u00D7 (${pct(r)} \u2212 72%) + 24% \u00D7 (${pct(l)} \u2212 72%) = ${pct(dab)}` +
       (m < 1 ? `, then \u00D7 ${m} for the tag = ${pct(final)}.` : ". No tag, so dAB \u00D7 tag is the same.");
   }
-  [recent, longrun, tag].forEach((n) => n.addEventListener("input", drawDab));
+  [now, recent, longrun, tag].forEach((n) => n.addEventListener("input", drawDab));
   drawDab();
 })();
 </script>
