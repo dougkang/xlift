@@ -1,8 +1,7 @@
 """Synthetic check of the weekly dAB backtest: a player who sat out last week is caught."""
 
-import numpy as np
-
 import availability as av
+import numpy as np
 import weekly_availability as wa
 
 

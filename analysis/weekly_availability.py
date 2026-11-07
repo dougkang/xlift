@@ -36,9 +36,8 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
 
-import numpy as np
-
 import availability as av
+import numpy as np
 
 # dAB's shipped constants (backend/src/ffmodel/core/model/availability.py).
 SHIPPED = {"abar": 0.770113, "delta": 0.05, "kappa": 5, "kappa_w": 0, "b1": 0.586418, "b2": 0.144796}

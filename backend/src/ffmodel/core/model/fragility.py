@@ -46,17 +46,11 @@ def dab_values(conn, player_ids, as_of: date) -> dict[int, float]:
     """dAB for each player at `as_of` (007 research R3)."""
     hist = get_availability_history(conn, player_ids, as_of)
     starts, cut = hist.season_starts, av.cut_after(as_of)
-    return {
-        pid: av.dab(
-            av.age_counts(
-                hist.played.get(pid),
-                hist.team_games.get(pid),
-                hist.missed.get(pid, []),
-                starts,
-                cut,
-            )
-            if len(starts)
-            else None
-        )
-        for pid in player_ids
-    }
+    if not len(starts):
+        return {pid: av.dab(None) for pid in player_ids}
+    out = {}
+    for pid in player_ids:
+        played, team = hist.played.get(pid), hist.team_games.get(pid)
+        counts = av.age_counts(played, team, hist.missed.get(pid, []), starts, cut)
+        out[pid] = av.dab(counts, av.recent_rate(played, team, cut))
+    return out

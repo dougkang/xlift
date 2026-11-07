@@ -2,22 +2,31 @@
 
 DB-free port of the availability report's model, with its backtested constants fixed (FR-015,
 FR-017). Every game, played or missed, is weighted δ^age, where age is how many seasons before
-the cutoff's season it was played. A blend of the recent window and a three-season rate, each
-shrunk toward the league rate ā:
+the cutoff's season it was played. A blend of the recent window, a three-season rate and a
+recency-weighted rate over the last team games, each relative to the league rate ā:
 
-    dAB = clip(ā + B1·(w̃ − ā) + B2·(l̃ − ā), 0, 1).
+    dAB = clip(ā + B1·(w̃ − ā) + B2·(l̃ − ā) + B3·(r − ā), 0, 1).
+
+r (the recent term) weighs the team game j games back 0.5^(j / HALF_LIFE), over the last
+RECENT_GAMES team games; it's what catches a player who is out right now. It was added after the
+weekly projection backtest found that missing last week is the strongest signal for the next
+(analysis/weekly_availability.py; docs/weekly-availability-backtest.md).
 
 Dates are ISO strings (`YYYY-MM-DD`), which order like dates.
 """
 
 import numpy as np
 
-# Backtested on 2022-23 through 2025-26 (the availability report).
-ABAR = 0.770113  # pool availability rate
+# δ, κ and κ_w: the availability report, 2022-23 through 2025-26. ā and the blend weights:
+# refit with the recent term to the next 15 team games, every Monday of 2023-24 through 2025-26
+# (the weekly availability backtest).
+ABAR = 0.716  # pool availability rate
 DELTA = 0.05  # weight per season of age
 KAPPA = 5  # long-run prior strength, in team games
 KAPPA_W = 0  # window prior strength
-B1, B2 = 0.586418, 0.144796  # blend weights: window, long run
+B1, B2, B3 = 0.0377, 0.2356, 0.4271  # blend weights: window, long run, recent
+HALF_LIFE = 1  # the recent term's half-life, in team games
+RECENT_GAMES = 20  # team games the recent term looks back
 WINDOW = 15  # window games played
 LOOKBACK_SEASONS = 3  # the long-run term's reach
 AGES = 6  # season ages 0..5; older games pool into age 5
@@ -90,14 +99,30 @@ def _shrunk(played: float, games: float, k: float) -> float:
     return (played + k * ABAR) / den if den > 0 else ABAR
 
 
-def dab(counts: np.ndarray | None) -> float:
-    """The blend from per-age counts; ā without evidence."""
+def recent_rate(played: np.ndarray, team_games: np.ndarray, cut: str) -> float | None:
+    """Recency-weighted share of the last RECENT_GAMES team games before `cut` that the player
+    played, the latest weighted 1, the one before 0.5^(1 / HALF_LIFE) and so on. None without
+    team games. Inferred missed seasons don't count: they're long before any recent game."""
+    t = np.asarray(team_games if team_games is not None else _EMPTY)
+    t = t[t < cut][-RECENT_GAMES:][::-1]
+    if not len(t):
+        return None
+    p = np.asarray(played if played is not None else _EMPTY)
+    w = 0.5 ** (np.arange(len(t)) / HALF_LIFE)
+    return float((np.isin(t, p) * w).sum() / w.sum())
+
+
+def dab(counts: np.ndarray | None, recent: float | None = None) -> float:
+    """The blend from per-age counts and the recent rate; ā without evidence. A missing term
+    adds nothing (it's taken as ā)."""
     if counts is None:
         return ABAR
     wp, wt, lp, lt = counts @ (DELTA ** np.arange(AGES))
     win = _shrunk(wp, wt, KAPPA_W)
     long = _shrunk(lp, lt, KAPPA)
-    return float(np.clip(ABAR + B1 * (win - ABAR) + B2 * (long - ABAR), 0, 1))
+    r = ABAR if recent is None else recent
+    blend = ABAR + B1 * (win - ABAR) + B2 * (long - ABAR) + B3 * (r - ABAR)
+    return float(np.clip(blend, 0, 1))
 
 
 def tag_multiplier(status: str | None) -> float:

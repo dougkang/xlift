@@ -29,7 +29,9 @@ the whole analysis: the strategic simulation's games and every xLift value.
 - **dAB × tag** (the default): dAB, scaled down for a current injury tag (IL 0.3, O 0.6,
   Q/GTD/DTD 0.9, SUSP 0.7, NA 0).
 - **dAB** (Decay-weighted Availability Blend): games played over games available, blending the
-  last 15 games with the last three seasons. Older seasons count far less (a twentieth per
+  last 15 games with the last three seasons and a "right now" rate over the last team games
+  (the latest counts most, each earlier one half as much), which catches a player who is out
+  at the moment. Older seasons count far less (a twentieth per
   season of age), so an old injury is mostly forgiven, and a whole missed season counts as
   missed games once the player is back. Both rates are pulled toward the league's typical rate
   when there is little evidence. Its parameters are fixed from a backtest and not shown.

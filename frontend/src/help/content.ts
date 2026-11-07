@@ -73,7 +73,7 @@ export const HELP: Record<TopicId, (ctx: HelpContext) => HelpTopic> = {
     title: "Analysis settings",
     controls: [
       ["Last X games", `the most games each projection draws on (now ${ctx.window}); recent games count more, and last season's count less. Small samples are pulled toward a typical player.`],
-      ["Fragility Penalty", "how often each player is expected to play. None: everyone outside an IL slot plays every game. Last 15: games played over the last 15. dAB: a multi-season estimate that forgives old absences. dAB × tag: dAB adjusted for current injury tags."],
+      ["Fragility Penalty", "how often each player is expected to play. None: everyone outside an IL slot plays every game. Last 15: games played over the last 15. dAB: a multi-season estimate that forgives old absences but leans hard on whether the player is playing right now. dAB × tag: dAB adjusted for current injury tags."],
       ["League / Team", "whose team you're analyzing; in tactical, its current opponent comes with it."],
       ["Reset", "undo every roster move."],
     ],
